@@ -8,14 +8,16 @@
 import PTFoundation
 import SwiftUI
 
-struct ScriptCollectionView: View {
+struct ScriptListView: View {
     let insideServer: PTServerManager.ServerDescriptor?
     init(withInServer server: PTServerManager.ServerDescriptor? = nil) {
         insideServer = server
     }
 
+    @State var presentCreate: Bool = false
     @StateObject var windowObserver = WindowObserver()
     @ObservedObject var agent = Agent.shared
+    
     
     @State var dataSource: [IterationElement] = []
 
@@ -35,56 +37,60 @@ struct ScriptCollectionView: View {
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect() // TODO:
 
     var body: some View {
-        VStack {
-            Group {
-                if dataSource.count < 1 {
-                    NavigationLink(destination: ScriptCreateView()) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 12)
-                                .foregroundColor(.lightGray)
-                            HStack {
-                                Image(systemName: "plus.viewfinder")
-                                Text(NSLocalizedString("Add Script", comment: "Add Script"))
+        ScrollView{
+            VStack {
+                Group {
+                    if dataSource.count < 1 {
+                        NavigationLink(destination: ScriptCreateView()) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .foregroundColor(.lightGray)
+                                HStack {
+                                    Image(systemName: "plus.viewfinder")
+                                    Text(NSLocalizedString("Add Script", comment: "Add Script"))
+                                }
                             }
                         }
-                    }
-                    .frame(height: 100)
-                } else {
-                    ForEach(dataSource) { element in
-                        Section(
-                            header: HStack{
-                                Text(element.section).bold()
-                                Spacer()
-                                NavigationLink(destination: ScriptCreateView(initData: .init(name: "", section: element.section, icon: "", code: ""))) {
-                                    Image(systemName: "plus.circle")
+                        .frame(height: 100)
+                    } else {
+                        ForEach(dataSource) { element in
+                            Section(
+                                header: HStack{
+                                    Text(element.section).bold()
+                                    Spacer()
+                                    NavigationLink(destination: ScriptCreateView(initData: .init(name: "", section: element.section, icon: "", code: ""))) {
+                                        Image(systemName: "plus.circle")
+                                    }
+                                    
                                 }
-                                
-                            }
-                        ) {
-                            LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 8)], spacing: 8) {
-                                ForEach(element.scripts, id: \.self) { script in
-                                    if insideServer != nil {
-                                        ScriptItemView(clip: script, useDoubleTap: false)
-                                            .onTapGesture {
-                                                execute(withClip: script)
-                                            }
-                                    } else {
-                                        NavigationLink(
-                                            destination: ScriptPreExecView(clip: script),
-                                            label: {
-                                                ScriptItemView(clip: script)
-                                            }
-                                        )
+                            ) {
+                                LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 8)], spacing: 8) {
+                                    ForEach(element.scripts, id: \.self) { script in
+                                        if insideServer != nil {
+                                            ScriptItemView(clip: script, useDoubleTap: false)
+                                                .onTapGesture {
+                                                    execute(withClip: script)
+                                                }
+                                        } else {
+                                            NavigationLink(
+                                                destination: ScriptPreExecView(clip: script),
+                                                label: {
+                                                    ScriptItemView(clip: script)
+                                                }
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            Spacer()
+                Spacer()
+            }
+            .padding()
         }
+        
         .onReceive(agent.$clipDataTokenPublisher) { _ in
             updateDataSource()
         }
@@ -96,6 +102,19 @@ struct ScriptCollectionView: View {
                 windowObserver?.window = window
             }
         )
+        .sheet(isPresented: $presentCreate){
+            NavigationView {
+                ScriptCreateView()
+            }
+        }
+        .navigationBarItems(trailing: Group {
+            Button(action: {
+                presentCreate.toggle()
+            }, label: {
+                Image(systemName: "plus")
+            })
+        })
+        .navigationTitle(NSLocalizedString("SIDEBAR_CODE_CLIP", comment: "Script"))
     }
 
     func updateDataSource() {
@@ -125,8 +144,8 @@ struct ScriptCollectionView: View {
     }
 }
 
-struct ScriptGridView_Previews: PreviewProvider {
+struct ScriptListView_Previews: PreviewProvider {
     static var previews: some View {
-        ScriptCollectionView().previewLayout(.fixed(width: 500, height: 800))
+        ScriptListView().previewLayout(.fixed(width: 500, height: 800))
     }
 }

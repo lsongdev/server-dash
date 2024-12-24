@@ -39,16 +39,11 @@
 		50AFA28C26567B7C0002CFCF /* SeparatedProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50AFA28A26567B7C0002CFCF /* SeparatedProgressView.swift */; };
 		50AFA28F26568FB40002CFCF /* DetailedCPU.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50AFA28D26568FB40002CFCF /* DetailedCPU.swift */; };
 		50B82763263F28F700989D51 /* GatheringDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502C26EA263BB521002BC94C /* GatheringDataView.swift */; };
-		50B82764263F28F700989D51 /* TabBarTerminalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502C26E1263A8BA3002BC94C /* TabBarTerminalView.swift */; };
-		50B82766263F28F700989D51 /* ServerDetailedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502C26D7263A860B002BC94C /* ServerDetailedView.swift */; };
 		50B82767263F28F700989D51 /* AppLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5084CB66262D077F0084FD29 /* AppLogView.swift */; };
 		50B82769263F28F700989D51 /* AddServerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50FF7777262D450A009EDC7D /* AddServerView.swift */; };
 		50B8276A263F28F700989D51 /* SearchBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D24B4A263BDC8100AAE5B3 /* SearchBarView.swift */; };
 		50B8276B263F28F700989D51 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50FF7771262D3E26009EDC7D /* DashboardView.swift */; };
 		50B8276C263F28F700989D51 /* UIWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50C4CE282639B9FC00595EAD /* UIWindow.swift */; };
-		50B8276E263F28F700989D51 /* TabBarScriptsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502C26DD263A8AB3002BC94C /* TabBarScriptsView.swift */; };
-		50B8276F263F28F700989D51 /* TabBarBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502C26DB263A8A1E002BC94C /* TabBarBoardView.swift */; };
-		50B82770263F28F700989D51 /* CodeClipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50C4CE2C2639C4E300595EAD /* CodeClipView.swift */; };
 		50B82771263F28F700989D51 /* UserDefault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502AD8E4262B2BCF007C3469 /* UserDefault.swift */; };
 		50B82774263F28F700989D51 /* DetailedServerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 501AA867263D4A49008C4EE8 /* DetailedServerView.swift */; };
 		50B82775263F28F700989D51 /* HostingWindowFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50C4CE262639B7BA00595EAD /* HostingWindowFinder.swift */; };
@@ -61,7 +56,6 @@
 		50B8277C263F28F700989D51 /* SideBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50951AE4262BEBDA00F060AB /* SideBarView.swift */; };
 		50B82780263F28F700989D51 /* ServerBlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50F7BEC0263D7D7300539EAF /* ServerBlockView.swift */; };
 		50B82781263F28F700989D51 /* ServerStatusBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50404392263DBF0500943C58 /* ServerStatusBlock.swift */; };
-		50B82782263F28F700989D51 /* TabBarSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502C26DF263A8B57002BC94C /* TabBarSettingsView.swift */; };
 		50B82783263F28F700989D51 /* BootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D4F915262ABD3C005946E0 /* BootView.swift */; };
 		50B82784263F28F700989D51 /* Color+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B14165526357C2300370FD6 /* Color+Extension.swift */; };
 		50B82787263F28F700989D51 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5010DD9A263A62F100CA4C34 /* SettingView.swift */; };
@@ -99,11 +93,6 @@
 		50181EF42641382D00AC535E /* AddServerViewInputElement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddServerViewInputElement.swift; sourceTree = "<group>"; };
 		501AA867263D4A49008C4EE8 /* DetailedServerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedServerView.swift; sourceTree = "<group>"; };
 		502AD8E4262B2BCF007C3469 /* UserDefault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefault.swift; sourceTree = "<group>"; };
-		502C26D7263A860B002BC94C /* ServerDetailedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerDetailedView.swift; sourceTree = "<group>"; };
-		502C26DB263A8A1E002BC94C /* TabBarBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarBoardView.swift; sourceTree = "<group>"; };
-		502C26DD263A8AB3002BC94C /* TabBarScriptsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarScriptsView.swift; sourceTree = "<group>"; };
-		502C26DF263A8B57002BC94C /* TabBarSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarSettingsView.swift; sourceTree = "<group>"; };
-		502C26E1263A8BA3002BC94C /* TabBarTerminalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarTerminalView.swift; sourceTree = "<group>"; };
 		502C26EA263BB521002BC94C /* GatheringDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GatheringDataView.swift; sourceTree = "<group>"; };
 		502C26EC263BBA28002BC94C /* Agent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Agent.swift; sourceTree = "<group>"; };
 		502C26EE263BC7DB002BC94C /* ProgressRingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressRingView.swift; sourceTree = "<group>"; };
@@ -145,7 +134,6 @@
 		50C35B5D2657348D005B63B1 /* InputElementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputElementView.swift; sourceTree = "<group>"; };
 		50C4CE262639B7BA00595EAD /* HostingWindowFinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostingWindowFinder.swift; sourceTree = "<group>"; };
 		50C4CE282639B9FC00595EAD /* UIWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIWindow.swift; sourceTree = "<group>"; };
-		50C4CE2C2639C4E300595EAD /* CodeClipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeClipView.swift; sourceTree = "<group>"; };
 		50D0AC92265FE2860073F4C3 /* PullToRefresh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PullToRefresh.swift; sourceTree = "<group>"; };
 		50D24B4A263BDC8100AAE5B3 /* SearchBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBarView.swift; sourceTree = "<group>"; };
 		50D4D6FF26410E5300D00BFD /* AddServerView+Validator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AddServerView+Validator.swift"; sourceTree = "<group>"; };
@@ -204,7 +192,6 @@
 			children = (
 				50D4F915262ABD3C005946E0 /* BootView.swift */,
 				97DF1F292A80AB8A003AEB47 /* MainView.swift */,
-				5084A156264E0653003BDB5C /* CodeEditView.swift */,
 				508C426F2652ABF9000B0D8C /* NoServerGuider.swift */,
 				50C35B5D2657348D005B63B1 /* InputElementView.swift */,
 				50AFA28A26567B7C0002CFCF /* SeparatedProgressView.swift */,
@@ -215,9 +202,11 @@
 				50689CF2266399EE00F2DA01 /* KeyView.swift */,
 				5084CB66262D077F0084FD29 /* AppLogView.swift */,
 				50FBD14F264116BE00A29628 /* DocumentPicker.swift */,
+				50FF7771262D3E26009EDC7D /* DashboardView.swift */,
+				50951AE4262BEBDA00F060AB /* SideBarView.swift */,
+				50951B8F262BEF3700F060AB /* TabbarView.swift */,
 				508C4267265289C5000B0D8C /* ServerBlock */,
-				50951AEC262BEBEC00F060AB /* Navigator */,
-				507DF16726609C7000829D77 /* Terminal */,
+				50551E152663D7DE0084FB5A /* Terminal */,
 				50E4CE1C2648AD270067D14F /* Scripts */,
 				507D0FB42653C3F90042B723 /* SettingView */,
 				50D4D6FE26410E3600D00BFD /* AddServer */,
@@ -241,29 +230,6 @@
 			path = Extension;
 			sourceTree = "<group>";
 		};
-		502C26D5263A8573002BC94C /* TabBar */ = {
-			isa = PBXGroup;
-			children = (
-				50951B8F262BEF3700F060AB /* TabbarView.swift */,
-				502C26DB263A8A1E002BC94C /* TabBarBoardView.swift */,
-				502C26DD263A8AB3002BC94C /* TabBarScriptsView.swift */,
-				502C26E1263A8BA3002BC94C /* TabBarTerminalView.swift */,
-				502C26DF263A8B57002BC94C /* TabBarSettingsView.swift */,
-			);
-			path = TabBar;
-			sourceTree = "<group>";
-		};
-		502C26D6263A8584002BC94C /* SideBar */ = {
-			isa = PBXGroup;
-			children = (
-				50951AE4262BEBDA00F060AB /* SideBarView.swift */,
-				50FF7771262D3E26009EDC7D /* DashboardView.swift */,
-				502C26D7263A860B002BC94C /* ServerDetailedView.swift */,
-				50C4CE2C2639C4E300595EAD /* CodeClipView.swift */,
-			);
-			path = SideBar;
-			sourceTree = "<group>";
-		};
 		502C26F0263BE9F5002BC94C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -278,7 +244,7 @@
 			path = ..;
 			sourceTree = "<group>";
 		};
-		50551E152663D7DE0084FB5A /* PersistTerminal */ = {
+		50551E152663D7DE0084FB5A /* Terminal */ = {
 			isa = PBXGroup;
 			children = (
 				507DF16826609C7D00829D77 /* TerminalLoader.swift */,
@@ -286,8 +252,10 @@
 				50551E162663D8650084FB5A /* PersistTerminalInstance.swift */,
 				50551E1F26645D0A0084FB5A /* PersistTerminalInstanceView.swift */,
 				50551E192663EB4A0084FB5A /* PersistTerminalView.swift */,
+				508C42722652C7A1000B0D8C /* AssociatedTerminalView.swift */,
+				503E3F96266285130074FA48 /* TermialViewWrapper.swift */,
 			);
-			path = PersistTerminal;
+			path = Terminal;
 			sourceTree = "<group>";
 		};
 		507D0FB42653C3F90042B723 /* SettingView */ = {
@@ -299,16 +267,6 @@
 				5010DD9A263A62F100CA4C34 /* SettingView.swift */,
 			);
 			path = SettingView;
-			sourceTree = "<group>";
-		};
-		507DF16726609C7000829D77 /* Terminal */ = {
-			isa = PBXGroup;
-			children = (
-				508C42722652C7A1000B0D8C /* AssociatedTerminalView.swift */,
-				503E3F96266285130074FA48 /* TermialViewWrapper.swift */,
-				50551E152663D7DE0084FB5A /* PersistTerminal */,
-			);
-			path = Terminal;
 			sourceTree = "<group>";
 		};
 		50872FCC265377EC00F40E43 /* ServerDetailView */ = {
@@ -334,15 +292,6 @@
 				50404392263DBF0500943C58 /* ServerStatusBlock.swift */,
 			);
 			path = ServerBlock;
-			sourceTree = "<group>";
-		};
-		50951AEC262BEBEC00F060AB /* Navigator */ = {
-			isa = PBXGroup;
-			children = (
-				502C26D6263A8584002BC94C /* SideBar */,
-				502C26D5263A8573002BC94C /* TabBar */,
-			);
-			path = Navigator;
 			sourceTree = "<group>";
 		};
 		50D4D6FE26410E3600D00BFD /* AddServer */ = {
@@ -412,6 +361,7 @@
 				5084A150264E0227003BDB5C /* ScriptCreateView.swift */,
 				5084A153264E024F003BDB5C /* ScriptPreExecView.swift */,
 				5084A159264E106C003BDB5C /* ScriptExecution.swift */,
+				5084A156264E0653003BDB5C /* CodeEditView.swift */,
 			);
 			path = Scripts;
 			sourceTree = "<group>";
@@ -523,8 +473,6 @@
 				50B82763263F28F700989D51 /* GatheringDataView.swift in Sources */,
 				50551E1E26645CF60084FB5A /* TerminalFromServerView.swift in Sources */,
 				5084A151264E0227003BDB5C /* ScriptCreateView.swift in Sources */,
-				50B82764263F28F700989D51 /* TabBarTerminalView.swift in Sources */,
-				50B82766263F28F700989D51 /* ServerDetailedView.swift in Sources */,
 				503E3F2E266262370074FA48 /* SettingDiagView.swift in Sources */,
 				50AFA28F26568FB40002CFCF /* DetailedCPU.swift in Sources */,
 				50689CF4266399EE00F2DA01 /* KeyView.swift in Sources */,
@@ -543,10 +491,7 @@
 				50B8276C263F28F700989D51 /* UIWindow.swift in Sources */,
 				508C42732652C7A1000B0D8C /* AssociatedTerminalView.swift in Sources */,
 				500FE08B2656B53300964119 /* DetailedNetwork.swift in Sources */,
-				50B8276E263F28F700989D51 /* TabBarScriptsView.swift in Sources */,
-				50B8276F263F28F700989D51 /* TabBarBoardView.swift in Sources */,
 				5084A15A264E106C003BDB5C /* ScriptExecution.swift in Sources */,
-				50B82770263F28F700989D51 /* CodeClipView.swift in Sources */,
 				50B82771263F28F700989D51 /* UserDefault.swift in Sources */,
 				507DF16A26609C7D00829D77 /* TerminalLoader.swift in Sources */,
 				50B82774263F28F700989D51 /* DetailedServerView.swift in Sources */,
@@ -579,7 +524,6 @@
 				50C35B5F2657348D005B63B1 /* InputElementView.swift in Sources */,
 				50B82781263F28F700989D51 /* ServerStatusBlock.swift in Sources */,
 				500FE08E2656BCFB00964119 /* DetailedFileSystem.swift in Sources */,
-				50B82782263F28F700989D51 /* TabBarSettingsView.swift in Sources */,
 				50551E2126645D0A0084FB5A /* PersistTerminalInstanceView.swift in Sources */,
 				50B82783263F28F700989D51 /* BootView.swift in Sources */,
 				50B82784263F28F700989D51 /* Color+Extension.swift in Sources */,

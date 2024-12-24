@@ -492,9 +492,6 @@
 /* Refresh Now */
 "REFRESH_NOW" = "Refresh Now";
 
-/* Remote Login */
-"REMOTE_LOGIN" = "Remote Login";
-
 /* Required */
 "REQUIRED_TO_FILL" = "Required";
 

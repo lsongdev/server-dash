@@ -20,13 +20,7 @@ struct ServerBoardView: View {
             } else {
                 container
             }
-        }.background(
-            // BUG FIX DONT REMOVE IT
-            // Unable to present. Please file a bug.
-            NavigationLink(destination: Text(""), label: { Text("") })
-                .opacity(0)
-                .disabled(true)
-        )
+        }
     }
 
     var container: some View {

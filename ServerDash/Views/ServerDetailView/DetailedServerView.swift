@@ -10,9 +10,11 @@ import SwiftUI
 
 struct DetailedServerView: View {
     let serverDescriptor: PTServerManager.ServerDescriptor
+    let kinfo: PTServerManager.ServerInfoHumanReadable
     
     init(serverDescriptor: PTServerManager.ServerDescriptor) {
         self.serverDescriptor = serverDescriptor
+        self.kinfo = PTServerManager.ServerInfoHumanReadable(serverDescriptor: serverDescriptor)
     }
     
     @State var timestamp: TimeInterval? = nil
@@ -74,13 +76,10 @@ struct DetailedServerView: View {
                     }
                 )
                 NavigationLink(
-                    destination: ScrollView {
-                        ScriptCollectionView(withInServer: serverDescriptor)
-                            .padding()
-                    },
+                    destination: ScriptListView(withInServer: serverDescriptor),
                     isActive: $shouldOpenScript,
                     label: {
-                        Text("").opacity(0)
+                        Text("").hidden()
                     }
                 )
             }
@@ -92,6 +91,7 @@ struct DetailedServerView: View {
         .onReceive(timer) { _ in
             updateData()
         }
+        .navigationTitle(self.kinfo.serverTitle)
         .navigationBarItems(trailing: HStack {
             Button(action: {
                 presentTerminal = true

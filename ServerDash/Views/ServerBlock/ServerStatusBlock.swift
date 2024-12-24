@@ -72,10 +72,10 @@ struct ServerStatusBlockView: View {
                                     .font(.system(size: 12, design: .monospaced))
                                     .foregroundColor(.green)
                                     .onReceive(timer) { _ in
-                                        updateTimeDescription()
+//                                        updateTimeDescription()
                                     }
                                     .onAppear {
-                                        updateTimeDescription()
+//                                        updateTimeDescription()
                                     }
                                 Image(systemName: "largecircle.fill.circle")
                                     .scaleEffect(0.8)
@@ -223,35 +223,35 @@ struct ServerStatusBlockView: View {
         }
     }
     
-    func timeAgoSince(_ date: Date) -> String {
-        let calendar = Calendar.current
-        let now = Date()
-        let components = calendar.dateComponents([.year, .month, .weekOfYear, .day, .hour, .minute, .second], from: date, to: now)
-        
-        if let year = components.year, year > 0 {
-            return "\(year) years ago"
-        } else if let month = components.month, month > 0 {
-            return "\(month) months ago"
-        } else if let week = components.weekOfYear, week > 0 {
-            return "\(week)w ago"
-        } else if let day = components.day, day > 0 {
-            return "\(day)d ago"
-        } else if let hour = components.hour, hour > 0 {
-            return "\(hour)h ago"
-        } else if let minute = components.minute, minute > 0 {
-            return "\(minute)m ago"
-        } else if let second = components.second, second > 0 {
-            return "\(second)s ago"
-        } else {
-            return "just now"
-        }
-    }
+//    func timeAgoSince(_ date: Date) -> String {
+//        let calendar = Calendar.current
+//        let now = Date()
+//        let components = calendar.dateComponents([.year, .month, .weekOfYear, .day, .hour, .minute, .second], from: date, to: now)
+//        
+//        if let year = components.year, year > 0 {
+//            return "\(year) years ago"
+//        } else if let month = components.month, month > 0 {
+//            return "\(month) months ago"
+//        } else if let week = components.weekOfYear, week > 0 {
+//            return "\(week)w ago"
+//        } else if let day = components.day, day > 0 {
+//            return "\(day)d ago"
+//        } else if let hour = components.hour, hour > 0 {
+//            return "\(hour)h ago"
+//        } else if let minute = components.minute, minute > 0 {
+//            return "\(minute)m ago"
+//        } else if let second = components.second, second > 0 {
+//            return "\(second)s ago"
+//        } else {
+//            return "just now"
+//        }
+//    }
 
 
-    func updateTimeDescription() {
-        let refDate = Date(timeIntervalSince1970: TimeInterval(info!.updatedAt))
-        validDescription = timeAgoSince(refDate)
-    }
+//    func updateTimeDescription() {
+//        let refDate = Date(timeIntervalSince1970: TimeInterval(info!.updatedAt))
+//        validDescription = timeAgoSince(refDate)
+//    }
 
     struct Element: View {
         let title: String
@@ -274,7 +274,11 @@ struct ServerStatusBlockView: View {
                 HStack(alignment: .bottom, spacing: 4) {
                     Spacer()
                         .frame(width: 1)
-                    Text(String(Int(value * 100)))
+                    
+                    let value: Double? = nil // 假设 value 可能为空
+                    let safeValue = value ?? 0.0  // 如果 value 为 nil，则默认 0
+                    let validValue = safeValue.isFinite ? safeValue * 100 : 0.0 // 检查值是否有效
+                    Text(String(Int(validValue)))
                         .font(.system(size: 32, weight: .bold, design: .rounded))
                     Text("%")
                         .font(.system(size: 12, weight: .regular, design: .default))

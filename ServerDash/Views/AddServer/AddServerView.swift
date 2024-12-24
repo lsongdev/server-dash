@@ -75,7 +75,6 @@ struct AddServerView: View {
 
     let LSNickname = NSLocalizedString("DISPLAY_NAME", comment: "Display name")
     let LSNicknameExample = NSLocalizedString("DISPLAY_NAME_EXAMPLE", comment: "Example: My Server")
-    let LSSectionName = NSLocalizedString("SECTION_NAME", comment: "Group Name")
     let LSMountPoint = NSLocalizedString("MOUNT_POINT", comment: "Mount Point")
     let LSMountPointExample = NSLocalizedString("MOUNT_POINT_EXAMPLE", comment: "Example: /data")
     let LSNetInterface = NSLocalizedString("NETWORK_INTERFACE", comment: "Network Interface")
@@ -345,21 +344,6 @@ struct AddServerView: View {
                                  type: .nickname,
                                  useInlineTextField: true,
                                  binder: $nickname)
-                InputElementView(title: LSSectionName,
-                                 placeholder: NSLocalizedString("DEFAULT_SECTION_NAME", comment: "Default"),
-                                 required: false,
-                                 validator: { true },
-                                 type: nil,
-                                 useInlineTextField: true,
-                                 binder: $sectionName)
-                    .onAppear {
-                        if let passed = passedData,
-                           let section = passed.underSection,
-                           section != PTServerManager.Server.defaultSectionName
-                        {
-                            sectionName = section
-                        }
-                    }
                 InputElementView(title: LSMountPoint,
                                  placeholder: LSMountPointExample,
                                  required: false,

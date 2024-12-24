@@ -30,7 +30,7 @@ struct SideBarView: View {
 
     let LSSideBarElementUtils = NSLocalizedString("SIDEBAR_UTILS", comment: "Utils")
     let LSSideBarElementCodeClip = NSLocalizedString("SIDEBAR_CODE_CLIP", comment: "Code Clip")
-    let LSSideBarElementRemoteLogin = NSLocalizedString("SIDEBAR_REMOTE_LOGIN", comment: "Remote Login")
+    let LSSideBarElementRemoteLogin = NSLocalizedString("DOCK_TERMINAL", comment: "Remote Login")
 
     let LSSideBarElementApplication = NSLocalizedString("SIDEBAR_APPLICATION", comment: "Application")
     let LSSideBarElementSetting = NSLocalizedString("SIDEBAR_SETTING", comment: "Setting")
@@ -57,23 +57,17 @@ struct SideBarView: View {
             List {
                 Group {
                     NavigationLink(destination: DashboardView(),
-                                   tag: NavigationTag.Dashboard,
-                                   selection: $whichPane) {
+                       tag: NavigationTag.Dashboard,
+                       selection: $whichPane) {
                         Label(LSSideBarElementDashboard, systemImage: "square.stack.3d.down.right.fill")
                     }
                 }
 
                 Group {
-                    Text(LSSideBarElementServer)
-                        .font(fntSideBarSectionHead)
-//                    NavigationLink(destination: ServerManagerView(),
-//                                   tag: NavigationTag.ServerDetailed,
-//                                   selection: $whichPane) {
-//                        Label(LSSideBarElementServerManager, systemImage: "wrench.and.screwdriver")
-//                    }
+                    Text(LSSideBarElementServer).font(fntSideBarSectionHead)
                     ForEach(agent.serverDescriptorsSorted, id: \.self) { item in
                         NavigationLink(
-                            destination: DetailedServerBoard(serverDescriptor: item),
+                            destination: DetailedServerView(serverDescriptor: item),
                             label: {
                                 let s = PTServerManager.shared.obtainServer(withKey: item)
                                 Label(s?.obtainPossibleName() ?? "?", systemImage: "server.rack")
@@ -102,7 +96,7 @@ struct SideBarView: View {
                 Group {
                     Text(LSSideBarElementUtils)
                         .font(fntSideBarSectionHead)
-                    NavigationLink(destination: CodeClipView(),
+                    NavigationLink(destination: ScriptListView(),
                                    tag: NavigationTag.CodeClip,
                                    selection: $whichPane) {
                         Label(LSSideBarElementCodeClip, systemImage: "wind")

@@ -13,7 +13,7 @@ struct ServerBlockView: View {
 
     var body: some View {
         NavigationLink(destination:
-            DetailedServerBoard(serverDescriptor: serverDescriptor)
+            DetailedServerView(serverDescriptor: serverDescriptor)
         ) {
             ServerStatusBlockView(descriptor: serverDescriptor)
         }

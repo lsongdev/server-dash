@@ -27,7 +27,9 @@ struct TabBarView: View {
     var body: some View {
         UIKitTabView([
             UIKitTabView.Tab(
-                view: TabBarBoardView(),
+                view: NavigationView {
+                    DashboardView()
+                },
                 barItem: UITabBarItem(title: LSDockItemBoard,
                                       image:
                                       UIImage(named: "TABBAR_BOARD")?
@@ -36,7 +38,9 @@ struct TabBarView: View {
             ),
             
             UIKitTabView.Tab(
-                view: TabBarTerminalView(),
+                view: NavigationView{
+                    TerminalLoader()
+                },
                 barItem: UITabBarItem(title: LSDockItemTerminal,
                                       image:
                                       UIImage(named: "TABBAR_TERMINAL")?
@@ -44,7 +48,9 @@ struct TabBarView: View {
                                       selectedImage: nil)
             ),
             UIKitTabView.Tab(
-                view: TabBarScriptsView(),
+                view: NavigationView{
+                    ScriptListView()
+                },
                 barItem: UITabBarItem(title: LSDockItemScripts,
                                       image:
                                       UIImage(named: "TABBAR_PAPERPLANE")?
@@ -52,7 +58,9 @@ struct TabBarView: View {
                                       selectedImage: nil)
             ),
             UIKitTabView.Tab(
-                view: TabBarMiscView(),
+                view: NavigationView{
+                    SettingView()
+                },
                 barItem: UITabBarItem(title: LSDockItemSettings,
                                       image:
                                       UIImage(named: "TABBAR_GEAR")?
