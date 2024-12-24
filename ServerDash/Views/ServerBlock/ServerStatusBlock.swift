@@ -274,11 +274,8 @@ struct ServerStatusBlockView: View {
                 HStack(alignment: .bottom, spacing: 4) {
                     Spacer()
                         .frame(width: 1)
-                    
-                    let value: Double? = nil // 假设 value 可能为空
-                    let safeValue = value ?? 0.0  // 如果 value 为 nil，则默认 0
-                    let validValue = safeValue.isFinite ? safeValue * 100 : 0.0 // 检查值是否有效
-                    Text(String(Int(validValue)))
+                   
+                    Text(String(Int(value.isNaN ? 0 : value * 100)))
                         .font(.system(size: 32, weight: .bold, design: .rounded))
                     Text("%")
                         .font(.system(size: 12, weight: .regular, design: .default))
