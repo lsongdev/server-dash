@@ -23,6 +23,10 @@ final class PersistTerminalInstance: NSObject, Identifiable, NMSSHChannelDelegat
     private var queue: DispatchQueue?
     private let stateLock = NSLock()
     private var terminalStateStorage: TerminalViewState?
+    // SwiftUI dismantles its UIViewRepresentable when a navigation destination
+    // is popped. Keep the native view alive with the SSH session so Ghostty's
+    // surface and scrollback survive until the session is terminated.
+    private var terminalViewStorage: TerminalView?
 
     lazy var terminalSession = InMemoryTerminalSession(
         write: { [weak self] data in
@@ -54,6 +58,15 @@ final class PersistTerminalInstance: NSObject, Identifiable, NMSSHChannelDelegat
         state.configuration = TerminalSurfaceOptions(
             backend: .inMemory(terminalSession)
         )
+        state.makePlatformView = { [weak self] in
+            guard let self else { return TerminalView(frame: .zero) }
+            if let view = self.terminalViewStorage {
+                return view
+            }
+            let view = TerminalView(frame: .zero)
+            self.terminalViewStorage = view
+            return view
+        }
         GhosttyPreferences.shared.apply(to: state)
         terminalStateStorage = state
         return state

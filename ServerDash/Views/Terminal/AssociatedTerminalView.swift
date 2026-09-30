@@ -32,7 +32,11 @@ struct AssociatedTerminalView: View {
                 TerminalSurfaceView(context: instance.terminalState)
                     .onAppear {
                         ghosttyPreferences.apply(to: instance.terminalState)
+                        instance.terminalState.isSurfaceVisible = true
                         instance.terminalState.requestFocus()
+                    }
+                    .onDisappear {
+                        instance.terminalState.isSurfaceVisible = false
                     }
             } else if openingConnection {
                 ProgressView()
