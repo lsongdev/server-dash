@@ -20,46 +20,32 @@ public extension PTAccountManager {
                            attachData: Data?,
                            type: AccountType) -> AccountHandler?
     {
-        // 跑到 KeyChain 去开一个钥匙串 并拿回来识别号
-        guard let kCID = PTKeyChain.shared.addAccountAndReturnIdentity(account: user,
-                                                                       key: candidate,
-                                                                       data: attachData,
-                                                                       label: type.rawValue)
-        else {
+        let identity = UUID().uuidString
+        let credential = PTCredentialStore.Credential(
+            label: type.rawValue,
+            account: user,
+            secret: candidate,
+            payload: attachData
+        )
+        guard PTCredentialStore.shared.store(credential, identity: identity) else {
             PTLog.shared.join(self,
-                              "failed to create account due to keychain error",
+                              "failed to store account in system Keychain",
                               level: .warning)
             return nil
         }
 
+        let createdAccount = Account(
+            type: type,
+            function: PTServerSSHLinuxSelectors.shared,
+            keychainIdentity: identity
+        )
+
         executionLock.lock()
-        let previousIdentities = accounts
-        executionLock.unlock()
-
-        // 如果 KeyChain 吐出来的识别号已经存在 那就是宇宙要爆炸
-        if previousIdentities.keys.contains(kCID) {
-            PTLog.shared.join(self, "account identity collision, what a great luck, but the whale dead \(kCID)", level: .critical)
-            PTKeyChain.shared.removeAccountBy(key: kCID)
-            PTFoundation.runtimeErrorCall(.resourceBroken)
-        }
-
-        // 创建账号对象 赋能方法集
-        let createdAccount: Account
-        switch type {
-        case .secureShellWithPassword, .secureShellWithKey:
-            createdAccount = Account(type: type,
-                                     function: PTServerSSHLinuxSelectors.shared,
-                                     keychainIdentity: kCID)
-        }
-
-        // 本方法已经处理完成
-        executionLock.lock()
-        accounts[kCID] = createdAccount
+        accounts[identity] = createdAccount
         executionLock.unlock()
 
         synchronizeObjects()
-
-        return kCID
+        return identity
     }
 
     /// 取回账号 上执行锁访问锁
@@ -79,8 +65,10 @@ public extension PTAccountManager {
         accounts.removeValue(forKey: key)
         executionLock.unlock()
         synchronizeObjects()
-        // 清理 KeyChain
-        PTKeyChain.shared.removeAccountBy(key: key)
+        PTCredentialStore.shared.remove(identity: key)
+        if PTFoundation.legacyCredentialStoreAvailable {
+            PTKeyChain.shared.removeAccountBy(key: key)
+        }
     }
 
     /// 获取账户句柄列表
