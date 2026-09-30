@@ -9,30 +9,14 @@ import Foundation
 
 fileprivate extension Float {
     var safeWrapper: Float {
-        if self == .nan || self == .signalingNaN {
-            return 0
-        }
-        if self > Float(Int.max) {
-            return 0
-        }
-        if self < Float(Int.min) {
-            return 0
-        }
+        guard isFinite else { return 0 }
         return self
     }
 }
 
 fileprivate extension Double {
     var safeWrapper: Double {
-        if self == .nan || self == .signalingNaN {
-            return 0
-        }
-        if self > Double(Int.max) {
-            return 0
-        }
-        if self < Double(Int.min) {
-            return 0
-        }
+        guard isFinite else { return 0 }
         return self
     }
 }
@@ -262,9 +246,9 @@ public extension PTServerManager {
                 phyUsed = (
                     (total - free - memCached - memBuffers) / total
                 ).safeWrapper
-                swapUsed = (
-                    (swapTotal - swapFree) / total
-                ).safeWrapper
+                swapUsed = swapTotal > 0
+                    ? ((swapTotal - swapFree) / swapTotal).safeWrapper
+                    : 0
             } else {
                 phyUsed = 0
                 swapUsed = 0
