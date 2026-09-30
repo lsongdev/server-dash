@@ -57,18 +57,45 @@ public final class PTAccountManager {
             public let representedObject: Data?
         }
 
-        /// 获取解密的数据
-        /// DecryptedObject 类似于 PTKeyChain.AccessObject
-        /// 但 PTKeyChain.AccessObject 后者申明了 internal
+        /// Retrieve the SSH credential from the system Keychain.
+        ///
+        /// Existing installations may still have the old encrypted .ptk file.
+        /// That legacy value is migrated on first read and then deleted.
         public func obtainDecryptedObject() -> DecryptedObject? {
-            guard let decrypted = PTKeyChain.shared.retrieveAccount(byKey: uuid) else {
+            if let credential = PTCredentialStore.shared.retrieve(identity: uuid) {
+                return DecryptedObject(
+                    identity: uuid,
+                    plainLabel: credential.label,
+                    account: credential.account,
+                    key: credential.secret,
+                    representedObject: credential.payload
+                )
+            }
+
+            guard PTFoundation.legacyCredentialStoreAvailable,
+                  let legacy = PTKeyChain.shared.retrieveAccount(byKey: uuid)
+            else {
                 return nil
             }
-            return DecryptedObject(identity: decrypted.identity,
-                                   plainLabel: decrypted.plainLabel,
-                                   account: decrypted.account,
-                                   key: decrypted.key,
-                                   representedObject: decrypted.representedObject)
+
+            let credential = PTCredentialStore.Credential(
+                label: legacy.plainLabel,
+                account: legacy.account,
+                secret: legacy.key,
+                payload: legacy.representedObject
+            )
+            guard PTCredentialStore.shared.store(credential, identity: uuid) else {
+                return nil
+            }
+
+            PTKeyChain.shared.removeAccountBy(key: uuid)
+            return DecryptedObject(
+                identity: uuid,
+                plainLabel: credential.label,
+                account: credential.account,
+                key: credential.secret,
+                representedObject: credential.payload
+            )
         }
     }
 
