@@ -18,6 +18,7 @@ protocol PTServerSelectorsProtocol {
     func obtainServerFileSystemInfo(withConnection connection: Any) -> [PTServerManager.ServerFileSystemInfo]
     func obtainSystemInfo(withConnection connection: Any) -> PTServerManager.ServerSystemInfo
     func obtainServerNetworkInfo(withConnection connection: Any) -> [PTServerManager.ServerNetworkInfo]
+    func obtainServerInfo(withConnection connection: Any) -> PTServerManager.ServerInfo?
     func executeScript(withConnection connection: Any,
                        script: String,
                        requestPty: Bool,
@@ -66,6 +67,10 @@ public class PTServerAllocationSelectors: PTServerSelectorsProtocol {
     }
 
     func obtainServerNetworkInfo(withConnection _: Any) -> [PTServerManager.ServerNetworkInfo] {
+        fatalError("[PTServerAllocationSelectors] is only used for allocating server type")
+    }
+
+    func obtainServerInfo(withConnection _: Any) -> PTServerManager.ServerInfo? {
         fatalError("[PTServerAllocationSelectors] is only used for allocating server type")
     }
 
