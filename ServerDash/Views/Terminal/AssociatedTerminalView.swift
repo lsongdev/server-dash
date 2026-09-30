@@ -9,7 +9,6 @@ import SwiftUI
 
 struct AssociatedTerminalView: View {
     let serverDescriptor: PTServerManager.ServerDescriptor
-    let onTerminate: (() -> Void)?
 
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var ghosttyPreferences = GhosttyPreferences.shared
@@ -17,14 +16,6 @@ struct AssociatedTerminalView: View {
     @State private var openingConnection = false
     @State private var instance: PersistTerminalInstance?
     @State private var connectionFailed = false
-
-    init(
-        serverDescriptor: PTServerManager.ServerDescriptor,
-        onTerminate: (() -> Void)? = nil
-    ) {
-        self.serverDescriptor = serverDescriptor
-        self.onTerminate = onTerminate
-    }
 
     var body: some View {
         Group {
@@ -53,11 +44,7 @@ struct AssociatedTerminalView: View {
                 if let instance = instance {
                     Button {
                         instance.terminate()
-                        if let onTerminate {
-                            onTerminate()
-                        } else {
-                            dismiss()
-                        }
+                        dismiss()
                     } label: {
                         Image(systemName: "xmark")
                     }

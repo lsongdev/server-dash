@@ -5,7 +5,7 @@
 
 import SwiftUI
 
-/// Shows active terminal sessions. The add button opens server selection.
+/// Shows active terminal sessions. The add button creates one from a sheet.
 struct TerminalLoader: View {
     private let agent = Agent.shared
     @State private var sessions: [PersistTerminalInstance] = []
@@ -25,17 +25,13 @@ struct TerminalLoader: View {
                 emptyState
             }
         }
-        .background {
-            NavigationLink(
-                destination: SessionServerPickerView(
-                    isPresented: $showingNewSession,
-                    serverDescriptors: serverDescriptors
-                ),
-                isActive: $showingNewSession
-            ) {
-                EmptyView()
+        .sheet(isPresented: $showingNewSession, onDismiss: {
+            sessions = agent.terminalInstanceSender
+        }) {
+            NavigationView {
+                SessionServerPickerView(serverDescriptors: serverDescriptors)
             }
-            .hidden()
+            .navigationViewStyle(.stack)
         }
         .navigationTitle(NSLocalizedString("DOCK_TERMINAL", comment: "Terminal"))
         .toolbar {
@@ -79,19 +75,10 @@ struct TerminalLoader: View {
             serverDescriptors = agent.serverDescriptorsSorted
         }
         .onReceive(agent.$terminalInstance) { updated in
-            if !showingNewSession {
-                sessions = updated
-            }
+            sessions = updated
         }
         .onReceive(agent.$serverDescriptorsSorted) { updated in
-            if !showingNewSession {
-                serverDescriptors = updated
-            }
-        }
-        .onChange(of: showingNewSession) { active in
-            if !active {
-                sessions = agent.terminalInstanceSender
-            }
+            serverDescriptors = updated
         }
     }
 
@@ -115,20 +102,27 @@ struct TerminalLoader: View {
 }
 
 private struct SessionServerPickerView: View {
-    @Binding var isPresented: Bool
     let serverDescriptors: [String]
+    @Environment(\.dismiss) private var dismiss
+    @State private var connectingDescriptor: String?
+    @State private var connectionFailed = false
 
     var body: some View {
         List {
             ForEach(serverDescriptors, id: \.self) { descriptor in
-                NavigationLink(
-                    destination: AssociatedTerminalView(
-                        serverDescriptor: descriptor,
-                        onTerminate: { isPresented = false }
-                    )
-                ) {
-                    TerminalFromServerView(descriptor: descriptor)
+                Button {
+                    createSession(for: descriptor)
+                } label: {
+                    HStack {
+                        TerminalFromServerView(descriptor: descriptor)
+                        if connectingDescriptor == descriptor {
+                            ProgressView()
+                        }
+                    }
+                    .contentShape(Rectangle())
                 }
+                .buttonStyle(.plain)
+                .disabled(connectingDescriptor != nil)
             }
         }
         .listStyle(.insetGrouped)
@@ -149,7 +143,35 @@ private struct SessionServerPickerView: View {
                 .padding()
             }
         }
-        .navigationTitle(NSLocalizedString("NEW_SESSION", comment: "New Session"))
+        .navigationTitle("New Session")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button("Cancel") { dismiss() }
+                    .disabled(connectingDescriptor != nil)
+            }
+        }
+        .interactiveDismissDisabled(connectingDescriptor != nil)
+        .alert("Connection Failed", isPresented: $connectionFailed) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Could not create a session. Check the server and credentials, then try again.")
+        }
+    }
+
+    private func createSession(for descriptor: String) {
+        guard connectingDescriptor == nil else { return }
+        connectingDescriptor = descriptor
+
+        PersistTerminalInstance.openConnection(withServer: descriptor) { instance in
+            DispatchQueue.main.async {
+                connectingDescriptor = nil
+                if instance != nil {
+                    dismiss()
+                } else {
+                    connectionFailed = true
+                }
+            }
+        }
     }
 }
