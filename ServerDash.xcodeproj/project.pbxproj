@@ -755,9 +755,6 @@
 			package = A100000326F4DAFC00000003 /* XCRemoteSwiftPackageReference "libghostty-spm" */;
 			productName = GhosttyTerminal;
 		};
-			isa = XCSwiftPackageProductDependency;
-			productName = CodeViewer;
-		};
 /* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 50D4F908262ABD3C005946E0 /* Project object */;
