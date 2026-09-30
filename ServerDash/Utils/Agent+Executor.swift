@@ -12,6 +12,7 @@ import UIKit
 private let authenticationRequestLock = NSLock()
 private var authenticationRequestInProgress = false
 private var recentAuthenticationSucceeded = false
+private let terminalSessionLock = NSLock()
 
 extension Agent {
     func startUserAuthentication() {
@@ -94,19 +95,18 @@ extension Agent {
     }
 
     func createTerminal(withInstance: PersistTerminalInstance) {
-        // TODO: Thread Safe
-        var get = terminalInstanceSender
-        get.append(withInstance)
-        terminalInstanceSender = get
+        terminalSessionLock.lock()
+        var sessions = terminalInstanceSender
+        sessions.append(withInstance)
+        terminalInstanceSender = sessions
+        terminalSessionLock.unlock()
     }
 
     func removeTerminal(withInstance: PersistTerminalInstance) {
-        // TODO: Thread Safe
-        let get = terminalInstanceSender
-        var new = [PersistTerminalInstance]()
-        for item in get where item.id != withInstance.id {
-            new.append(item)
+        terminalSessionLock.lock()
+        terminalInstanceSender = terminalInstanceSender.filter {
+            $0.id != withInstance.id
         }
-        terminalInstanceSender = new
+        terminalSessionLock.unlock()
     }
 }
