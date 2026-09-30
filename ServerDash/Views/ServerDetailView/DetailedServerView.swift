@@ -12,7 +12,6 @@ struct DetailedServerView: View {
 
     @State private var timestamp: TimeInterval?
     @State private var info: PTServerManager.ServerInfo?
-    @State private var presentTerminal = false
 
     init(serverDescriptor: PTServerManager.ServerDescriptor) {
         self.serverDescriptor = serverDescriptor
@@ -64,23 +63,13 @@ struct DetailedServerView: View {
                 }
             }
         }
-        .background(
-            NavigationLink(
-                destination: AssociatedTerminalView(serverDescriptor: serverDescriptor),
-                isActive: $presentTerminal
-            ) {
-                EmptyView()
-            }
-            .hidden()
-        )
         .navigationTitle(kinfo.serverTitle)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    presentTerminal = true
-                } label: {
+                NavigationLink(destination: AssociatedTerminalView(serverDescriptor: serverDescriptor)) {
                     Image(systemName: "terminal")
                 }
+                .accessibilityLabel("Open Terminal")
             }
         }
         .onAppear {
