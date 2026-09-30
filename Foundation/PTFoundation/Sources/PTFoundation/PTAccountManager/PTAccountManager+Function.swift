@@ -36,7 +36,6 @@ public extension PTAccountManager {
 
         let createdAccount = Account(
             type: type,
-            function: PTServerSSHLinuxSelectors.shared,
             keychainIdentity: identity
         )
 
