@@ -45,8 +45,8 @@ struct AssociatedTerminalView: View {
         .navigationTitle(instance?.terminalTitle ?? NSLocalizedString("SHELL", comment: "Shell"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            if let instance {
-                ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                if let instance = instance {
                     Button {
                         instance.terminate()
                         if let onTerminate {
