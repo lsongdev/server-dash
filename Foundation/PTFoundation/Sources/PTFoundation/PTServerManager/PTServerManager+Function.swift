@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SQLite
 
 public extension PTServerManager {
     /// 注册服务器实例 上执行锁
