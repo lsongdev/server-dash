@@ -26,19 +26,12 @@ public final class PTAccountManager {
         public let uuid: String
         /// 账户类型
         public let type: AccountType
-        /// 方法集 用于获取扩展的接口
-        public let selectors: PTServerAllocationSelectors
-
         // MARK: INTERNAL
 
         /// 不允许外部初始化该结构体
-        internal init(type: AccountType,
-                      function: PTServerAllocationSelectors,
-                      keychainIdentity identity: String)
-        {
+        internal init(type: AccountType, keychainIdentity identity: String) {
             uuid = identity
             self.type = type
-            selectors = function
         }
 
         /// 内部转换方法
@@ -104,35 +97,19 @@ public final class PTAccountManager {
         /// 变量映射
         let identity: String
         let type: String
-        let selectors: String
 
         /// 初始化
         internal init(fromAccount object: Account) {
             identity = object.uuid
             type = object.type.rawValue
-            selectors = object.selectors.obtainIdentity()
         }
 
         /// 内部方法转换
         internal func retrieveAccountObject() -> Account? {
-            // 获取账户类型
-            guard let typeCase = AccountType(rawValue: type) else {
+            guard let type = AccountType(rawValue: type) else {
                 return nil
             }
-            // 获取方法集
-            var selectorsObject: PTServerAllocationSelectors?
-            for fs in PTServerAllocationSelectors.allSets {
-                if fs.obtainIdentity() == selectors {
-                    selectorsObject = fs
-                    break
-                }
-            }
-            // 没找到方法集
-            guard let fSet = selectorsObject else {
-                return nil
-            }
-            // 合成
-            return Account(type: typeCase, function: fSet, keychainIdentity: identity)
+            return Account(type: type, keychainIdentity: identity)
         }
     }
 
