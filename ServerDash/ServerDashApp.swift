@@ -122,6 +122,7 @@ struct ServerDashApp: App {
                 PTLog.shared.join("App",
                                   "Application is active",
                                   level: .info)
+                AppearanceStore.shared.updateColorScheme()
                 Agent.shared.applicationBecomeActive()
             case .inactive:
                 PTLog.shared.join("App",
