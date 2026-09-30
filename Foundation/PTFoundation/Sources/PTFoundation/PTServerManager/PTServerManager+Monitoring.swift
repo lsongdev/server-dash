@@ -31,32 +31,32 @@ extension PTServerManager {
     }
 
     private func dispatchMonitoringUpdates() {
-        executionLock.lock()
-        let servers = serverContainer
-        executionLock.unlock()
-
         let now = Date()
-        for serverObject in servers.values
-        where shouldUpdate(serverObject: serverObject, at: now) {
+
+        executionLock.lock()
+        let due = serverContainer.values.filter {
+            shouldUpdateLocked(serverObject: $0, at: now)
+        }
+        for serverObject in due {
             if serverObject.supervisionStatus == nil {
                 serverObject.supervisionStatus = .init(
                     serverDescriptor: serverObject.server.uuid
                 )
             }
             serverObject.supervisionStatus?.pendingUpdate = true
+        }
+        executionLock.unlock()
 
-            PTNotificationCenter.shared.postNotification(
-                withName: .ServerManager_ServerStatusUpdated,
-                attachment: serverObject.server.uuid
-            )
-
+        for serverObject in due {
+            postStatusUpdate(for: serverObject)
             supervisionConcurrentQueue.async {
                 self.serverSupervisionUpdateAtomically(fromServer: serverObject)
             }
         }
     }
 
-    private func shouldUpdate(
+    /// Must be called while executionLock is held.
+    private func shouldUpdateLocked(
         serverObject: ServerObject,
         at now: Date
     ) -> Bool {
@@ -81,25 +81,34 @@ extension PTServerManager {
         return Int(now.timeIntervalSince(previous)) >= interval
     }
 
-    func finalizeServerStatusUpdate(
-        fromServer server: ServerObject,
+    private func postStatusUpdate(for server: ServerObject) {
+        PTNotificationCenter.shared.postNotification(
+            withName: .ServerManager_ServerStatusUpdated,
+            attachment: server.server.uuid
+        )
+    }
+
+    private func finishUpdate(
+        server: ServerObject,
+        info: ServerInfo?,
         errorOccurred: Bool
     ) {
+        executionLock.lock()
         if server.supervisionStatus == nil {
             server.supervisionStatus = .init(
                 serverDescriptor: server.server.uuid
             )
         }
-
         server.supervisionStatus?.previousUpdate = Date()
         server.supervisionStatus?.pendingUpdate = false
         server.supervisionStatus?.statusUpdated = !errorOccurred
         server.supervisionStatus?.errorOccurred = errorOccurred
+        if let info {
+            server.supervisionStatus?.information = info
+        }
+        executionLock.unlock()
 
-        PTNotificationCenter.shared.postNotification(
-            withName: .ServerManager_ServerStatusUpdated,
-            attachment: server.server.uuid
-        )
+        postStatusUpdate(for: server)
     }
 
     @discardableResult
@@ -107,23 +116,18 @@ extension PTServerManager {
         fromServer server: ServerObject
     ) -> ServerInfo? {
         guard let info = acquireServerInfo(fromServer: server.server) else {
-            finalizeServerStatusUpdate(
-                fromServer: server,
+            finishUpdate(
+                server: server,
+                info: nil,
                 errorOccurred: true
             )
             return nil
         }
 
-        if server.supervisionStatus == nil {
-            server.supervisionStatus = .init(
-                serverDescriptor: server.server.uuid
-            )
-        }
-
         let date = Date()
-        server.supervisionStatus?.information = info
-        finalizeServerStatusUpdate(
-            fromServer: server,
+        finishUpdate(
+            server: server,
+            info: info,
             errorOccurred: false
         )
 
