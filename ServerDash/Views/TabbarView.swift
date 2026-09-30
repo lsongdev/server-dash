@@ -5,9 +5,27 @@
 
 import SwiftUI
 
+extension Notification.Name {
+    static let openTerminalForServer = Notification.Name("openTerminalForServer")
+}
+
+private struct TerminalRoute: Hashable {
+    let serverDescriptor: String
+    let id = UUID()
+}
+
 struct TabBarView: View {
+    private enum Tab: Hashable {
+        case servers
+        case terminal
+        case settings
+    }
+
+    @State private var selectedTab: Tab = .servers
+    @State private var terminalPath: [TerminalRoute] = []
+
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             NavigationView {
                 DashboardView()
             }
@@ -17,9 +35,13 @@ struct TabBarView: View {
                     systemImage: "server.rack"
                 )
             }
+            .tag(Tab.servers)
 
-            NavigationView {
+            NavigationStack(path: $terminalPath) {
                 TerminalLoader()
+                    .navigationDestination(for: TerminalRoute.self) { route in
+                        AssociatedTerminalView(serverDescriptor: route.serverDescriptor)
+                    }
             }
             .tabItem {
                 Label(
@@ -27,6 +49,7 @@ struct TabBarView: View {
                     systemImage: "terminal"
                 )
             }
+            .tag(Tab.terminal)
 
             NavigationView {
                 SettingView()
@@ -37,6 +60,12 @@ struct TabBarView: View {
                     systemImage: "gearshape"
                 )
             }
+            .tag(Tab.settings)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .openTerminalForServer)) { note in
+            guard let descriptor = note.object as? String else { return }
+            selectedTab = .terminal
+            terminalPath.append(TerminalRoute(serverDescriptor: descriptor))
         }
     }
 }

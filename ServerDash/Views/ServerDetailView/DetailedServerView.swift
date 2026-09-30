@@ -10,6 +10,7 @@ struct DetailedServerView: View {
     let serverDescriptor: PTServerManager.ServerDescriptor
     let kinfo: PTServerManager.ServerInfoHumanReadable
 
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var timestamp: TimeInterval?
     @State private var info: PTServerManager.ServerInfo?
 
@@ -66,10 +67,22 @@ struct DetailedServerView: View {
         .navigationTitle(kinfo.serverTitle)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                NavigationLink(destination: AssociatedTerminalView(serverDescriptor: serverDescriptor)) {
-                    Image(systemName: "terminal")
+                if horizontalSizeClass == .compact || !isPad {
+                    Button {
+                        NotificationCenter.default.post(
+                            name: .openTerminalForServer,
+                            object: serverDescriptor
+                        )
+                    } label: {
+                        Image(systemName: "terminal")
+                    }
+                    .accessibilityLabel("Open Terminal")
+                } else {
+                    NavigationLink(destination: AssociatedTerminalView(serverDescriptor: serverDescriptor)) {
+                        Image(systemName: "terminal")
+                    }
+                    .accessibilityLabel("Open Terminal")
                 }
-                .accessibilityLabel("Open Terminal")
             }
         }
         .onAppear {

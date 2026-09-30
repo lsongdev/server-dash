@@ -9,30 +9,34 @@ import PTFoundation
 import SwiftUI
 
 struct ServerBoardView: View {
-    @ObservedObject var agent = Agent.shared
+    private let agent = Agent.shared
+    @State private var serverDescriptors = Agent.shared.serverDescriptorsSorted
+    @State private var supervisedDescriptors = Agent.shared.serverDescriptorsSortedSupervised
 
     var body: some View {
         VStack {
-            if agent.serverDescriptorsSortedSupervised.count < 1 {
+            if supervisedDescriptors.isEmpty {
                 NoServerGuider()
             } else {
                 container
             }
         }
+        .onReceive(agent.$serverDescriptorsSorted) { serverDescriptors = $0 }
+        .onReceive(agent.$serverDescriptorsSortedSupervised) { supervisedDescriptors = $0 }
     }
 
     var container: some View {
         VStack{
             HStack {
                 Image(systemName: "square.stack.3d.down.forward.fill")
-                if agent.serverDescriptorsSorted == agent.serverDescriptorsSortedSupervised {
+                if serverDescriptors == supervisedDescriptors {
                     Text("SERVER STATUS")
                         .bold()
                 } else {
                     HStack(alignment: .bottom) {
                         Text("SERVER STATUS")
                             .font(.system(size: 16, weight: .bold, design: .default))
-                        Text("\(agent.serverDescriptorsSortedSupervised.count)/\(agent.serverDescriptorsSorted.count)")
+                        Text("\(supervisedDescriptors.count)/\(serverDescriptors.count)")
                             .font(.system(size: 16, weight: .bold, design: .monospaced))
                     }
                 }
@@ -56,7 +60,7 @@ struct ServerBoardView: View {
             .font(.system(size: 15, weight: .regular, design: .default))
             Divider()
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 300))]) {
-                ForEach(agent.serverDescriptorsSortedSupervised, id: \.self) { serverDescriptor in
+                ForEach(supervisedDescriptors, id: \.self) { serverDescriptor in
                     ServerBlockView(serverDescriptor: serverDescriptor)
                         .frame(height: 140)
                 }

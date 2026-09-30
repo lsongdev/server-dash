@@ -10,11 +10,12 @@ struct MainView: View {
         @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     #endif
 
-    @ObservedObject private var agent = Agent.shared
+    private let agent = Agent.shared
+    @State private var authorizationStatus = Agent.shared.authorizationStatus
 
     var body: some View {
         Group {
-            if agent.authorizationStatus == .authorized {
+            if authorizationStatus == .authorized {
                 if horizontalSizeClass == .compact || !isPad {
                     TabBarView()
                 } else {
@@ -27,5 +28,6 @@ struct MainView: View {
                     }
             }
         }
+        .onReceive(agent.$authorizationStatus) { authorizationStatus = $0 }
     }
 }

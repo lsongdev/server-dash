@@ -14,7 +14,7 @@ struct GatheringDataView: View {
     /*
      让这个 View 去和 Agent 对接当前的状态
      */
-    @ObservedObject var agent = Agent.shared
+    private let agent = Agent.shared
     @State var ringColors: [Color] = [Color.overridableAccentColor]
 
     @State var title: String = ""

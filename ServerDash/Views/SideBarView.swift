@@ -24,7 +24,8 @@ struct SideBarView: View {
 
     @State var whichPane: NavigationTag? = nil
 
-    @ObservedObject var agent = Agent.shared
+    private let agent = Agent.shared
+    @State private var serverDescriptors = Agent.shared.serverDescriptorsSorted
 
     @State private var showingAddServer = false
 
@@ -47,7 +48,7 @@ struct SideBarView: View {
 
                 Group {
                     Text("Servers").font(fntSideBarSectionHead)
-                    ForEach(agent.serverDescriptorsSorted, id: \.self) { item in
+                    ForEach(serverDescriptors, id: \.self) { item in
                         NavigationLink(
                             destination: DetailedServerView(serverDescriptor: item),
                             label: {
@@ -56,7 +57,7 @@ struct SideBarView: View {
                             }
                         )
                     }.onDelete { indexSet in
-                        let list = agent.serverDescriptorsSorted
+                        let list = serverDescriptors
                         guard let index = indexSet.first else { return }
                         if index < 0 || index >= list.count { return }
                         PTServerManager.shared.removeServerFromRegisteredList(withKey: list[index])
@@ -96,6 +97,7 @@ struct SideBarView: View {
             }
             DashboardView()
         }
+        .onReceive(agent.$serverDescriptorsSorted) { serverDescriptors = $0 }
     }
 }
 
