@@ -75,6 +75,7 @@ public final class PTSSHClient {
     /// Single remote command used to collect one monitoring snapshot.
     internal let outputSeparator = "[*******]"
     internal enum ScriptCollection: String, CaseIterable {
+        case identifySystem = "/usr/bin/env uname -s"
         case obtainSnapshot =
             """
             export LC_ALL=C
@@ -99,6 +100,30 @@ public final class PTSSHClient {
             /bin/cat /proc/stat
             printf '__SERVER_DASH_NET_1__\\n'
             /bin/cat /proc/net/dev
+            printf '__SERVER_DASH_END__\\n'
+            """
+        case obtainDarwinSnapshot =
+            """
+            export LC_ALL=C
+            printf '__SERVER_DASH_TOP__\\n'
+            /usr/bin/top -l 1 -n 0 -s 0
+            printf '__SERVER_DASH_MEMORY__\\n'
+            /usr/sbin/sysctl -n hw.memsize
+            /usr/bin/vm_stat
+            /usr/sbin/sysctl -n vm.swapusage
+            printf '__SERVER_DASH_FILESYSTEM__\\n'
+            /bin/df -Pk /System/Volumes/Data 2>/dev/null || /bin/df -Pk /
+            printf '__SERVER_DASH_HOSTNAME__\\n'
+            /usr/bin/uname -n
+            printf '__SERVER_DASH_UPTIME__\\n'
+            /usr/sbin/sysctl -n kern.boottime
+            printf '__SERVER_DASH_RELEASE__\\n'
+            /usr/bin/sw_vers -productVersion
+            printf '__SERVER_DASH_NET_0__\\n'
+            /usr/sbin/netstat -ibn
+            /bin/sleep 1
+            printf '__SERVER_DASH_NET_1__\\n'
+            /usr/sbin/netstat -ibn
             printf '__SERVER_DASH_END__\\n'
             """
     }
@@ -262,6 +287,16 @@ public final class PTSSHClient {
     /// data is collected between the two samples, so one refresh performs one
     /// SSH exec instead of a chain of independent round trips.
     public func obtainServerInfo(withConnection connection: PTSSHConnection) -> PTServerManager.ServerInfo? {
+        guard let platform = downloadResultFrom(withConnection: connection, command: .identifySystem) else {
+            return nil
+        }
+        if platform.trimmingCharacters(in: .whitespacesAndNewlines) == "Darwin" {
+            guard let intake = downloadResultFrom(withConnection: connection, command: .obtainDarwinSnapshot) else {
+                return nil
+            }
+            return buildDarwinServerInfo(intake: intake)
+        }
+
         guard let intake = downloadResultFrom(withConnection: connection, command: .obtainSnapshot) else {
             return nil
         }
@@ -312,6 +347,198 @@ public final class PTSSHClient {
             ServerSystemInfo: systemInfo,
             ServerNetworkInfo: networkInfo
         )
+    }
+
+    /// macOS has no Linux /proc tree. Translate its standard tools into the
+    /// same snapshot model used by the dashboard and history views.
+    internal func buildDarwinServerInfo(intake: String) -> PTServerManager.ServerInfo? {
+        let sections = buildSnapshotSections(intake)
+        guard let top = sections["__SERVER_DASH_TOP__"],
+              let memory = sections["__SERVER_DASH_MEMORY__"],
+              let fileSystem = sections["__SERVER_DASH_FILESYSTEM__"],
+              let hostname = sections["__SERVER_DASH_HOSTNAME__"],
+              let uptime = sections["__SERVER_DASH_UPTIME__"],
+              let release = sections["__SERVER_DASH_RELEASE__"],
+              let net0 = sections["__SERVER_DASH_NET_0__"],
+              let net1 = sections["__SERVER_DASH_NET_1__"],
+              let processInfo = buildDarwinProcessInfo(top),
+              let memoryInfo = buildDarwinMemoryInfo(memory)
+        else {
+            PTLog.shared.join(self, "macOS snapshot is incomplete", level: .error)
+            return nil
+        }
+
+        let diskInfo = buildServerFileSystemInfo(intake: fileSystem).map { item in
+            if item.mountPoint == "/System/Volumes/Data" {
+                return PTServerManager.ServerFileSystemInfo(
+                    mountPoint: "/", free: item.freeBytes, used: item.usedBytes
+                )
+            }
+            return item
+        }
+        let load = buildDarwinLoadInfo(top)
+        let bootTime = uptime
+            .components(separatedBy: "sec = ")
+            .dropFirst()
+            .first?
+            .split(separator: ",")
+            .first
+            .flatMap { Int($0.trimmingCharacters(in: .whitespaces)) }
+        let uptimeSeconds = bootTime.map { max(0, Int(Date().timeIntervalSince1970) - $0) } ?? 0
+        let version = release.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        return PTServerManager.ServerInfo(
+            ServerProcessInfo: processInfo,
+            ServerFileSystemInfo: diskInfo,
+            ServerMemoryInfo: memoryInfo,
+            ServerSystemInfo: PTServerManager.ServerSystemInfo(
+                release: version.isEmpty ? "macOS" : "macOS \(version)",
+                uptimeInSec: uptimeSeconds,
+                hostname: buildHostname(intake: hostname),
+                runningProcs: load.runningProcess,
+                totalProcs: load.totalProcess,
+                load1: load.load1avg,
+                load5: load.load5avg,
+                load15: load.load15avg
+            ),
+            ServerNetworkInfo: buildDarwinNetworkInfo(first: net0, second: net1)
+        )
+    }
+
+    private func buildDarwinProcessInfo(_ top: String) -> PTServerManager.ServerProcessInfo? {
+        guard let line = top.components(separatedBy: "\n").first(where: { $0.hasPrefix("CPU usage:") }) else {
+            return nil
+        }
+        let values = line.components(separatedBy: ",")
+        guard values.count >= 3,
+              let user = Float((values[0].components(separatedBy: "%").first ?? "")
+                  .replacingOccurrences(of: "CPU usage:", with: "")
+                  .trimmingCharacters(in: .whitespaces)),
+              let system = Float((values[1].components(separatedBy: "%").first ?? "")
+                  .trimmingCharacters(in: .whitespaces)),
+              let idle = Float((values[2].components(separatedBy: "%").first ?? "")
+                  .trimmingCharacters(in: .whitespaces))
+        else {
+            return nil
+        }
+        let summary = PTServerManager.ServerProcessInfoCalculatedElement(
+            system: system,
+            user: user,
+            iowait: 0,
+            nice: 0,
+            sum: max(0, min(100, 100 - idle))
+        )
+        return PTServerManager.ServerProcessInfo(summary: summary, cores: [:])
+    }
+
+    private func buildDarwinLoadInfo(_ top: String) -> SystemLoadInternal {
+        var result = SystemLoadInternal()
+        for line in top.components(separatedBy: "\n") {
+            if line.hasPrefix("Processes:") {
+                let fields = line.components(separatedBy: ",")
+                result.totalProcess = Int(fields.first?
+                    .replacingOccurrences(of: "Processes:", with: "")
+                    .split(separator: " ").first ?? "") ?? 0
+                if fields.count > 1 {
+                    result.runningProcess = Int(fields[1]
+                        .trimmingCharacters(in: .whitespaces)
+                        .split(separator: " ").first ?? "") ?? 0
+                }
+            } else if line.hasPrefix("Load Avg:") {
+                let values = line.replacingOccurrences(of: "Load Avg:", with: "")
+                    .split(separator: ",")
+                    .compactMap { Float($0.trimmingCharacters(in: .whitespaces)) }
+                if values.count == 3 {
+                    result.load1avg = values[0]
+                    result.load5avg = values[1]
+                    result.load15avg = values[2]
+                }
+            }
+        }
+        return result
+    }
+
+    private func buildDarwinMemoryInfo(_ intake: String) -> PTServerManager.ServerMemoryInfo? {
+        let lines = intake.components(separatedBy: "\n")
+        guard let totalBytes = lines.first.flatMap({ UInt64($0.trimmingCharacters(in: .whitespaces)) }),
+              let pageLine = lines.first(where: { $0.contains("page size of ") }),
+              let pageSize = pageLine.components(separatedBy: "page size of ").last?
+                  .split(separator: " ").first.flatMap({ UInt64($0) })
+        else {
+            return nil
+        }
+
+        func pages(_ name: String) -> UInt64 {
+            guard let line = lines.first(where: { $0.hasPrefix(name) }),
+                  let value = line.split(separator: ":").last?
+                      .trimmingCharacters(in: .whitespacesAndNewlines)
+                      .replacingOccurrences(of: ".", with: ""),
+                  let count = UInt64(value)
+            else { return 0 }
+            return count
+        }
+
+        let freeKB = Float(pages("Pages free:") * pageSize) / 1024
+        let cachedKB = Float((pages("Pages inactive:") + pages("Pages speculative:")) * pageSize) / 1024
+        let totalKB = Float(totalBytes) / 1024
+        let swapTokens = lines.first(where: { $0.hasPrefix("total = ") })?
+            .split(whereSeparator: \.isWhitespace).map(String.init) ?? []
+        func swapValue(after key: String) -> Float {
+            guard let index = swapTokens.firstIndex(of: key), index + 2 < swapTokens.count else { return 0 }
+            return darwinSizeKB(swapTokens[index + 2])
+        }
+
+        return PTServerManager.ServerMemoryInfo(
+            total: totalKB,
+            free: min(freeKB, totalKB),
+            buffers: 0,
+            cached: min(cachedKB, max(0, totalKB - freeKB)),
+            swapTotal: swapValue(after: "total"),
+            swapFree: swapValue(after: "free")
+        )
+    }
+
+    private func darwinSizeKB(_ raw: String) -> Float {
+        guard let unit = raw.last,
+              let value = Float(raw.dropLast())
+        else { return 0 }
+        switch unit {
+        case "K": return value
+        case "M": return value * 1024
+        case "G": return value * 1024 * 1024
+        case "T": return value * 1024 * 1024 * 1024
+        default: return Float(raw) ?? 0
+        }
+    }
+
+    private func buildDarwinNetworkInfo(first: String, second: String) -> [PTServerManager.ServerNetworkInfo] {
+        func counters(_ raw: String) -> [String: (rx: Int, tx: Int)] {
+            var result: [String: (rx: Int, tx: Int)] = [:]
+            for line in raw.components(separatedBy: "\n") {
+                let fields = line.split(whereSeparator: \.isWhitespace)
+                guard fields.count >= 10,
+                      fields[2].hasPrefix("<Link#"),
+                      let rx = Int(fields[6]),
+                      let tx = Int(fields[9])
+                else { continue }
+                result[String(fields[0]).replacingOccurrences(of: "*", with: "")] = (rx, tx)
+            }
+            return result
+        }
+
+        let before = counters(first)
+        let after = counters(second)
+        return before.compactMap { name, initial in
+            guard let current = after[name],
+                  current.rx >= initial.rx,
+                  current.tx >= initial.tx
+            else { return nil }
+            return PTServerManager.ServerNetworkInfo(
+                device: name,
+                rxBytesPerSec: current.rx - initial.rx,
+                txBytesPerSec: current.tx - initial.tx
+            )
+        }
     }
 
     private func buildSnapshotSections(_ intake: String) -> [String: String] {

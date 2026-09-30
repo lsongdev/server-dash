@@ -27,5 +27,9 @@ let package = Package(
             name: "PTFoundation",
             dependencies: ["NMSSH", "SQLite"]
         ),
+        .testTarget(
+            name: "PTFoundationTests",
+            dependencies: ["PTFoundation"]
+        ),
     ]
 )

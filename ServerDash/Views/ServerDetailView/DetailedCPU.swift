@@ -18,7 +18,9 @@ struct DetailedCPUElementView: View {
                 Text("CPU")
                     .font(.system(size: 18, weight: .bold, design: .rounded))
                 Spacer()
-                Text(data.cores.count > 1 ? "\(data.cores.count) CORES" : "\(data.cores.count) CORE")
+                Text(data.cores.isEmpty
+                    ? "AGGREGATE"
+                    : (data.cores.count > 1 ? "\(data.cores.count) CORES" : "1 CORE"))
                     .font(.system(size: 10, weight: .regular, design: .monospaced))
             }
             Divider()

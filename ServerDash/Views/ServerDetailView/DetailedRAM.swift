@@ -10,6 +10,10 @@ import SwiftUI
 
 struct DetailedRAMElementView: View {
     let data: PTServerManager.ServerMemoryInfo
+    private var usedKB: Float {
+        max(0, data.memTotal - data.memFree - data.memCached - data.memBuffers)
+    }
+
     var body: some View {
         VStack {
             HStack {
@@ -25,22 +29,22 @@ struct DetailedRAMElementView: View {
                 HStack {
                     Text(String(
                         format: "USED: %@ CACHE %@ FREE %@ SWAP %@",
-                        localizeMemoryInfo(KBytes: data.memTotal - data.memFree),
+                        localizeMemoryInfo(KBytes: usedKB),
                         localizeMemoryInfo(KBytes: data.memCached),
                         localizeMemoryInfo(KBytes: data.memFree),
                         localizeMemoryInfo(KBytes: data.swapTotal)
                     )
                     )
                     Spacer()
-                    Text(String(format: "%.2f", (1.0 - (data.memFree / data.memTotal)) * 100) + " %")
+                    Text(String(format: "%.2f", data.phyUsed * 100) + " %")
                 }
                 .font(.system(size: 8, weight: .regular, design: .monospaced))
                 SeparatedProgressView(height: 25,
                                       backgroundColor: .green,
                                       rounded: false,
                                       progressElements: [
-                                          (.yellow, data.memTotal - data.memFree),
-                                          (.orange, data.memCached),
+                                          (.yellow, usedKB),
+                                          (.orange, data.memCached + data.memBuffers),
                                       ],
                                       emptyHolder: data.memFree)
                     .cornerRadius(5)
