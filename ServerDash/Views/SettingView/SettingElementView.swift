@@ -44,8 +44,6 @@ struct SettingToggleView: View {
     let subTitle: String
     let update: () -> (Bool)
     let callback: (Bool) -> Void
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-
     init(icon: String, title: String, subTitle: String, update: @escaping (() -> (Bool)), callback: @escaping ((Bool) -> Void)) {
         self.icon = icon
         self.title = title
@@ -80,9 +78,7 @@ struct SettingToggleView: View {
                     Image(systemName: status ? "checkmark.circle.fill" : "circle")
                         .foregroundColor(.overridableAccentColor)
                 })
-                    .onReceive(timer, perform: { _ in
-                        status = update()
-                    })
+                    
             }
             .padding()
         }
