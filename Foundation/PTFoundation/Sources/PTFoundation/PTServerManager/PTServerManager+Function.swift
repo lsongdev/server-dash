@@ -98,29 +98,26 @@ public extension PTServerManager {
         return nil
     }
 
-    /// 删除注册的服务器 上执行锁 同时删除所属账户对象
+    /// 删除注册的服务器，保留可供其他服务器复用的凭证。
     /// - Parameter uuid: 服务器ID
     /// - Returns: 删除的服务器对象
     @discardableResult
     func removeServerFromRegisteredList(withKey uuid: ServerDescriptor) -> Server? {
         executionLock.lock()
-        defer {
-            executionLock.unlock()
-            synchronizeObjects(triggeredByServer: uuid)
-        }
-        if let serverObject = serverContainer[uuid] {
+        let removed = serverContainer.removeValue(forKey: uuid)?.server
+        executionLock.unlock()
+        if let removed {
             PTLog.shared.join(self,
                               "removing server \(uuid)",
                               level: .info)
-            serverContainer.removeValue(forKey: uuid)
-            PTAccountManager.shared.removeAccount(withKey: serverObject.server.accountDescriptor)
-            return serverObject.server
+            PTAccountManager.shared.removeServerCredentialIfUnused(id: removed.accountDescriptor)
         } else {
             PTLog.shared.join(self,
                               "the server being removed was not found \(uuid)",
                               level: .warning)
-            return nil
         }
+        synchronizeObjects(triggeredByServer: uuid)
+        return removed
     }
 
     /// 从监视服务器列表中删除服务器 不会中断已经分发的RunLoop  上执行锁

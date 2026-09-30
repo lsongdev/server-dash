@@ -18,6 +18,10 @@ internal final class PTCredentialStore {
         let account: String
         let secret: String
         let payload: Data?
+        let publicKey: String?
+        /// False for credentials entered only for one server.
+        /// Missing on older records, which remain reusable.
+        let reusable: Bool?
     }
 
     private let service = "org.lsong.serverdash.ssh"
@@ -29,13 +33,22 @@ internal final class PTCredentialStore {
         }
 
         let key = query(identity: identity)
-        SecItemDelete(key as CFDictionary)
+        let status = SecItemUpdate(
+            key as CFDictionary,
+            [kSecValueData as String: data] as CFDictionary
+        )
+        if status == errSecSuccess { return true }
 
         var item = key
         item[kSecValueData as String] = data
         item[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
 
-        return SecItemAdd(item as CFDictionary, nil) == errSecSuccess
+        let addStatus = SecItemAdd(item as CFDictionary, nil)
+        if addStatus == errSecSuccess { return true }
+        PTLog.shared.join(self,
+                          "Keychain update failed (\(status)); add failed (\(addStatus))",
+                          level: .warning)
+        return false
     }
 
     func retrieve(identity: String) -> Credential? {

@@ -10,7 +10,6 @@ import SwiftUI
 
 struct DashboardView: View {
     @State var shouldOpenAddSheet: Bool = false
-    let LSNavTitle = NSLocalizedString("NAV_TITLE_BOARD", comment: "Board")
 
     var body: some View {
         ScrollView {
@@ -24,7 +23,7 @@ struct DashboardView: View {
                 AddServerView()
             }
         }
-        .navigationTitle(LSNavTitle)
+        .navigationTitle("Dashboard")
         .navigationViewStyle(StackNavigationViewStyle())
         .navigationBarItems(trailing: Group {
             Button(action: {

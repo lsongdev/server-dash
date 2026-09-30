@@ -9,9 +9,11 @@ import SwiftUI
 struct PersistTerminalView: View {
     let instance: PersistTerminalInstance
 
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject private var ghosttyPreferences = GhosttyPreferences.shared
+
     var body: some View {
         TerminalSurfaceView(context: instance.terminalState)
-            .ignoresSafeArea(.keyboard, edges: .bottom)
             .navigationTitle(
                 instance.terminalState.title.isEmpty
                     ? instance.terminalTitle
@@ -20,14 +22,24 @@ struct PersistTerminalView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(NSLocalizedString("TERMINATE", comment: "Terminate")) {
+                    Button {
                         instance.terminate()
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
                     }
+                    .accessibilityLabel(NSLocalizedString("TERMINATE", comment: "Terminate"))
                 }
             }
             .onAppear {
+                ghosttyPreferences.apply(to: instance.terminalState)
                 instance.terminalState.isSurfaceVisible = true
                 instance.terminalState.requestFocus()
+            }
+            .onReceive(ghosttyPreferences.objectWillChange) { _ in
+                DispatchQueue.main.async {
+                    ghosttyPreferences.apply(to: instance.terminalState)
+                }
             }
             .onDisappear {
                 // Preserve terminal state and scrollback, but stop rendering a

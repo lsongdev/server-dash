@@ -80,7 +80,7 @@
 "APP_PROTECTION_SCRIPT_TINT" = "Authenticate before opening a remote terminal";
 
 /* Protect us from unauthorized operations when app become active */
-"APP_PROTECTION_TINT" = "Protect us from unauthorized operations when app become active";
+"APP_PROTECTION_TINT" = "Require device authentication when opening the app.";
 
 /* An error occurred previously during application setup. */
 "APP_RECOVERY_DESCRIPTION" = "An error occurred previously during application setup";
@@ -370,7 +370,7 @@
 "MONITOR_INTERVAL" = "Monitor Interval";
 
 /* Set the interval for each data gathering task */
-"MONITOR_INTERVAL_TINT" = "Set the interval for each data gathering task";
+"MONITOR_INTERVAL_TINT" = "How often server status is refreshed.";
 
 /* A monitor interval that is too small may cost extra load to remote machine. */
 "MONITOR_INTERVAL_VALUE_TINT" = "A monitor interval that is too small may cost extra load to remote machine.";
@@ -433,7 +433,7 @@
 "NO_SERVER_REGISTERED_TINT" = "No server registered. Register a server now!";
 
 /* No session can be opened, please add a server first! */
-"NO_SESSION_CAN_OPEN" = "No session can be opened, please add a server first!";
+"NO_SESSION_CAN_OPEN" = "Add a server in Servers to start a session.";
 
 /* No Session Opened */
 "NO_SESSION_OPENED" = "No Session Opened";
@@ -453,8 +453,11 @@
 /* Open Quick Session */
 "OPEN_QUICK_SESSION" = "Open Quick Session";
 
-/* Open Session From Server */
-"OPEN_SESSION_FROM_SERVER" = "Open Session From Server";
+/* New Session */
+"NEW_SESSION" = "New Session";
+
+/* Empty sessions prompt */
+"TAP_ADD_TO_OPEN_SESSION" = "Tap + to choose a server and start a session.";
 
 /* Other Options */
 "OTHER_OPTIONS" = "Other Options";
@@ -631,7 +634,7 @@
 "TERMINATE_ALL" = "Terminate All";
 
 /* Are you sure you want to terminate all session? */
-"TERMINATE_ALL_TINT" = "Are you sure you want to terminate all session?";
+"TERMINATE_ALL_TINT" = "Are you sure you want to terminate all sessions?";
 
 /* Early exit may result in unknown errors. */
 "TERMINATE_EXECUTION_WARNING" = "Early exit may result in unknown errors.";
@@ -640,7 +643,7 @@
 "THEME" = "Theme";
 
 /* Override app's color scheme here */
-"THEME_TINT" = "Override app's color scheme here";
+"THEME_TINT" = "Choose how the app follows the system appearance.";
 
 /* This will take some time, please keep the app running in front. */
 "THIS_WILL_TAKE_TIME_TINT" = "This will take some time, please keep the app running in front.";
@@ -701,3 +704,29 @@
 
 /* Will execute clip on server: %@ */
 "WILL_EXECUTE_ON_SERVER_WITH_NAME" = "Will execute clip on server: %@";
+
+/* Settings sections and app information */
+"ABOUT" = "About";
+"ABOUT_VERSION_FORMAT" = "Version %@ (Build %@)";
+"APPEARANCE" = "Appearance";
+"PROJECT_LINK" = "Project on GitHub";
+"SECURITY" = "Security";
+"TERMINAL_FONT_SIZE" = "Font Size";
+"TERMINAL_FONT" = "Font";
+"SYSTEM_DEFAULT" = "System Default";
+"TERMINAL_TEXT" = "Text";
+"TERMINAL_THEME" = "Terminal Theme";
+"GHOSTTY_SETTINGS_HINT" = "Changes apply to current and future terminal sessions.";
+"CREDENTIALS" = "Credentials";
+"NO_CREDENTIALS" = "No credentials yet. Add one to connect to a server.";
+"NEW_CREDENTIAL" = "New Credential";
+"EDIT_CREDENTIAL" = "Edit Credential";
+"AUTHENTICATION" = "Authentication";
+"SSH_KEY" = "SSH Key";
+"IMPORT_PRIVATE_KEY" = "Import Private Key";
+"GENERATE_SSH_KEY" = "Generate SSH Key";
+"PASSPHRASE_OPTIONAL" = "Passphrase (optional)";
+"COPY_PUBLIC_KEY" = "Copy Public Key";
+"PUBLIC_KEY_HINT" = "Add this public key to the server's authorized_keys file.";
+"CREDENTIAL_IN_USE" = "This credential is used by a server. Change or remove the server first.";
+"CREDENTIAL_SAVE_FAILED" = "Could not save credential.";

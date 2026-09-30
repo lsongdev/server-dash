@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct NoServerGuider: View {
-    let LSOperationAddServer = NSLocalizedString("ADD_SERVER", comment: "Add Server")
-
     var body: some View {
         Group{
             NavigationLink(destination: AddServerView()) {
@@ -18,7 +16,7 @@ struct NoServerGuider: View {
                         .foregroundColor(.lightGray)
                     HStack {
                         Image(systemName: "plus.viewfinder")
-                        Text(LSOperationAddServer)
+                        Text("Add Server")
                     }
                 }
             }

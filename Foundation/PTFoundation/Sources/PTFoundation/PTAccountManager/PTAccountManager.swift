@@ -48,6 +48,7 @@ public final class PTAccountManager {
             public let account: String
             public let key: String
             public let representedObject: Data?
+            public let publicKey: String?
         }
 
         /// Retrieve the SSH credential from the system Keychain.
@@ -61,7 +62,8 @@ public final class PTAccountManager {
                     plainLabel: credential.label,
                     account: credential.account,
                     key: credential.secret,
-                    representedObject: credential.payload
+                    representedObject: credential.payload,
+                    publicKey: credential.publicKey
                 )
             }
 
@@ -75,7 +77,9 @@ public final class PTAccountManager {
                 label: legacy.plainLabel,
                 account: legacy.account,
                 secret: legacy.key,
-                payload: legacy.representedObject
+                payload: legacy.representedObject,
+                publicKey: nil,
+                reusable: true
             )
             guard PTCredentialStore.shared.store(credential, identity: uuid) else {
                 return nil
@@ -87,7 +91,8 @@ public final class PTAccountManager {
                 plainLabel: credential.label,
                 account: credential.account,
                 key: credential.secret,
-                representedObject: credential.payload
+                representedObject: credential.payload,
+                publicKey: credential.publicKey
             )
         }
     }
@@ -119,6 +124,31 @@ public final class PTAccountManager {
         case secureShellWithPassword
         /// SSH 密钥登录 但是这里要注意并非所有密钥都需要密码
         case secureShellWithKey
+    }
+
+    public enum CredentialSecret {
+        case password(String)
+        case privateKey(String, passphrase: String, publicKey: String?)
+
+        var type: AccountType {
+            switch self {
+            case .password: return .secureShellWithPassword
+            case .privateKey: return .secureShellWithKey
+            }
+        }
+    }
+
+    public struct CredentialSummary: Identifiable {
+        public let id: AccountHandler
+        public let label: String
+        public let username: String
+        public let type: AccountType
+        public let publicKey: String?
+
+        /// Older server accounts used the internal auth type as their label.
+        public var displayName: String {
+            label == type.rawValue ? username : label
+        }
     }
 
     // MARK: 类成员属性

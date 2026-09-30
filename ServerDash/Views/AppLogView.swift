@@ -31,9 +31,6 @@ struct AppLogView: View {
         self.overrideLogContent = overrideLogContent
     }
 
-    let LSAppNoLog = NSLocalizedString("APPLICATION_NO_LOG", comment: "Application does not have any diagnostic data, try again later.")
-    let LSDiagnostic = NSLocalizedString("DIAGNOSTIC", comment: "Diagnostic")
-
     @State private var showShareSheet = false
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -56,7 +53,7 @@ struct AppLogView: View {
                 header = PTLog.shared.currentLogFileLocation?.path ?? "Unknown Error"
                 textContent = PTLog.shared.obtainCurrentLogContent()
             } else {
-                var newLog = LSAppNoLog
+                var newLog = "No diagnostic data is available yet. Try again later."
                 // read file stucks
                 let get = obtainPreviousLog()
                 if get.1?.count ?? 0 > 0 {
@@ -96,7 +93,7 @@ struct AppLogView: View {
             }
             .padding()
         }
-        .navigationTitle(LSDiagnostic)
+        .navigationTitle("Diagnostics")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarItems(trailing:
             Button(action: {

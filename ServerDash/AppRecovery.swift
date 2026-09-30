@@ -9,8 +9,6 @@ import SwiftUI
 import UIKit
 
 private struct AppRecoveryItemView: View {
-    let LSAppRecoveryOptionButton = NSLocalizedString("APP_RECOVERY_OPTION_CONTINUE", comment: "Continue")
-
     var iconSystemName: String
     var title: String
     var description: String
@@ -37,7 +35,7 @@ private struct AppRecoveryItemView: View {
                     HStack(spacing: 6) {
                         Image(systemName: "arrow.right.circle.fill")
                             .scaleEffect(0.95)
-                        Text(LSAppRecoveryOptionButton)
+                        Text("Continue")
                     }
                     .foregroundColor(.white)
                     .font(.system(size: 17, weight: .regular))
@@ -55,19 +53,11 @@ private struct AppRecoveryItemView: View {
 }
 
 struct AppRecoveryView: View {
-    let LSAppRecovery = NSLocalizedString("APP_RECOVERY_TITLE", comment: "App Recovery")
-    let LSAppRecoveryDescription = NSLocalizedString("APP_RECOVERY_DESCRIPTION", comment: "An error occurred previously during application setup.")
-
-    let LSAppRecoveryOptionReset = NSLocalizedString("APP_RECOVERY_OPTION_RESET", comment: "Reset Application")
-    let LSAppRecoveryOptionResetDescription = NSLocalizedString("APP_RECOVERY_OPTION_RESET_DESCRIPTION", comment: "Delete all your data in this app and start fresh.")
-    let LSAppRecoveryOptionReboot = NSLocalizedString("APP_RECOVERY_OPTION_REBOOT", comment: "Try Again")
-    let LSAppRecoveryOptionRebootDescription = NSLocalizedString("APP_RECOVERY_OPTION_REBOOT_DESCRIPTION", comment: "Exit the app and try again. Try something else if error priests.")
-
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading) {
-                    Text(LSAppRecoveryDescription)
+                    Text("An error occurred during the previous app launch.")
                         .multilineTextAlignment(.leading)
                         .font(.system(size: 15, weight: .regular))
                     Divider()
@@ -81,8 +71,8 @@ struct AppRecoveryView: View {
                     Divider()
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 300))]) {
                         AppRecoveryItemView(iconSystemName: "trash",
-                                            title: LSAppRecoveryOptionReset,
-                                            description: LSAppRecoveryOptionResetDescription) {
+                                            title: "Reset Application",
+                                            description: "Delete all app data and start fresh.") {
                             if let documentLocation = ServerDashApp.obtainApplicationStoragePath()
                             {
                                 try? FileManager.default.removeItem(atPath: documentLocation.path)
@@ -95,8 +85,8 @@ struct AppRecoveryView: View {
                             exit(0)
                         }
                         AppRecoveryItemView(iconSystemName: "exclamationmark.arrow.circlepath",
-                                            title: LSAppRecoveryOptionReboot,
-                                            description: LSAppRecoveryOptionRebootDescription) {
+                                            title: "Try Again",
+                                            description: "Close the app and try launching it again.") {
                             ServerDashApp.lastBootSucceed = true
                             usleep(5000)
                             UIControl().sendAction(#selector(NSXPCConnection.suspend),
@@ -111,7 +101,7 @@ struct AppRecoveryView: View {
                 }
                 .padding()
             }
-            .navigationTitle(LSAppRecovery)
+            .navigationTitle("App Recovery")
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }

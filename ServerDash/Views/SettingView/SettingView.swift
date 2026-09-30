@@ -22,28 +22,60 @@ struct SettingView: View {
         NSLocalizedString("DARK_MODE", comment: "Dark Mode"),
     ]
 
+    private var themeSelection: Binding<Int> {
+        Binding(
+            get: { appearance.storedColorScheme },
+            set: { value in
+                guard let scheme = InternalColorScheme(rawValue: value) else { return }
+                appearance.storeColorScheme(withValue: scheme)
+            }
+        )
+    }
+
+    private var appProtectionSelection: Binding<Bool> {
+        Binding(get: { appProtection }, set: updateAppProtection)
+    }
+
+    private var terminalProtectionSelection: Binding<Bool> {
+        Binding(get: { terminalProtection }, set: updateTerminalProtection)
+    }
+
+    private var monitorIntervalSelection: Binding<Int> {
+        Binding(
+            get: { monitorInterval },
+            set: { value in
+                monitorInterval = value
+                agent.supervisionInterval = value
+            }
+        )
+    }
+
+    private var recordHistorySelection: Binding<Bool> {
+        Binding(
+            get: { recordHistory },
+            set: { value in
+                recordHistory = value
+                agent.supervisionRecordEnabled = value
+                if !value {
+                    askToPurgeHistory = true
+                }
+            }
+        )
+    }
+
     var body: some View {
         Form {
             Section {
-                Picker(
-                    NSLocalizedString("THEME", comment: "Theme"),
-                    selection: Binding(
-                        get: { appearance.storedColorScheme },
-                        set: { value in
-                            guard let scheme = InternalColorScheme(rawValue: value) else {
-                                return
-                            }
-                            appearance.storeColorScheme(withValue: scheme)
-                        }
-                    )
-                ) {
+                Picker(selection: themeSelection) {
                     ForEach(0..<themeNames.count, id: \.self) { index in
                         Text(themeNames[index]).tag(index)
                     }
+                } label: {
+                    SettingsRowLabel(title: NSLocalizedString("THEME", comment: "Theme"), systemImage: "paintbrush")
                 }
-                .pickerStyle(.segmented)
+                .pickerStyle(.menu)
             } header: {
-                Text(NSLocalizedString("THEME", comment: "Theme"))
+                Text(NSLocalizedString("APPEARANCE", comment: "Appearance"))
             } footer: {
                 Text(NSLocalizedString(
                     "THEME_TINT",
@@ -52,69 +84,67 @@ struct SettingView: View {
             }
 
             Section {
-                Toggle(
-                    NSLocalizedString("APP_PROTECTION", comment: "App Protection"),
-                    isOn: Binding(
-                        get: { appProtection },
-                        set: { updateAppProtection($0) }
-                    )
-                )
+                NavigationLink(destination: CredentialListView()) {
+                    SettingsRowLabel(title: NSLocalizedString("CREDENTIALS", comment: "Credentials"), systemImage: "key")
+                }
 
-                Toggle(
-                    NSLocalizedString("APP_PROTECTION_SCRIPT", comment: "Terminal Protection"),
-                    isOn: Binding(
-                        get: { terminalProtection },
-                        set: { updateTerminalProtection($0) }
+                Toggle(isOn: appProtectionSelection) {
+                    SettingsRowLabel(
+                        title: NSLocalizedString("APP_PROTECTION", comment: "App Protection"),
+                        systemImage: "lock.shield"
                     )
-                )
+                }
+
+                Toggle(isOn: terminalProtectionSelection) {
+                    SettingsRowLabel(
+                        title: NSLocalizedString("APP_PROTECTION_SCRIPT", comment: "Terminal Protection"),
+                        systemImage: "terminal"
+                    )
+                }
+            } header: {
+                Text(NSLocalizedString("SECURITY", comment: "Security"))
             } footer: {
-                Text(NSLocalizedString(
-                    "APP_PROTECTION_SCRIPT_TINT",
-                    comment: "Authenticate before opening a remote terminal"
-                ))
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(NSLocalizedString(
+                        "APP_PROTECTION_TINT",
+                        comment: "Authenticate when opening the app"
+                    ))
+                    Text(NSLocalizedString(
+                        "APP_PROTECTION_SCRIPT_TINT",
+                        comment: "Authenticate before opening a remote terminal"
+                    ))
+                }
             }
 
             Section {
-                Stepper(
-                    value: Binding(
-                        get: { monitorInterval },
-                        set: { value in
-                            monitorInterval = value
-                            agent.supervisionInterval = value
-                        }
-                    ),
-                    in: 5...3600,
-                    step: 5
-                ) {
-                    HStack {
-                        Text(NSLocalizedString(
-                            "MONITOR_INTERVAL",
-                            comment: "Monitor Interval"
-                        ))
-                        Spacer()
-                        Text(String(
-                            format: NSLocalizedString("%d_SECOND", comment: "%ds"),
-                            monitorInterval
-                        ))
-                        .foregroundColor(.secondary)
-                    }
+                HStack(spacing: 8) {
+                    SettingsRowLabel(
+                        title: NSLocalizedString("MONITOR_INTERVAL", comment: "Monitor Interval"),
+                        systemImage: "clock"
+                    )
+                    Spacer(minLength: 0)
+                    Text(String(
+                        format: NSLocalizedString("%d_SECOND", comment: "%ds"),
+                        monitorInterval
+                    ))
+                    .foregroundColor(.secondary)
+                    Stepper(
+                        "",
+                        value: monitorIntervalSelection,
+                        in: 5...3600,
+                        step: 5
+                    )
+                    .labelsHidden()
                 }
 
-                Toggle(
-                    NSLocalizedString("MONITOR_ENABLE_RECORD", comment: "Enable Record"),
-                    isOn: Binding(
-                        get: { recordHistory },
-                        set: { value in
-                            recordHistory = value
-                            agent.supervisionRecordEnabled = value
-                            if !value {
-                                askToPurgeHistory = true
-                            }
-                        }
+                Toggle(isOn: recordHistorySelection) {
+                    SettingsRowLabel(
+                        title: NSLocalizedString("MONITOR_ENABLE_RECORD", comment: "Enable Record"),
+                        systemImage: "clock"
                     )
-                )
+                }
             } header: {
-                Text(NSLocalizedString("SIDEBAR_DASHBOARD", comment: "Monitoring"))
+                Text(NSLocalizedString("MONITORING", comment: "Monitoring"))
             } footer: {
                 Text(NSLocalizedString(
                     "MONITOR_INTERVAL_TINT",
@@ -123,10 +153,18 @@ struct SettingView: View {
             }
 
             Section {
-                NavigationLink(destination: SettingAccountView()) {
-                    Label(
-                        NSLocalizedString("KEY", comment: "Key"),
-                        systemImage: "key"
+                NavigationLink(destination: GhosttySettingsView()) {
+                    SettingsRowLabel(title: "Ghostty", systemImage: "terminal")
+                }
+
+                NavigationLink(destination: AboutView()) {
+                    SettingsRowLabel(title: NSLocalizedString("ABOUT", comment: "About"), systemImage: "info.circle")
+                }
+
+                NavigationLink(destination: SettingDiagView()) {
+                    SettingsRowLabel(
+                        title: NSLocalizedString("DIAGNOSTIC", comment: "Diagnostic"),
+                        systemImage: "waveform.path.ecg"
                     )
                 }
             }
@@ -182,6 +220,25 @@ struct SettingView: View {
         } onFailure: { _ in
             // Keep the protected setting unchanged.
         }
+    }
+}
+
+private struct SettingsRowLabel: View {
+    let title: String
+    let systemImage: String
+
+    var body: some View {
+        HStack(spacing: 16) {
+            Image(systemName: systemImage)
+                .font(.system(size: 19))
+                .foregroundColor(.overridableAccentColor)
+                .frame(width: 24, height: 28)
+            Text(title)
+                .foregroundColor(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
+        .accessibilityElement(children: .combine)
     }
 }
 

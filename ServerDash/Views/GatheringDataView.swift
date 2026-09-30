@@ -17,15 +17,6 @@ struct GatheringDataView: View {
     @ObservedObject var agent = Agent.shared
     @State var ringColors: [Color] = [Color.overridableAccentColor]
 
-    let LSTitleTint = NSLocalizedString("SUMMARY", comment: "Summary")
-
-    let LSTitleWelcome = NSLocalizedString("WELCOME_ABROAD", comment: "Welcome Abroad")
-    let LSTitleInUpdate = NSLocalizedString("SERVER_IN_UPDATE_%d", comment: "Updating %d")
-
-    let LSSubTitleNotOne = NSLocalizedString("NO_SERVER_REGISTERED_TINT", comment: "No server registered. Register a server now!")
-    let LSSubTitleReg = NSLocalizedString("%d_SERVER_REGISTERED", comment: "%d servers registered")
-    let LSSubTitleTakeTime = NSLocalizedString("THIS_WILL_TAKE_TIME_TINT", comment: "This will take some time, please keep the app running in front.")
-
     @State var title: String = ""
     @State var subTitle: String = ""
     @State var dateStr: String = ""
@@ -35,7 +26,7 @@ struct GatheringDataView: View {
     var head: some View {
         HStack {
             Image(systemName: "newspaper")
-            Text(LSTitleTint.uppercased())
+            Text("SUMMARY")
             Spacer()
             NavigationLink(
                 destination: AppLogView(showCurrentLog: true),
@@ -71,14 +62,15 @@ struct GatheringDataView: View {
     func updateStrings() {
         let cnt = PTServerManager.shared.obtainAcquireInProgressCount()
         if cnt > 0 {
-            title = String(format: LSTitleInUpdate, cnt)
-            subTitle = LSSubTitleTakeTime
+            title = "Updating \(cnt)"
+            subTitle = "This will take some time. Please keep the app open."
         } else {
-            title = LSTitleWelcome
+            title = "Welcome"
             if agent.serverDescriptorsSorted.count == 0 {
-                subTitle = LSSubTitleNotOne
+                subTitle = "No servers registered. Add a server to get started."
             } else {
-                subTitle = String(format: LSSubTitleReg, agent.serverDescriptorsSorted.count)
+                let count = agent.serverDescriptorsSorted.count
+                subTitle = "\(count) server\(count == 1 ? "" : "s") registered"
             }
         }
         dateStr = Date().description(with: .current)

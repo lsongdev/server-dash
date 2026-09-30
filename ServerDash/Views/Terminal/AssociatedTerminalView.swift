@@ -9,17 +9,29 @@ import SwiftUI
 
 struct AssociatedTerminalView: View {
     let serverDescriptor: PTServerManager.ServerDescriptor
+    let onTerminate: (() -> Void)?
+
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject private var ghosttyPreferences = GhosttyPreferences.shared
 
     @State private var openingConnection = false
     @State private var instance: PersistTerminalInstance?
     @State private var connectionFailed = false
 
+    init(
+        serverDescriptor: PTServerManager.ServerDescriptor,
+        onTerminate: (() -> Void)? = nil
+    ) {
+        self.serverDescriptor = serverDescriptor
+        self.onTerminate = onTerminate
+    }
+
     var body: some View {
         Group {
             if let instance {
                 TerminalSurfaceView(context: instance.terminalState)
-                    .ignoresSafeArea(.keyboard, edges: .bottom)
                     .onAppear {
+                        ghosttyPreferences.apply(to: instance.terminalState)
                         instance.terminalState.requestFocus()
                     }
             } else if openingConnection {
@@ -32,14 +44,23 @@ struct AssociatedTerminalView: View {
         }
         .navigationTitle(instance?.terminalTitle ?? NSLocalizedString("SHELL", comment: "Shell"))
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarItems(trailing:
-            Button(NSLocalizedString("TERMINATE", comment: "Terminate")) {
-                instance?.terminate()
-                instance = nil
+        .toolbar {
+            if let instance {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        instance.terminate()
+                        if let onTerminate {
+                            onTerminate()
+                        } else {
+                            dismiss()
+                        }
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    .accessibilityLabel(NSLocalizedString("TERMINATE", comment: "Terminate"))
+                }
             }
-            .disabled(instance == nil)
-            .opacity(instance == nil ? 0 : 1)
-        )
+        }
         .alert(
             NSLocalizedString("ERROR", comment: "Error"),
             isPresented: $connectionFailed
@@ -53,6 +74,13 @@ struct AssociatedTerminalView: View {
         }
         .task {
             connect()
+        }
+        .onReceive(ghosttyPreferences.objectWillChange) { _ in
+            DispatchQueue.main.async {
+                if let instance = self.instance {
+                    ghosttyPreferences.apply(to: instance.terminalState)
+                }
+            }
         }
     }
 

@@ -20,22 +20,6 @@ enum NavigationTag: Int, Equatable, Identifiable {
 }
 
 struct SideBarView: View {
-    let LSSideBarTitle = NSLocalizedString("APP_NAME", comment: "Server Dash")
-    let LSSideBarElementDashboard = NSLocalizedString("SIDEBAR_DASHBOARD", comment: "Dashboard")
-
-    let LSSideBarElementServer = NSLocalizedString("SIDEBAR_SERVER", comment: "Server")
-    let LSSideBarElementServerManager = NSLocalizedString("SIDEBAR_SERVER_MANAGER", comment: "Management")
-    let LSSideBarElementRegisterServer = NSLocalizedString("SIDEBAR_REG_SERVER", comment: "Register Server")
-
-    let LSSideBarElementUtils = NSLocalizedString("SIDEBAR_UTILS", comment: "Utils")
-    let LSSideBarElementRemoteLogin = NSLocalizedString("DOCK_TERMINAL", comment: "Remote Login")
-
-    let LSSideBarElementApplication = NSLocalizedString("SIDEBAR_APPLICATION", comment: "Application")
-    let LSSideBarElementSetting = NSLocalizedString("SIDEBAR_SETTING", comment: "Setting")
-    let LSSideBarElementHelp = NSLocalizedString("SIDEBAR_HELP", comment: "Help")
-
-    let LSSideBarCopyRight = NSLocalizedString("COPY_RIGHT_FULL", comment: "Copyright © 2020 Pillow Talk Team. All rights reserved.")
-
     let fntSideBarSectionHead = Font.system(size: 18, weight: .semibold)
 
     @State var whichPane: NavigationTag? = nil
@@ -57,12 +41,12 @@ struct SideBarView: View {
                     NavigationLink(destination: DashboardView(),
                        tag: NavigationTag.Dashboard,
                        selection: $whichPane) {
-                        Label(LSSideBarElementDashboard, systemImage: "square.stack.3d.down.right.fill")
+                        Label("Dashboard", systemImage: "square.stack.3d.down.right.fill")
                     }
                 }
 
                 Group {
-                    Text(LSSideBarElementServer).font(fntSideBarSectionHead)
+                    Text("Servers").font(fntSideBarSectionHead)
                     ForEach(agent.serverDescriptorsSorted, id: \.self) { item in
                         NavigationLink(
                             destination: DetailedServerView(serverDescriptor: item),
@@ -87,33 +71,33 @@ struct SideBarView: View {
                                      animated: true,
                                      completion: nil)
                     } label: {
-                        Label(LSSideBarElementRegisterServer, systemImage: "plus.square")
+                        Label("Add Server", systemImage: "plus.square")
                     }
                 }
 
                 Group {
-                    Text(LSSideBarElementUtils)
+                    Text("Utilities")
                         .font(fntSideBarSectionHead)
                     NavigationLink(destination: TerminalLoader(),
                                    tag: NavigationTag.RemoteLogin,
                                    selection: $whichPane) {
-                        Label(LSSideBarElementRemoteLogin, systemImage: "rectangle.stack.person.crop")
+                        Label("Terminal", systemImage: "rectangle.stack.person.crop")
                     }
                 }
 
                 Group {
-                    Text(LSSideBarElementApplication)
+                    Text("Application")
                         .font(fntSideBarSectionHead)
                     NavigationLink(destination: SettingView(),
                                    tag: NavigationTag.Setting,
                                    selection: $whichPane) {
-                        Label(LSSideBarElementSetting, systemImage: "gear")
+                        Label("Settings", systemImage: "gear")
                     }
                 
                 }
             }
             .listStyle(SidebarListStyle())
-            .navigationTitle(LSSideBarTitle)
+            .navigationTitle("Server Dash")
             .background(
                 HostingWindowFinder { [weak windowObserver] window in
                     windowObserver?.window = window

@@ -44,11 +44,9 @@ struct PersistTerminalInstanceView: View {
             Button(role: .destructive) {
                 instanceRef.terminate()
             } label: {
-                Label(
-                    NSLocalizedString("TERMINATE", comment: "Terminate"),
-                    systemImage: "xmark"
-                )
+                Image(systemName: "xmark")
             }
+            .accessibilityLabel(NSLocalizedString("TERMINATE", comment: "Terminate"))
         }
     }
 }

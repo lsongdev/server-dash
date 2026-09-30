@@ -54,6 +54,7 @@ final class PersistTerminalInstance: NSObject, Identifiable, NMSSHChannelDelegat
         state.configuration = TerminalSurfaceOptions(
             backend: .inMemory(terminalSession)
         )
+        GhosttyPreferences.shared.apply(to: state)
         terminalStateStorage = state
         return state
     }

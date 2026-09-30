@@ -86,7 +86,7 @@
 "APP_PROTECTION_SCRIPT_TINT" = "打开远程终端前要求设备身份验证";
 
 /* Protect us from unauthorized operations when app become active */
-"APP_PROTECTION_TINT" = "在打开应用时要求验证用户的设备所有权";
+"APP_PROTECTION_TINT" = "打开应用时要求设备身份验证。";
 
 /* An error occurred previously during application setup. */
 "APP_RECOVERY_DESCRIPTION" = "应用启动过程中可能遇到了问题。";
@@ -385,7 +385,7 @@
 "MONITOR_INTERVAL" = "监视间隔";
 
 /* Set the interval for each data gathering task */
-"MONITOR_INTERVAL_TINT" = "设置每次获取数据的时间间隔";
+"MONITOR_INTERVAL_TINT" = "设置服务器状态的刷新频率。";
 
 /* A monitor interval that is too small may cost extra load to remote machine. */
 "MONITOR_INTERVAL_VALUE_TINT" = "过小的时间间隔可能会给远端主机带来额外的开销";
@@ -448,7 +448,7 @@
 "NO_SERVER_REGISTERED_TINT" = "尚未注册服务器。";
 
 /* No session can be opened, please add a server first! */
-"NO_SESSION_CAN_OPEN" = "无法创建远程登录会话，请先添加一些服务器。";
+"NO_SESSION_CAN_OPEN" = "请先在服务器页面添加服务器，再创建会话。";
 
 /* No Session Opened */
 "NO_SESSION_OPENED" = "没有打开的会话";
@@ -468,8 +468,11 @@
 /* Open Quick Session */
 "OPEN_QUICK_SESSION" = "快捷登录";
 
-/* Open Session From Server */
-"OPEN_SESSION_FROM_SERVER" = "登录已注册的服务器";
+/* New Session */
+"NEW_SESSION" = "新建会话";
+
+/* Empty sessions prompt */
+"TAP_ADD_TO_OPEN_SESSION" = "点击右上角的 + 选择服务器并创建会话。";
 
 /* Other Options */
 "OTHER_OPTIONS" = "其他选项";
@@ -661,7 +664,7 @@
 "THEME" = "主题";
 
 /* Override app's color scheme here */
-"THEME_TINT" = "在这里选择浅色主题或是深色主题";
+"THEME_TINT" = "选择跟随系统、浅色或深色外观。";
 
 /* This will take some time, please keep the app running in front. */
 "THIS_WILL_TAKE_TIME_TINT" = "这会花费一些时间，请保持应用在前台运行。";
@@ -722,3 +725,29 @@
 
 /* Will execute clip on server: %@ */
 "WILL_EXECUTE_ON_SERVER_WITH_NAME" = "将会在 %@ 上执行捷径";
+
+/* Settings sections and app information */
+"ABOUT" = "关于";
+"ABOUT_VERSION_FORMAT" = "版本 %@（构建 %@）";
+"APPEARANCE" = "外观";
+"PROJECT_LINK" = "GitHub 项目";
+"SECURITY" = "安全";
+"TERMINAL_FONT_SIZE" = "文字大小";
+"TERMINAL_FONT" = "字体";
+"SYSTEM_DEFAULT" = "系统默认";
+"TERMINAL_TEXT" = "文字";
+"TERMINAL_THEME" = "终端主题";
+"GHOSTTY_SETTINGS_HINT" = "更改会应用到当前及之后创建的终端会话。";
+"CREDENTIALS" = "用户凭证";
+"NO_CREDENTIALS" = "还没有凭证。添加凭证后即可连接服务器。";
+"NEW_CREDENTIAL" = "新建凭证";
+"EDIT_CREDENTIAL" = "编辑凭证";
+"AUTHENTICATION" = "认证方式";
+"SSH_KEY" = "SSH 密钥";
+"IMPORT_PRIVATE_KEY" = "导入私钥";
+"GENERATE_SSH_KEY" = "生成 SSH 密钥";
+"PASSPHRASE_OPTIONAL" = "密钥密码（可选）";
+"COPY_PUBLIC_KEY" = "复制公钥";
+"PUBLIC_KEY_HINT" = "将此公钥添加到服务器的 authorized_keys 文件中。";
+"CREDENTIAL_IN_USE" = "此凭证正被服务器使用。请先修改或删除对应服务器。";
+"CREDENTIAL_SAVE_FAILED" = "无法保存凭证。";

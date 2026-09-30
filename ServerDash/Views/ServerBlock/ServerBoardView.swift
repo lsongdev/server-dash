@@ -11,8 +11,6 @@ import SwiftUI
 struct ServerBoardView: View {
     @ObservedObject var agent = Agent.shared
 
-    let LSTitleTint = NSLocalizedString("SERVER_STATUS", comment: "Server Status")
-
     var body: some View {
         VStack {
             if agent.serverDescriptorsSortedSupervised.count < 1 {
@@ -28,11 +26,11 @@ struct ServerBoardView: View {
             HStack {
                 Image(systemName: "square.stack.3d.down.forward.fill")
                 if agent.serverDescriptorsSorted == agent.serverDescriptorsSortedSupervised {
-                    Text(LSTitleTint.uppercased())
+                    Text("SERVER STATUS")
                         .bold()
                 } else {
                     HStack(alignment: .bottom) {
-                        Text(LSTitleTint.uppercased())
+                        Text("SERVER STATUS")
                             .font(.system(size: 16, weight: .bold, design: .default))
                         Text("\(agent.serverDescriptorsSortedSupervised.count)/\(agent.serverDescriptorsSorted.count)")
                             .font(.system(size: 16, weight: .bold, design: .monospaced))
