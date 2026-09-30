@@ -163,7 +163,6 @@ public final class PTFoundation {
                 let keychain = Keychain(service: "wiki.qaq.PillowTalk.kcAccess")
                 let masterKeyID = "wiki.qaq.PillowTalk.MasterCrypto"
                 guard let legacyMasterKey = try? keychain.getString(masterKeyID),
-                      let legacyMasterKey,
                       !legacyMasterKey.isEmpty
                 else {
                     _onCriticalError(.keychainInitializationFailed)
