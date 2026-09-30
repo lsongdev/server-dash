@@ -130,6 +130,7 @@ final class PersistTerminalInstance: NSObject, Identifiable, NMSSHChannelDelegat
         terminalSession.receive("\r\n[*] Connection closed\r\n")
         let runtime = UInt64(max(0, Date().timeIntervalSince(openDate) * 1000))
         terminalSession.finish(exitCode: 0, runtimeMilliseconds: runtime)
+        Agent.shared.removeTerminal(withInstance: self)
     }
 
     func terminate() {
