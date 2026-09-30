@@ -23,6 +23,8 @@ struct TabBarView: View {
 
     @State private var selectedTab: Tab = .servers
     @State private var terminalPath: [TerminalRoute] = []
+    @State private var legacyTerminalDescriptor: String?
+    @State private var legacyTerminalActive = false
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -37,11 +39,31 @@ struct TabBarView: View {
             }
             .tag(Tab.servers)
 
-            NavigationStack(path: $terminalPath) {
-                TerminalLoader()
-                    .navigationDestination(for: TerminalRoute.self) { route in
-                        AssociatedTerminalView(serverDescriptor: route.serverDescriptor)
+            Group {
+                if #available(iOS 16.0, *) {
+                    NavigationStack(path: $terminalPath) {
+                        TerminalLoader()
+                            .navigationDestination(for: TerminalRoute.self) { route in
+                                AssociatedTerminalView(serverDescriptor: route.serverDescriptor)
+                            }
                     }
+                } else {
+                    NavigationView {
+                        TerminalLoader()
+                            .background {
+                                if let descriptor = legacyTerminalDescriptor {
+                                    NavigationLink(
+                                        destination: AssociatedTerminalView(serverDescriptor: descriptor),
+                                        isActive: $legacyTerminalActive
+                                    ) {
+                                        EmptyView()
+                                    }
+                                    .hidden()
+                                }
+                            }
+                    }
+                    .navigationViewStyle(.stack)
+                }
             }
             .tabItem {
                 Label(
@@ -65,7 +87,14 @@ struct TabBarView: View {
         .onReceive(NotificationCenter.default.publisher(for: .openTerminalForServer)) { note in
             guard let descriptor = note.object as? String else { return }
             selectedTab = .terminal
-            terminalPath.append(TerminalRoute(serverDescriptor: descriptor))
+            if #available(iOS 16.0, *) {
+                terminalPath.append(TerminalRoute(serverDescriptor: descriptor))
+            } else {
+                legacyTerminalDescriptor = descriptor
+                DispatchQueue.main.async {
+                    legacyTerminalActive = true
+                }
+            }
         }
     }
 }
