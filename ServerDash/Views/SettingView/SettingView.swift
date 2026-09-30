@@ -110,15 +110,15 @@ struct SettingView: View {
                                 SettingToggleView(icon: "terminal",
                                                   title: NSLocalizedString("APP_PROTECTION_SCRIPT", comment: "Execution Protection"),
                                                   subTitle: NSLocalizedString("APP_PROTECTION_SCRIPT_TINT", comment: "Authenticate when execute script on server")) {
-                                    Agent.shared.applicationProtectedScriptExecution
+                                    Agent.shared.terminalProtectionEnabled
                                 } callback: { value in
-                                    if Agent.shared.applicationProtectedScriptExecution {
+                                    if Agent.shared.terminalProtectionEnabled {
                                         let authResult = Agent
                                             .shared
                                             .authenticationWithBioIDSyncAndReturnIsSuccessOrError()
                                         if !authResult.0 { return }
                                     }
-                                    Agent.shared.applicationProtectedScriptExecution = value
+                                    Agent.shared.terminalProtectionEnabled = value
                                 }
                             }
                             .padding(.horizontal, 8)

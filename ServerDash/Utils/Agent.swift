@@ -33,8 +33,8 @@ class Agent: ObservableObject {
     @UserDefaultsWrapper(key: "wiki.qaq.pillowtalk.applicationProtected", defaultValue: false)
     var applicationProtected: Bool
 
-    @UserDefaultsWrapper(key: "wiki.qaq.pillowtalk.applicationProtectedScriptExecution", defaultValue: false)
-    var applicationProtectedScriptExecution: Bool
+    @UserDefaultsWrapper(key: "org.lsong.serverdash.terminalProtection", defaultValue: false)
+    var terminalProtectionEnabled: Bool
 
     @Atomic var applicationActived: Bool = false
 
@@ -71,17 +71,6 @@ class Agent: ObservableObject {
         }
     }
 
-    // 这里的 UUID 仅用于触发更新 发送到 Published 之后由每个 view 的 onReceive 处理
-    @Atomic var clipDataSender = UUID() {
-        didSet {
-            let value = clipDataSender
-            if value == oldValue { return }
-            DispatchQueue.main.async {
-                self.clipDataTokenPublisher = value
-            }
-        }
-    }
-
     @Atomic var authorizationStatusSender: AppAuthorizationStatus = .unauthorized {
         didSet {
             let value = authorizationStatusSender
@@ -109,7 +98,6 @@ class Agent: ObservableObject {
     @Published var serverDescriptorsSorted: [String] = []
     @Published var serverSectionsSorted: [String] = []
     @Published var serverDescriptorsSortedSupervised: [String] = []
-    @Published var clipDataTokenPublisher = UUID()
     @Published var authorizationStatus = AppAuthorizationStatus.unauthorized
     @Published var terminalInstance = [PersistTerminalInstance]()
 

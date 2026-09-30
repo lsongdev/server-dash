@@ -82,7 +82,7 @@ final class PersistTerminalInstance: NSObject, Identifiable, NMSSHChannelDelegat
         onComplete: @escaping (PersistTerminalInstance?) -> Void
     ) {
         DispatchQueue.global(qos: .userInitiated).async {
-            if Agent.shared.applicationProtectedScriptExecution {
+            if Agent.shared.terminalProtectionEnabled {
                 let authResult = Agent.shared.authenticationWithBioIDSyncAndReturnIsSuccessOrError()
                 guard authResult.0 else {
                     onComplete(nil)

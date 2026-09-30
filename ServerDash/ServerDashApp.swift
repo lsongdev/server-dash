@@ -86,12 +86,6 @@ struct ServerDashApp: App {
                 fatalError("Application crashed due to a runtime error \(runtimeError)")
             }
 
-            for (_, checkpoints) in PTCheckpointManager.shared.obtainCheckpointList() {
-                for (_, checkpoint) in checkpoints {
-                    PTCheckpointManager.shared.deleteCheckpointWith(name: checkpoint.name, inSection: checkpoint.section)
-                }
-            }
-
             PTLog.shared.join("App",
                               "waiting for data to be filled",
                               level: .info)

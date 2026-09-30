@@ -35,7 +35,6 @@ public final class PTFoundation {
         case serverManagerInitializationFailed
         case serverManagerDatabaseInitializationFailed
         case accountManagerInitializationFailed
-        case codeClipManagerInitializationFailed
     }
 
     /// 运行时错误 遇到就崩
@@ -203,17 +202,6 @@ public final class PTFoundation {
             _onCriticalError(.serverManagerInitializationFailed)
         }
 
-        // 初始化代码片段
-        if let error = PTCodeClipManager.shared.initialization(toDir: baseDir) {
-            PTLog.shared.join(self, "initialization interrupted via \(error)", level: .critical)
-            _onCriticalError(.codeClipManagerInitializationFailed)
-        }
-
-        // 初始化检查点
-        if let error = PTCheckpointManager.shared.initialization(toDir: baseDir) {
-            PTLog.shared.join(self, "initialization interrupted via \(error)", level: .critical)
-            _onCriticalError(.codeClipManagerInitializationFailed)
-        }
     }
 
     /// 保证目录存在于此

@@ -74,10 +74,10 @@
 "APP_PROTECTION" = "App Protection";
 
 /* Execution Protection */
-"APP_PROTECTION_SCRIPT" = "Execution Protection";
+"APP_PROTECTION_SCRIPT" = "Terminal Protection";
 
 /* Authenticate when execute script on server */
-"APP_PROTECTION_SCRIPT_TINT" = "Authenticate when execute script on server";
+"APP_PROTECTION_SCRIPT_TINT" = "Authenticate before opening a remote terminal";
 
 /* Protect us from unauthorized operations when app become active */
 "APP_PROTECTION_TINT" = "Protect us from unauthorized operations when app become active";
