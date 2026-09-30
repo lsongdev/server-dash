@@ -12,7 +12,6 @@ struct AssociatedTerminalView: View {
 
     @State private var openingConnection = false
     @State private var instance: PersistTerminalInstance?
-    @State private var opened = false
     @State private var connectionFailed = false
 
     var body: some View {
@@ -60,8 +59,7 @@ struct AssociatedTerminalView: View {
     }
 
     private func connect() {
-        guard !opened else { return }
-        opened = true
+        guard !openingConnection, instance == nil else { return }
         openingConnection = true
 
         PersistTerminalInstance.openConnection(withServer: serverDescriptor) { instance in
