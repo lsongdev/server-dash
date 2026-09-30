@@ -32,16 +32,14 @@ struct AssociatedTerminalView: View {
         }
         .navigationTitle(instance?.terminalTitle ?? NSLocalizedString("SHELL", comment: "Shell"))
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            if let instance {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(NSLocalizedString("TERMINATE", comment: "Terminate")) {
-                        instance.terminate()
-                        self.instance = nil
-                    }
-                }
+        .navigationBarItems(trailing:
+            Button(NSLocalizedString("TERMINATE", comment: "Terminate")) {
+                instance?.terminate()
+                instance = nil
             }
-        }
+            .disabled(instance == nil)
+            .opacity(instance == nil ? 0 : 1)
+        )
         .alert(
             NSLocalizedString("ERROR", comment: "Error"),
             isPresented: $connectionFailed
