@@ -64,7 +64,6 @@
 		50D0AC94265FE2860073F4C3 /* PullToRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D0AC92265FE2860073F4C3 /* PullToRefresh.swift */; };
 		50D4D70026410E5300D00BFD /* AddServerView+Validator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D4D6FF26410E5300D00BFD /* AddServerView+Validator.swift */; };
 		50FBD150264116BE00A29628 /* DocumentPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50FBD14F264116BE00A29628 /* DocumentPicker.swift */; };
-		970F27282D1ADAE7004899AC /* SettingElementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970F27272D1ADAE6004899AC /* SettingElementView.swift */; };
 		9712F4BC2A81146700E5A901 /* AppRecovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9712F4B82A81146700E5A901 /* AppRecovery.swift */; };
 		9712F4BD2A81146700E5A901 /* Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9712F4B92A81146700E5A901 /* Appearance.swift */; };
 		9712F4BE2A81146700E5A901 /* ServerDashApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9712F4BA2A81146700E5A901 /* ServerDashApp.swift */; };
@@ -133,7 +132,6 @@
 		50FF7767262D3D39009EDC7D /* ServerBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerBoardView.swift; sourceTree = "<group>"; };
 		50FF7771262D3E26009EDC7D /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		50FF7777262D450A009EDC7D /* AddServerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddServerView.swift; sourceTree = "<group>"; };
-		970F27272D1ADAE6004899AC /* SettingElementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingElementView.swift; sourceTree = "<group>"; };
 		9712F4AF2A8111B400E5A901 /* NMSSH */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = NMSSH; path = Foundation/NMSSH; sourceTree = "<group>"; };
 		9712F4B02A8111B400E5A901 /* PTFoundation */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = PTFoundation; path = Foundation/PTFoundation; sourceTree = "<group>"; };
 		9712F4B12A8111B400E5A901 /* CSSH */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = CSSH; path = Foundation/CSSH; sourceTree = "<group>"; };
@@ -240,7 +238,6 @@
 			isa = PBXGroup;
 			children = (
 				503EB567266384A20001C162 /* SettingAccountView.swift */,
-				970F27272D1ADAE6004899AC /* SettingElementView.swift */,
 				50A1C03B2654CC6E005773AF /* SettingDiagView.swift */,
 				5010DD9A263A62F100CA4C34 /* SettingView.swift */,
 			);
@@ -468,7 +465,6 @@
 				500C2BD42656AA0E0068CC18 /* DetailedSystem.swift in Sources */,
 				50B82779263F28F700989D51 /* Agent.swift in Sources */,
 				50B8277A263F28F700989D51 /* ServerBoardView.swift in Sources */,
-				970F27282D1ADAE7004899AC /* SettingElementView.swift in Sources */,
 				500FA4B72655E72500291738 /* HardwareModel.swift in Sources */,
 				50B827A0263F37E600989D51 /* ClearBackgroundView.swift in Sources */,
 				50B8277B263F28F700989D51 /* Util.swift in Sources */,
