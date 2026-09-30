@@ -80,10 +80,10 @@
 "APP_PROTECTION" = "应用保护";
 
 /* Execution Protection */
-"APP_PROTECTION_SCRIPT" = "脚本执行保护";
+"APP_PROTECTION_SCRIPT" = "终端连接保护";
 
 /* Authenticate when execute script on server */
-"APP_PROTECTION_SCRIPT_TINT" = "在远程主机上执行脚本之前要求验证";
+"APP_PROTECTION_SCRIPT_TINT" = "打开远程终端前要求设备身份验证";
 
 /* Protect us from unauthorized operations when app become active */
 "APP_PROTECTION_TINT" = "在打开应用时要求验证用户的设备所有权";

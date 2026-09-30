@@ -11,7 +11,7 @@ extension PTServerManager {
     /// 初始化 初始化完成以后就只写不读了
     /// - Parameter toDir: 可读写目录
     /// - Returns: 错误 如果有
-    func initialization(toDir: URL, requireRunLoop: Bool) -> PTFoundation.InitializationError? {
+    func initialization(toDir: URL, startMonitoring: Bool) -> PTFoundation.InitializationError? {
         // 二次检查
         if PTFoundation.ensureDirExists(atLocation: toDir) != nil {
             return .filePermissionDenied
@@ -69,8 +69,8 @@ extension PTServerManager {
                               level: .info)
         }
 
-        if requireRunLoop {
-            initializeRunLoop()
+        if startMonitoring {
+            startMonitoringScheduler()
         }
 
         return nil
@@ -88,15 +88,7 @@ extension PTServerManager {
             supervisionInProgressCount -= 1
             executionLock.unlock()
         }
-        let accountDescriptor = server.accountDescriptor
-        guard let account = PTAccountManager.shared.retrieveAccountWith(key: accountDescriptor) else {
-            PTLog.shared.join(self,
-                              "retrieve server account candidate failed",
-                              level: .error)
-            return nil
-        }
-
-        let function = account.selectors
+        let function = PTSSHClient.shared
 
         guard let connectionCandidate = function.setupConnection(withServer: server) else {
             PTLog.shared.join(self,
@@ -123,65 +115,13 @@ extension PTServerManager {
             function.disconnect(withConnection: connection)
         }
 
-        var processInfo: ServerProcessInfo?
-        var memoryInfos: ServerMemoryInfo?
-        var fileSystemInfos: [ServerFileSystemInfo]?
-        var systemInfos: ServerSystemInfo?
-        var networkInfos: [ServerNetworkInfo]?
-
-        let group = DispatchGroup()
-        let queue = DispatchQueue(label: "server.update.\(server.uuid)", attributes: .concurrent)
-
-        group.enter()
-        queue.async {
-            // 本来想搞迸发的。。。
-            // 结果直接 fatal 糊脸
-            let ServerProcessInfos: ServerProcessInfo = function.obtainServerProcessInfo(withConnection: connection)
-            processInfo = ServerProcessInfos
-            let ServerMemoryInfos: ServerMemoryInfo = function.obtainMemoryInfo(withConnection: connection)
-            memoryInfos = ServerMemoryInfos
-            let ServerFileSystemInfos: [ServerFileSystemInfo] = function.obtainServerFileSystemInfo(withConnection: connection)
-            fileSystemInfos = ServerFileSystemInfos
-            let ServerSystemInfos: ServerSystemInfo = function.obtainSystemInfo(withConnection: connection)
-            systemInfos = ServerSystemInfos
-            let ServerNetworkInfos: [ServerNetworkInfo] = function.obtainServerNetworkInfo(withConnection: connection)
-            networkInfos = ServerNetworkInfos
-            group.leave()
-        }
-
-        // WallTimeout will keep track on the time that spent even if the app suspended
-        let result = group.wait(wallTimeout: .now() + 18) // TODO: UserDefault
-        if result == .timedOut {
+        guard let information = function.obtainServerInfo(withConnection: connection) else {
             PTLog.shared.join(self,
-                              "update process on server: \(server.uuid) failed with timeout wall reached",
+                              "update process on server: \(server.uuid) returned invalid information",
                               level: .error)
             return nil
         }
 
-        guard let pi = processInfo,
-              let mi = memoryInfos,
-              let fi = fileSystemInfos,
-              let si = systemInfos,
-              let ni = networkInfos
-        else {
-            PTLog.shared.join(self,
-                              "update process on server: \(server.uuid) failed with at least one empty information returned from subprocess",
-                              level: .error)
-            return nil
-        }
-        
-        if pi == ServerProcessInfo() && mi == ServerMemoryInfo() {
-            PTLog.shared.join(self,
-                              "update process on server: \(server.uuid) failed with too many broken information returned from subprocess",
-                              level: .error)
-            return nil
-        }
-
-        let information = ServerInfo(ServerProcessInfo: pi,
-                                     ServerFileSystemInfo: fi,
-                                     ServerMemoryInfo: mi,
-                                     ServerSystemInfo: si,
-                                     ServerNetworkInfo: ni)
         PTLog.shared.join(self,
                           "Updated server \(server.uuid) status in \(Int(Date().timeIntervalSince(start)))s  \(information.ServerSystemInfo.releaseName) <-> \(server.obtainPossibleName())",
                           level: .info)
@@ -214,7 +154,9 @@ extension PTServerManager {
         }
 
         // triggeredByServer
-        PTNotificationCenter.shared.postNotification(withName: .ServerManager_RegistrationChanged,
-                                                     attachment: uuid)
+        NotificationCenter.default.post(
+            name: .serverRegistrationChanged,
+            object: uuid
+        )
     }
 }

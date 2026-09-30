@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0B049BCD2642836600709700 /* ScriptListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B049BCC2642836600709700 /* ScriptListView.swift */; };
 		500C2BD12656A2FF0068CC18 /* DetailedRAM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500C2BCF2656A2FE0068CC18 /* DetailedRAM.swift */; };
 		500C2BD42656AA0E0068CC18 /* DetailedSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500C2BD22656AA0E0068CC18 /* DetailedSystem.swift */; };
 		500FA4B72655E72500291738 /* HardwareModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500FA4B52655E72500291738 /* HardwareModel.swift */; };
@@ -15,7 +14,6 @@
 		500FE08E2656BCFB00964119 /* DetailedFileSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500FE08C2656BCFB00964119 /* DetailedFileSystem.swift */; };
 		50181EF52641382D00AC535E /* AddServerViewInputElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50181EF42641382D00AC535E /* AddServerViewInputElement.swift */; };
 		503E3F2E266262370074FA48 /* SettingDiagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A1C03B2654CC6E005773AF /* SettingDiagView.swift */; };
-		503E3F98266285130074FA48 /* TermialViewWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503E3F96266285130074FA48 /* TermialViewWrapper.swift */; };
 		503EB569266384A20001C162 /* SettingAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503EB567266384A20001C162 /* SettingAccountView.swift */; };
 		50551E182663D8650084FB5A /* PersistTerminalInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50551E162663D8650084FB5A /* PersistTerminalInstance.swift */; };
 		50551E1B2663EB4A0084FB5A /* PersistTerminalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50551E192663EB4A0084FB5A /* PersistTerminalView.swift */; };
@@ -26,13 +24,8 @@
 		507DF16A26609C7D00829D77 /* TerminalLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507DF16826609C7D00829D77 /* TerminalLoader.swift */; };
 		507FAA35265AAC49008A15E1 /* LAContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507FAA33265AAC49008A15E1 /* LAContext.swift */; };
 		5082A49226F4DAF500043799 /* PTFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 5082A49126F4DAF500043799 /* PTFoundation */; };
-		5082A49626F4DAFC00043799 /* SwiftTerm in Frameworks */ = {isa = PBXBuildFile; productRef = 5082A49526F4DAFC00043799 /* SwiftTerm */; };
+		A100000126F4DAFC00000001 /* GhosttyTerminal in Frameworks */ = {isa = PBXBuildFile; productRef = A100000226F4DAFC00000002 /* GhosttyTerminal */; };
 		5084A14B264DFF24003BDB5C /* Fluent.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5084A14A264DFF24003BDB5C /* Fluent.xcassets */; };
-		5084A14E264E01F6003BDB5C /* ScriptItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5084A14D264E01F6003BDB5C /* ScriptItemView.swift */; };
-		5084A151264E0227003BDB5C /* ScriptCreateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5084A150264E0227003BDB5C /* ScriptCreateView.swift */; };
-		5084A154264E024F003BDB5C /* ScriptPreExecView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5084A153264E024F003BDB5C /* ScriptPreExecView.swift */; };
-		5084A157264E0653003BDB5C /* CodeEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5084A156264E0653003BDB5C /* CodeEditView.swift */; };
-		5084A15A264E106C003BDB5C /* ScriptExecution.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5084A159264E106C003BDB5C /* ScriptExecution.swift */; };
 		508C42702652ABF9000B0D8C /* NoServerGuider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 508C426F2652ABF9000B0D8C /* NoServerGuider.swift */; };
 		508C42732652C7A1000B0D8C /* AssociatedTerminalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 508C42722652C7A1000B0D8C /* AssociatedTerminalView.swift */; };
 		50AFA289265674000002CFCF /* DetailedDataElementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50AFA287265674000002CFCF /* DetailedDataElementView.swift */; };
@@ -71,8 +64,6 @@
 		50D0AC94265FE2860073F4C3 /* PullToRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D0AC92265FE2860073F4C3 /* PullToRefresh.swift */; };
 		50D4D70026410E5300D00BFD /* AddServerView+Validator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D4D6FF26410E5300D00BFD /* AddServerView+Validator.swift */; };
 		50FBD150264116BE00A29628 /* DocumentPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50FBD14F264116BE00A29628 /* DocumentPicker.swift */; };
-		970F27282D1ADAE7004899AC /* SettingElementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970F27272D1ADAE6004899AC /* SettingElementView.swift */; };
-		970F272B2D1AEE03004899AC /* CodeViewer in Frameworks */ = {isa = PBXBuildFile; productRef = 970F272A2D1AEE03004899AC /* CodeViewer */; };
 		9712F4BC2A81146700E5A901 /* AppRecovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9712F4B82A81146700E5A901 /* AppRecovery.swift */; };
 		9712F4BD2A81146700E5A901 /* Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9712F4B92A81146700E5A901 /* Appearance.swift */; };
 		9712F4BE2A81146700E5A901 /* ServerDashApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9712F4BA2A81146700E5A901 /* ServerDashApp.swift */; };
@@ -81,7 +72,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0B049BCC2642836600709700 /* ScriptListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptListView.swift; sourceTree = "<group>"; };
 		0B14162B2635646600370FD6 /* Util.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
 		0B14165526357C2300370FD6 /* Color+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Extension.swift"; sourceTree = "<group>"; };
 		500C2BCF2656A2FE0068CC18 /* DetailedRAM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedRAM.swift; sourceTree = "<group>"; };
@@ -96,7 +86,6 @@
 		502C26EA263BB521002BC94C /* GatheringDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GatheringDataView.swift; sourceTree = "<group>"; };
 		502C26EC263BBA28002BC94C /* Agent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Agent.swift; sourceTree = "<group>"; };
 		502C26EE263BC7DB002BC94C /* ProgressRingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressRingView.swift; sourceTree = "<group>"; };
-		503E3F96266285130074FA48 /* TermialViewWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermialViewWrapper.swift; sourceTree = "<group>"; };
 		503EB567266384A20001C162 /* SettingAccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingAccountView.swift; sourceTree = "<group>"; };
 		50404392263DBF0500943C58 /* ServerStatusBlock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServerStatusBlock.swift; sourceTree = "<group>"; };
 		50551E162663D8650084FB5A /* PersistTerminalInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistTerminalInstance.swift; sourceTree = "<group>"; };
@@ -108,11 +97,6 @@
 		507DF16826609C7D00829D77 /* TerminalLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalLoader.swift; sourceTree = "<group>"; };
 		507FAA33265AAC49008A15E1 /* LAContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LAContext.swift; sourceTree = "<group>"; };
 		5084A14A264DFF24003BDB5C /* Fluent.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Fluent.xcassets; sourceTree = "<group>"; };
-		5084A14D264E01F6003BDB5C /* ScriptItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptItemView.swift; sourceTree = "<group>"; };
-		5084A150264E0227003BDB5C /* ScriptCreateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptCreateView.swift; sourceTree = "<group>"; };
-		5084A153264E024F003BDB5C /* ScriptPreExecView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptPreExecView.swift; sourceTree = "<group>"; };
-		5084A156264E0653003BDB5C /* CodeEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeEditView.swift; sourceTree = "<group>"; };
-		5084A159264E106C003BDB5C /* ScriptExecution.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptExecution.swift; sourceTree = "<group>"; };
 		5084CB66262D077F0084FD29 /* AppLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogView.swift; sourceTree = "<group>"; };
 		508C426F2652ABF9000B0D8C /* NoServerGuider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoServerGuider.swift; sourceTree = "<group>"; };
 		508C42722652C7A1000B0D8C /* AssociatedTerminalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssociatedTerminalView.swift; sourceTree = "<group>"; };
@@ -148,13 +132,10 @@
 		50FF7767262D3D39009EDC7D /* ServerBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerBoardView.swift; sourceTree = "<group>"; };
 		50FF7771262D3E26009EDC7D /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		50FF7777262D450A009EDC7D /* AddServerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddServerView.swift; sourceTree = "<group>"; };
-		970F27272D1ADAE6004899AC /* SettingElementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingElementView.swift; sourceTree = "<group>"; };
 		9712F4AF2A8111B400E5A901 /* NMSSH */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = NMSSH; path = Foundation/NMSSH; sourceTree = "<group>"; };
 		9712F4B02A8111B400E5A901 /* PTFoundation */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = PTFoundation; path = Foundation/PTFoundation; sourceTree = "<group>"; };
 		9712F4B12A8111B400E5A901 /* CSSH */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = CSSH; path = Foundation/CSSH; sourceTree = "<group>"; };
 		9712F4B22A8111B400E5A901 /* SQL */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = SQL; path = Foundation/SQL; sourceTree = "<group>"; };
-		9712F4B62A8111B500E5A901 /* SwiftTerm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = SwiftTerm; path = Foundation/SwiftTerm; sourceTree = "<group>"; };
-		9712F4B72A8111B500E5A901 /* CodeViewer */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = CodeViewer; path = Foundation/CodeViewer; sourceTree = "<group>"; };
 		9712F4B82A81146700E5A901 /* AppRecovery.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppRecovery.swift; sourceTree = "<group>"; };
 		9712F4B92A81146700E5A901 /* Appearance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Appearance.swift; sourceTree = "<group>"; };
 		9712F4BA2A81146700E5A901 /* ServerDashApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServerDashApp.swift; sourceTree = "<group>"; };
@@ -167,9 +148,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5082A49626F4DAFC00043799 /* SwiftTerm in Frameworks */,
+				A100000126F4DAFC00000001 /* GhosttyTerminal in Frameworks */,
 				5082A49226F4DAF500043799 /* PTFoundation in Frameworks */,
-				970F272B2D1AEE03004899AC /* CodeViewer in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -207,7 +187,6 @@
 				50951B8F262BEF3700F060AB /* TabbarView.swift */,
 				508C4267265289C5000B0D8C /* ServerBlock */,
 				50551E152663D7DE0084FB5A /* Terminal */,
-				50E4CE1C2648AD270067D14F /* Scripts */,
 				507D0FB42653C3F90042B723 /* SettingView */,
 				50D4D6FE26410E3600D00BFD /* AddServer */,
 				50872FCC265377EC00F40E43 /* ServerDetailView */,
@@ -233,12 +212,10 @@
 		502C26F0263BE9F5002BC94C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				9712F4B72A8111B500E5A901 /* CodeViewer */,
 				9712F4B12A8111B400E5A901 /* CSSH */,
 				9712F4AF2A8111B400E5A901 /* NMSSH */,
 				9712F4B02A8111B400E5A901 /* PTFoundation */,
 				9712F4B22A8111B400E5A901 /* SQL */,
-				9712F4B62A8111B500E5A901 /* SwiftTerm */,
 			);
 			name = Frameworks;
 			path = ..;
@@ -253,7 +230,6 @@
 				50551E1F26645D0A0084FB5A /* PersistTerminalInstanceView.swift */,
 				50551E192663EB4A0084FB5A /* PersistTerminalView.swift */,
 				508C42722652C7A1000B0D8C /* AssociatedTerminalView.swift */,
-				503E3F96266285130074FA48 /* TermialViewWrapper.swift */,
 			);
 			path = Terminal;
 			sourceTree = "<group>";
@@ -262,7 +238,6 @@
 			isa = PBXGroup;
 			children = (
 				503EB567266384A20001C162 /* SettingAccountView.swift */,
-				970F27272D1ADAE6004899AC /* SettingElementView.swift */,
 				50A1C03B2654CC6E005773AF /* SettingDiagView.swift */,
 				5010DD9A263A62F100CA4C34 /* SettingView.swift */,
 			);
@@ -353,19 +328,6 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		50E4CE1C2648AD270067D14F /* Scripts */ = {
-			isa = PBXGroup;
-			children = (
-				0B049BCC2642836600709700 /* ScriptListView.swift */,
-				5084A14D264E01F6003BDB5C /* ScriptItemView.swift */,
-				5084A150264E0227003BDB5C /* ScriptCreateView.swift */,
-				5084A153264E024F003BDB5C /* ScriptPreExecView.swift */,
-				5084A159264E106C003BDB5C /* ScriptExecution.swift */,
-				5084A156264E0653003BDB5C /* CodeEditView.swift */,
-			);
-			path = Scripts;
-			sourceTree = "<group>";
-		};
 		970F27292D1AEE03004899AC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -392,8 +354,7 @@
 			name = ServerDash;
 			packageProductDependencies = (
 				5082A49126F4DAF500043799 /* PTFoundation */,
-				5082A49526F4DAFC00043799 /* SwiftTerm */,
-				970F272A2D1AEE03004899AC /* CodeViewer */,
+				A100000226F4DAFC00000002 /* GhosttyTerminal */,
 			);
 			productName = ServerDash;
 			productReference = 50B8279A263F28F700989D51 /* ServerDash.app */;
@@ -419,6 +380,9 @@
 				"zh-Hans",
 			);
 			mainGroup = 50D4F907262ABD3C005946E0;
+			packageReferences = (
+				A100000326F4DAFC00000003 /* XCRemoteSwiftPackageReference "libghostty-spm" */,
+			);
 			productRefGroup = 50D4F911262ABD3C005946E0 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -472,14 +436,11 @@
 			files = (
 				50B82763263F28F700989D51 /* GatheringDataView.swift in Sources */,
 				50551E1E26645CF60084FB5A /* TerminalFromServerView.swift in Sources */,
-				5084A151264E0227003BDB5C /* ScriptCreateView.swift in Sources */,
 				503E3F2E266262370074FA48 /* SettingDiagView.swift in Sources */,
 				50AFA28F26568FB40002CFCF /* DetailedCPU.swift in Sources */,
 				50689CF4266399EE00F2DA01 /* KeyView.swift in Sources */,
-				5084A154264E024F003BDB5C /* ScriptPreExecView.swift in Sources */,
 				503EB569266384A20001C162 /* SettingAccountView.swift in Sources */,
 				507FAA35265AAC49008A15E1 /* LAContext.swift in Sources */,
-				5084A14E264E01F6003BDB5C /* ScriptItemView.swift in Sources */,
 				97DF1F2A2A80AB8A003AEB47 /* MainView.swift in Sources */,
 				50B82767263F28F700989D51 /* AppLogView.swift in Sources */,
 				9712F4BC2A81146700E5A901 /* AppRecovery.swift in Sources */,
@@ -491,7 +452,6 @@
 				50B8276C263F28F700989D51 /* UIWindow.swift in Sources */,
 				508C42732652C7A1000B0D8C /* AssociatedTerminalView.swift in Sources */,
 				500FE08B2656B53300964119 /* DetailedNetwork.swift in Sources */,
-				5084A15A264E106C003BDB5C /* ScriptExecution.swift in Sources */,
 				50B82771263F28F700989D51 /* UserDefault.swift in Sources */,
 				507DF16A26609C7D00829D77 /* TerminalLoader.swift in Sources */,
 				50B82774263F28F700989D51 /* DetailedServerView.swift in Sources */,
@@ -504,9 +464,7 @@
 				50B82778263F28F700989D51 /* Agent+Notify.swift in Sources */,
 				500C2BD42656AA0E0068CC18 /* DetailedSystem.swift in Sources */,
 				50B82779263F28F700989D51 /* Agent.swift in Sources */,
-				503E3F98266285130074FA48 /* TermialViewWrapper.swift in Sources */,
 				50B8277A263F28F700989D51 /* ServerBoardView.swift in Sources */,
-				970F27282D1ADAE7004899AC /* SettingElementView.swift in Sources */,
 				500FA4B72655E72500291738 /* HardwareModel.swift in Sources */,
 				50B827A0263F37E600989D51 /* ClearBackgroundView.swift in Sources */,
 				50B8277B263F28F700989D51 /* Util.swift in Sources */,
@@ -520,7 +478,6 @@
 				9712F4BD2A81146700E5A901 /* Appearance.swift in Sources */,
 				50B82780263F28F700989D51 /* ServerBlockView.swift in Sources */,
 				50B827A3263F3A1300989D51 /* ShareSheet.swift in Sources */,
-				5084A157264E0653003BDB5C /* CodeEditView.swift in Sources */,
 				50C35B5F2657348D005B63B1 /* InputElementView.swift in Sources */,
 				50B82781263F28F700989D51 /* ServerStatusBlock.swift in Sources */,
 				500FE08E2656BCFB00964119 /* DetailedFileSystem.swift in Sources */,
@@ -529,7 +486,6 @@
 				50B82784263F28F700989D51 /* Color+Extension.swift in Sources */,
 				50551E182663D8650084FB5A /* PersistTerminalInstance.swift in Sources */,
 				50B82787263F28F700989D51 /* SettingView.swift in Sources */,
-				0B049BCD2642836600709700 /* ScriptListView.swift in Sources */,
 				50FBD150264116BE00A29628 /* DocumentPicker.swift in Sources */,
 				50B82788263F28F700989D51 /* Agent+Executor.swift in Sources */,
 			);
@@ -773,18 +729,26 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		A100000326F4DAFC00000003 /* XCRemoteSwiftPackageReference "libghostty-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Lakr233/libghostty-spm.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.5.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		5082A49126F4DAF500043799 /* PTFoundation */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PTFoundation;
 		};
-		5082A49526F4DAFC00043799 /* SwiftTerm */ = {
+		A100000226F4DAFC00000002 /* GhosttyTerminal */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = SwiftTerm;
-		};
-		970F272A2D1AEE03004899AC /* CodeViewer */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = CodeViewer;
+			package = A100000326F4DAFC00000003 /* XCRemoteSwiftPackageReference "libghostty-spm" */;
+			productName = GhosttyTerminal;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -14,7 +14,6 @@ enum NavigationTag: Int, Equatable, Identifiable {
     case ServerManager
     case ServerDetailed
     case EmptyServerå
-    case CodeClip
     case RemoteLogin
     case Setting
     case Help
@@ -29,7 +28,6 @@ struct SideBarView: View {
     let LSSideBarElementRegisterServer = NSLocalizedString("SIDEBAR_REG_SERVER", comment: "Register Server")
 
     let LSSideBarElementUtils = NSLocalizedString("SIDEBAR_UTILS", comment: "Utils")
-    let LSSideBarElementCodeClip = NSLocalizedString("SIDEBAR_CODE_CLIP", comment: "Code Clip")
     let LSSideBarElementRemoteLogin = NSLocalizedString("DOCK_TERMINAL", comment: "Remote Login")
 
     let LSSideBarElementApplication = NSLocalizedString("SIDEBAR_APPLICATION", comment: "Application")
@@ -96,11 +94,6 @@ struct SideBarView: View {
                 Group {
                     Text(LSSideBarElementUtils)
                         .font(fntSideBarSectionHead)
-                    NavigationLink(destination: ScriptListView(),
-                                   tag: NavigationTag.CodeClip,
-                                   selection: $whichPane) {
-                        Label(LSSideBarElementCodeClip, systemImage: "wind")
-                    }
                     NavigationLink(destination: TerminalLoader(),
                                    tag: NavigationTag.RemoteLogin,
                                    selection: $whichPane) {

@@ -42,7 +42,10 @@ struct ServerDashApp: App {
         DispatchQueue.global().async {
             initializationLock.lock()
             defer { initializationLock.unlock() }
-            if foundationInitialized {
+            if PTFoundation.initialized {
+                DispatchQueue.main.async {
+                    foundationInitialized = true
+                }
                 return
             }
             if !ServerDashApp.lastBootSucceed {
@@ -74,7 +77,7 @@ struct ServerDashApp: App {
 
             PTFoundation.initialization(baseDir: documentLocation,
                                         masterKey: masterKey, // iOS 上可以直接放行到 KeyChain 来处理主解密密钥
-                                        requireRunLoop: true,
+                                        startMonitoring: true,
                                         requestingUserDefault: requestingUserDefault)
             { initializationError in
                 ServerDashApp.lastBootSucceed = false
@@ -86,17 +89,13 @@ struct ServerDashApp: App {
                 fatalError("Application crashed due to a runtime error \(runtimeError)")
             }
 
-            for (_, checkpoints) in PTCheckpointManager.shared.obtainCheckpointList() {
-                for (_, checkpoint) in checkpoints {
-                    PTCheckpointManager.shared.deleteCheckpointWith(name: checkpoint.name, inSection: checkpoint.section)
-                }
-            }
-
             PTLog.shared.join("App",
                               "waiting for data to be filled",
                               level: .info)
 
-            foundationInitialized = true
+            DispatchQueue.main.async {
+                foundationInitialized = true
+            }
 
             DispatchQueue.global().asyncAfter(deadline: .now() + 8) {
                 PTLog.shared.join("App",
@@ -128,6 +127,7 @@ struct ServerDashApp: App {
                 PTLog.shared.join("App",
                                   "Application is active",
                                   level: .info)
+                AppearanceStore.shared.updateColorScheme()
                 Agent.shared.applicationBecomeActive()
             case .inactive:
                 PTLog.shared.join("App",

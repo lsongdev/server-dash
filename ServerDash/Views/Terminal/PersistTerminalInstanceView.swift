@@ -2,16 +2,13 @@
 //  PersistTerminalInstanceView.swift
 //  ServerDash
 //
-//  Created by Lakr Aream on 5/31/21.
-//
 
 import SwiftUI
 
-private let dateFormatter: DateFormatter = {
+private let terminalSessionDateFormatter: DateFormatter = {
     let formatter = DateFormatter()
-    formatter.formatterBehavior = .behavior10_4
-    formatter.dateStyle = .short
-    formatter.timeStyle = .medium
+    formatter.dateStyle = .none
+    formatter.timeStyle = .short
     return formatter
 }()
 
@@ -20,51 +17,38 @@ struct PersistTerminalInstanceView: View {
 
     var body: some View {
         NavigationLink(destination: PersistTerminalView(instance: instanceRef)) {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Image(systemName: "terminal.fill")
+            HStack(spacing: 12) {
+                Image(systemName: "terminal.fill")
+                    .frame(width: 24)
+                    .foregroundColor(.accentColor)
+
+                VStack(alignment: .leading, spacing: 3) {
                     Text(instanceRef.terminalTitle)
-                    Spacer()
-                    Button {
-                        withAnimation(.interactiveSpring()) {
-                            instanceRef.terminate()
-                        }
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.red)
-                    }
+                        .font(.headline)
+
+                    Text(
+                        String(
+                            format: NSLocalizedString("CREATE_AT", comment: "Create At") + " %@",
+                            terminalSessionDateFormatter.string(from: instanceRef.openDate)
+                        )
+                    )
+                    .font(.caption)
+                    .foregroundColor(.secondary)
                 }
-                .font(.system(size: 18, weight: .semibold, design: .default))
-                HStack {
-                    Text(NSLocalizedString("CREATE_AT", comment: "Create At"))
-                    Text(dateFormatter.string(from: instanceRef.openDate))
-                    Spacer()
-                }
-                .font(.system(size: 10, weight: .regular, design: .default))
-                Divider()
-                HStack {
-                    Text(instanceRef.id.uuidString)
-                    Spacer()
-                }
-                .font(.system(size: 8, weight: .regular, design: .monospaced))
-                .opacity(0.2)
+
+                Spacer()
             }
-            .padding()
-            .background(Color.lightGray)
-            .cornerRadius(12)
+            .padding(.vertical, 4)
         }
-        .buttonStyle(PlainButtonStyle())
-    }
-}
-
-struct PersistTerminalInstanceView_Previews: PreviewProvider {
-    static func getPreviewInstanceRef() -> PersistTerminalInstance {
-        let ref = PersistTerminalInstance()
-        ref.terminalTitle = "测试 ABC"
-        return ref
-    }
-
-    static var previews: some View {
-        PersistTerminalInstanceView(instanceRef: PersistTerminalInstanceView_Previews.getPreviewInstanceRef())
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button(role: .destructive) {
+                instanceRef.terminate()
+            } label: {
+                Label(
+                    NSLocalizedString("TERMINATE", comment: "Terminate"),
+                    systemImage: "xmark"
+                )
+            }
+        }
     }
 }

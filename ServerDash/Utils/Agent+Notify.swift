@@ -2,37 +2,28 @@
 //  Agent+Notify.swift
 //  ServerDash
 //
-//  Created by Lakr Aream on 4/30/21.
-//
 
+import Foundation
 import PTFoundation
-import UIKit
 
 extension Agent {
     func prepareNotifications() {
-        // 服务器注册列表的 binding
-        let serverCountLink = PTNotificationCenter.NotificationLink(name: .ServerManager_RegistrationChanged,
-                                                                    throttle: PTThrottle(minimumDelay: 1, queue: .global())) { _ in
-            self.updateServerRegistrationInfo()
+        let token = NotificationCenter.default.addObserver(
+            forName: .serverRegistrationChanged,
+            object: nil,
+            queue: nil
+        ) { [weak self] _ in
+            self?.updateServerRegistrationInfo()
         }
-        PTNotificationCenter.shared.registeringNotification(withLink: serverCountLink)
-        // 捷径的 binding
-        let scriptLink = PTNotificationCenter.NotificationLink(name: .CodeClip_RegistrationChanged,
-                                                               throttle: PTThrottle(minimumDelay: 1, queue: .global())) { _ in
-            self.clipDataSender = UUID()
-        }
-        PTNotificationCenter.shared.registeringNotification(withLink: scriptLink)
+        notificationObservers.append(token)
+
         DispatchQueue.global().async {
-            self.clipDataSender = UUID()
             self.updateServerRegistrationInfo()
         }
     }
 
     private func updateServerRegistrationInfo() {
-        serverDescriptorsSender = PTServerManager.shared.obtainServerList().map { x in
-            x.uuid
-        }
+        serverDescriptorsSender = PTServerManager.shared.obtainServerList().map(\.uuid)
         serverSectionsSender = PTServerManager.shared.obtainRegisteredServerSectionList()
-        debugPrint("PTNotificationCenter ServerManager_RegistrationChanged \(serverDescriptorsSender.count)")
     }
 }

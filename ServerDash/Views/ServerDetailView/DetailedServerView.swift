@@ -2,8 +2,6 @@
 //  DetailedServerView.swift
 //  ServerDash
 //
-//  Created by Lakr Aream on 5/1/21.
-//
 
 import PTFoundation
 import SwiftUI
@@ -11,109 +9,103 @@ import SwiftUI
 struct DetailedServerView: View {
     let serverDescriptor: PTServerManager.ServerDescriptor
     let kinfo: PTServerManager.ServerInfoHumanReadable
-    
+
+    @State private var timestamp: TimeInterval?
+    @State private var info: PTServerManager.ServerInfo?
+    @State private var presentTerminal = false
+
     init(serverDescriptor: PTServerManager.ServerDescriptor) {
         self.serverDescriptor = serverDescriptor
-        self.kinfo = PTServerManager.ServerInfoHumanReadable(serverDescriptor: serverDescriptor)
+        kinfo = PTServerManager.ServerInfoHumanReadable(serverDescriptor: serverDescriptor)
     }
-    
-    @State var timestamp: TimeInterval? = nil
-    @State var info: PTServerManager.ServerInfo? = nil
-    
-    @State var presentTerminal: Bool = false
-    @State var shouldOpenScript: Bool = false
-    
-    let SectionHeaderFont = Font.system(size: 18, weight: .semibold, design: .default)
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    
+
     var body: some View {
         Group {
-            if timestamp == nil || info == nil {
-                ScrollView {
-                    VStack(alignment: .leading) {
-                        Text("🤷‍♂️")
-                        Divider().opacity(0)
-                        Text(NSLocalizedString("NO_DATA_AVAILABLE_PLEASE_TRY_AGAIN_LATER", comment: "No data available for this server, please try again later."))
-                            .font(.system(size: 14, weight: .semibold, design: .default))
-                        Divider().opacity(0)
-                        ServerStatusBlockView(descriptor: "", isPlaceHolder: true)
-                    }
-                    .padding()
-                }
-            } else {
+            if let timestamp, let info {
                 ScrollView {
                     VStack {
-                        DetailedDataElementView(timestamp: timestamp!, dataSource: info!, server: serverDescriptor)
-                            .animation(.interactiveSpring())
+                        DetailedDataElementView(
+                            timestamp: timestamp,
+                            dataSource: info,
+                            server: serverDescriptor
+                        )
                         Divider()
-                        NavigationLink(destination: DetailedServerHistoryView(serverDescriptor: serverDescriptor)) {
+                        NavigationLink(
+                            destination: DetailedServerHistoryView(
+                                serverDescriptor: serverDescriptor
+                            )
+                        ) {
                             HStack {
                                 Image(systemName: "text.magnifyingglass")
                                 Text(NSLocalizedString("HISTORY", comment: "History"))
                                 Spacer()
                             }
-                            .font(.system(size: 14, weight: .semibold, design: .default))
+                            .font(.system(size: 14, weight: .semibold))
                             .padding()
-                            .background(
-                                Color
-                                    .lightGray
-                                    .frame(height: 40)
-                                    .cornerRadius(8)
-                            )
+                            .background(Color.lightGray.cornerRadius(8))
                         }
+                    }
+                    .padding()
+                }
+            } else {
+                ScrollView {
+                    VStack(alignment: .leading) {
+                        Text("🤷‍♂️")
+                        Divider().opacity(0)
+                        Text(NSLocalizedString(
+                            "NO_DATA_AVAILABLE_PLEASE_TRY_AGAIN_LATER",
+                            comment: "No data available for this server, please try again later."
+                        ))
+                        .font(.system(size: 14, weight: .semibold))
+                        Divider().opacity(0)
+                        ServerStatusBlockView(descriptor: "", isPlaceHolder: true)
                     }
                     .padding()
                 }
             }
         }
-        .background(Group {
-            VStack {
-                NavigationLink(
-                    destination: AssociatedTerminalView(serverDescriptor: serverDescriptor),
-                    isActive: $presentTerminal,
-                    label: {
-                        Text("").hidden()
-                    }
-                )
-                NavigationLink(
-                    destination: ScriptListView(withInServer: serverDescriptor),
-                    isActive: $shouldOpenScript,
-                    label: {
-                        Text("").hidden()
-                    }
-                )
+        .background(
+            NavigationLink(
+                destination: AssociatedTerminalView(serverDescriptor: serverDescriptor),
+                isActive: $presentTerminal
+            ) {
+                EmptyView()
             }
-            .frame(width: 0, height: 0)
-        })
+            .hidden()
+        )
+        .navigationTitle(kinfo.serverTitle)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    presentTerminal = true
+                } label: {
+                    Image(systemName: "terminal")
+                }
+            }
+        }
         .onAppear {
             updateData()
         }
-        .onReceive(timer) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .serverStatusUpdated)) { note in
+            guard let updated = note.object as? String,
+                  updated == serverDescriptor
+            else {
+                return
+            }
             updateData()
         }
-        .navigationTitle(self.kinfo.serverTitle)
-        .navigationBarItems(trailing: HStack {
-            Button(action: {
-                presentTerminal = true
-            }, label: {
-                Image(systemName: "terminal")
-            })
-            Button(action: {
-                shouldOpenScript.toggle()
-            }, label: {
-                Image(systemName: "paperplane")
-            })
-        })
     }
-    
-    func updateData() {
-        if let get = PTServerManager.shared.obtainServerStatus(withKey: serverDescriptor),
-           let ts = get.previousUpdate?.timeIntervalSince1970,
-           let data = get.information
-        {
-            timestamp = ts
-            info = data
+
+    private func updateData() {
+        guard
+            let status = PTServerManager.shared.obtainServerStatus(withKey: serverDescriptor),
+            let updatedAt = status.previousUpdate?.timeIntervalSince1970,
+            let information = status.information
+        else {
+            return
         }
+        timestamp = updatedAt
+        info = information
     }
 }
 

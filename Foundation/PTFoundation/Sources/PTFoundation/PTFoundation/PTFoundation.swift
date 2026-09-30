@@ -9,6 +9,7 @@ import Foundation
 
 public final class PTFoundation {
     public private(set) static var initialized: Bool = false
+    internal private(set) static var legacyCredentialStoreAvailable = false
     
     // VESION STATIC
     public static let version = "v1.0"
@@ -35,7 +36,6 @@ public final class PTFoundation {
         case serverManagerInitializationFailed
         case serverManagerDatabaseInitializationFailed
         case accountManagerInitializationFailed
-        case codeClipManagerInitializationFailed
     }
 
     /// 运行时错误 遇到就崩
@@ -95,11 +95,11 @@ public final class PTFoundation {
     ///   - baseDir: 可读写目录位置
     ///   - masterKey: 主钥匙串解密密钥
     ///   - onCriticalError: 初始化中不可恢复错误回掉
-    ///   - requireRunLoop: 是否启用 RunLoop
+    ///   - startMonitoring: 是否启用服务器状态监控
     ///   - requestingUserDefault: 请求用户偏好设置 发送键 返回值
     ///   - onRuntimeCriticalError: 运行时的错误回掉
     public static func initialization(baseDir: URL, masterKey: String?,
-                                      requireRunLoop: Bool,
+                                      startMonitoring: Bool,
                                       requestingUserDefault: @escaping (String) -> (Any?),
                                       onCriticalError: @escaping (InitializationError) -> (Never),
                                       onRuntimeCriticalError: @escaping (RuntimeError) -> Void)
@@ -139,81 +139,76 @@ public final class PTFoundation {
             onCriticalError(error)
         }
 
-        // 初始化 KeyChain 如果提供了 masterKey 就跳过向系统询问钥匙串的部分
-        if let masterKey = masterKey {
-            if let error = PTKeyChain.shared.initialization(toDir: baseDir, masterKey: masterKey) {
-                _onCriticalError(error)
-            }
-        } else {
-            do {
-                let keychainServiceID = "wiki.qaq.PillowTalk.kcAccess"
-                let masterKeyID = "wiki.qaq.PillowTalk.MasterCrypto"
-//                #if os(iOS) || os(watchOS) || os(tvOS)
-                let keychain = Keychain(service: keychainServiceID)
-//                #else
-//                let keychainGroupID = "wiki.qaq.PillowTalk.kcAccess.kcAccessGroup"
-//                let keychain = Keychain(service: keychainServiceID, accessGroup: keychainGroupID)
-//                #endif
-                var retry = 0
-                var key: String?
-                while retry < 3, key == nil {
-                    do {
-                        let master = try keychain.getString(masterKeyID)
-                        if let master = master, master.count > 2 {
-                            key = master
-                        } else {
-                            try keychain.remove(masterKeyID)
-                            let new = UUID().uuidString
-                            key = new
-                            try keychain
-                                .label("PillowTalk Master Crypto Key")
-                                .comment("PillowTalk requires a master crypto key to access your encrypted data on disk andprotects your accounts")
-                                .set(new, key: masterKeyID)
-                        }
-                    } catch {
-                        PTLog.shared.join(self,
-                                          "access to keychain failed, unable to retrieve master key, \(error.localizedDescription)",
-                                          level: .critical)
-                    }
-                    retry += 1
+        // Legacy credential migration only. New credentials are stored
+        // directly in Security.framework by PTCredentialStore.
+        let legacyCredentialDirectory = baseDir.appendingPathComponent(PTKeyChain.StoreBase)
+        let legacyCredentialFiles = (
+            try? FileManager.default.contentsOfDirectory(
+                at: legacyCredentialDirectory,
+                includingPropertiesForKeys: nil
+            )
+        )?.filter {
+            !$0.lastPathComponent.hasPrefix(".") &&
+                $0.pathExtension == PTKeyChain.fileSuffix
+        } ?? []
+
+        if !legacyCredentialFiles.isEmpty {
+            legacyCredentialStoreAvailable = true
+
+            if let masterKey {
+                if let error = PTKeyChain.shared.initialization(toDir: baseDir, masterKey: masterKey) {
+                    _onCriticalError(error)
                 }
-                guard let masterKey = key else {
+            } else {
+                let keychain = Keychain(service: "wiki.qaq.PillowTalk.kcAccess")
+                let masterKeyID = "wiki.qaq.PillowTalk.MasterCrypto"
+                guard let legacyMasterKey = try? keychain.getString(masterKeyID),
+                      !legacyMasterKey.isEmpty
+                else {
                     _onCriticalError(.keychainInitializationFailed)
                 }
-                if let error = PTKeyChain.shared.initialization(toDir: baseDir, masterKey: masterKey) {
+
+                if let error = PTKeyChain.shared.initialization(
+                    toDir: baseDir,
+                    masterKey: legacyMasterKey
+                ) {
                     _onCriticalError(error)
                 }
             }
         }
-
-        // 初始化 RunLoop
-        if requireRunLoop {
-            PTRunLoop.shared.initlization()
-        }
-
         // 初始化账户
         if let error = PTAccountManager.shared.initialization(toDir: baseDir) {
             PTLog.shared.join(self, "initialization interrupted via \(error)", level: .critical)
             _onCriticalError(.accountManagerInitializationFailed)
         }
 
+        if legacyCredentialStoreAvailable {
+            // Reading each account performs an in-place migration to the
+            // system Keychain and removes the old encrypted .ptk file.
+            for identity in PTAccountManager.shared.obtainAccountKeyList() {
+                _ = PTAccountManager.shared
+                    .retrieveAccountWith(key: identity)?
+                    .obtainDecryptedObject()
+            }
+
+            let remaining = (
+                try? FileManager.default.contentsOfDirectory(
+                    at: legacyCredentialDirectory,
+                    includingPropertiesForKeys: nil
+                )
+            )?.contains {
+                !$0.lastPathComponent.hasPrefix(".") &&
+                    $0.pathExtension == PTKeyChain.fileSuffix
+            } ?? false
+            legacyCredentialStoreAvailable = remaining
+        }
+
         // 初始化 ServerManager
-        if let error = PTServerManager.shared.initialization(toDir: baseDir, requireRunLoop: requireRunLoop) {
+        if let error = PTServerManager.shared.initialization(toDir: baseDir, startMonitoring: startMonitoring) {
             PTLog.shared.join(self, "initialization interrupted via \(error)", level: .critical)
             _onCriticalError(.serverManagerInitializationFailed)
         }
 
-        // 初始化代码片段
-        if let error = PTCodeClipManager.shared.initialization(toDir: baseDir) {
-            PTLog.shared.join(self, "initialization interrupted via \(error)", level: .critical)
-            _onCriticalError(.codeClipManagerInitializationFailed)
-        }
-
-        // 初始化检查点
-        if let error = PTCheckpointManager.shared.initialization(toDir: baseDir) {
-            PTLog.shared.join(self, "initialization interrupted via \(error)", level: .critical)
-            _onCriticalError(.codeClipManagerInitializationFailed)
-        }
     }
 
     /// 保证目录存在于此
@@ -253,7 +248,7 @@ public final class PTFoundation {
     public static func teardownFoundation(exitCode: Int, shouldExit: Bool) {
         PTLog.shared.join(self,
                           "application foundation starting teardown")
-        PTRunLoop.shared.teardown()
+        PTServerManager.shared.stopMonitoringScheduler()
         if !shouldExit {
             return
         }
@@ -307,30 +302,4 @@ public final class PTFoundation {
         return (validName, name == validName)
     }
 
-    /// 往系统钥匙串里面储存数据 value -> base64
-    /// - Parameters:
-    ///   - key: 键值
-    ///   - value: 数据
-    public static func convinceEncryptUsingMasterKey(value: String) -> String? {
-        guard let aes = PTKeyChain.shared.masterCryptoEngine else {
-            PTLog.shared.join(self,
-                              "master crypto engine not initialized",
-                              level: .error)
-            return nil
-        }
-        return aes.encrypt(string: value)
-    }
-
-    /// 读取系统钥匙串的内容 base64 -> value
-    /// - Parameter key: 键值
-    /// - Returns: 数据
-    public static func convinceDecryptUsingMasterKey(value: String) -> String? {
-        guard let aes = PTKeyChain.shared.masterCryptoEngine else {
-            PTLog.shared.join(self,
-                              "master crypto engine not initialized",
-                              level: .error)
-            return nil
-        }
-        return aes.decryptString(base64: value)
-    }
 }

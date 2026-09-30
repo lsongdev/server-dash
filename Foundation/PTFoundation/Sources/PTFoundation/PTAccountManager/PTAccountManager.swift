@@ -26,19 +26,12 @@ public final class PTAccountManager {
         public let uuid: String
         /// 账户类型
         public let type: AccountType
-        /// 方法集 用于获取扩展的接口
-        public let selectors: PTServerAllocationSelectors
-
         // MARK: INTERNAL
 
         /// 不允许外部初始化该结构体
-        internal init(type: AccountType,
-                      function: PTServerAllocationSelectors,
-                      keychainIdentity identity: String)
-        {
+        internal init(type: AccountType, keychainIdentity identity: String) {
             uuid = identity
             self.type = type
-            selectors = function
         }
 
         /// 内部转换方法
@@ -57,18 +50,45 @@ public final class PTAccountManager {
             public let representedObject: Data?
         }
 
-        /// 获取解密的数据
-        /// DecryptedObject 类似于 PTKeyChain.AccessObject
-        /// 但 PTKeyChain.AccessObject 后者申明了 internal
+        /// Retrieve the SSH credential from the system Keychain.
+        ///
+        /// Existing installations may still have the old encrypted .ptk file.
+        /// That legacy value is migrated on first read and then deleted.
         public func obtainDecryptedObject() -> DecryptedObject? {
-            guard let decrypted = PTKeyChain.shared.retrieveAccount(byKey: uuid) else {
+            if let credential = PTCredentialStore.shared.retrieve(identity: uuid) {
+                return DecryptedObject(
+                    identity: uuid,
+                    plainLabel: credential.label,
+                    account: credential.account,
+                    key: credential.secret,
+                    representedObject: credential.payload
+                )
+            }
+
+            guard PTFoundation.legacyCredentialStoreAvailable,
+                  let legacy = PTKeyChain.shared.retrieveAccount(byKey: uuid)
+            else {
                 return nil
             }
-            return DecryptedObject(identity: decrypted.identity,
-                                   plainLabel: decrypted.plainLabel,
-                                   account: decrypted.account,
-                                   key: decrypted.key,
-                                   representedObject: decrypted.representedObject)
+
+            let credential = PTCredentialStore.Credential(
+                label: legacy.plainLabel,
+                account: legacy.account,
+                secret: legacy.key,
+                payload: legacy.representedObject
+            )
+            guard PTCredentialStore.shared.store(credential, identity: uuid) else {
+                return nil
+            }
+
+            PTKeyChain.shared.removeAccountBy(key: uuid)
+            return DecryptedObject(
+                identity: uuid,
+                plainLabel: credential.label,
+                account: credential.account,
+                key: credential.secret,
+                representedObject: credential.payload
+            )
         }
     }
 
@@ -77,35 +97,19 @@ public final class PTAccountManager {
         /// 变量映射
         let identity: String
         let type: String
-        let selectors: String
 
         /// 初始化
         internal init(fromAccount object: Account) {
             identity = object.uuid
             type = object.type.rawValue
-            selectors = object.selectors.obtainIdentity()
         }
 
         /// 内部方法转换
         internal func retrieveAccountObject() -> Account? {
-            // 获取账户类型
-            guard let typeCase = AccountType(rawValue: type) else {
+            guard let type = AccountType(rawValue: type) else {
                 return nil
             }
-            // 获取方法集
-            var selectorsObject: PTServerAllocationSelectors?
-            for fs in PTServerAllocationSelectors.allSets {
-                if fs.obtainIdentity() == selectors {
-                    selectorsObject = fs
-                    break
-                }
-            }
-            // 没找到方法集
-            guard let fSet = selectorsObject else {
-                return nil
-            }
-            // 合成
-            return Account(type: typeCase, function: fSet, keychainIdentity: identity)
+            return Account(type: type, keychainIdentity: identity)
         }
     }
 

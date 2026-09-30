@@ -23,13 +23,11 @@ struct ServerStatusBlockView: View {
     }
 
     @State var info: PTServerManager.ServerInfoHumanReadable? = nil
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State var validDescription = ""
     @State var cpu: Double = 0
     @State var ram: Double = 0
     @State var disk: Double = 0
 
-    @State var notificationLinkID: String = ""
     let padding: CGFloat = 12
 
     var body: some View {
@@ -71,12 +69,6 @@ struct ServerStatusBlockView: View {
                                 Text(validDescription)
                                     .font(.system(size: 12, design: .monospaced))
                                     .foregroundColor(.green)
-                                    .onReceive(timer) { _ in
-//                                        updateTimeDescription()
-                                    }
-                                    .onAppear {
-//                                        updateTimeDescription()
-                                    }
                                 Image(systemName: "largecircle.fill.circle")
                                     .scaleEffect(0.8)
                                     .foregroundColor(.green)
@@ -186,24 +178,15 @@ struct ServerStatusBlockView: View {
            Text("Are you sure you want to delete this server? This action cannot be undone.")
        }
         .onAppear {
-            let link = PTNotificationCenter.NotificationLink(name: .ServerManager_ServerStatusUpdated,
-                                                             throttle: nil) { pass in
-                guard let sd = pass.representedObject as? String,
-                      sd == descriptor
-                else {
-                    return
-                }
-                DispatchQueue.main.async {
-                    self.updateInfomation()
-                }
-            }
-            PTNotificationCenter.shared.registeringNotification(withLink: link)
-            notificationLinkID = link.uuid
             updateInfomation()
         }
-        .onDisappear {
-            PTNotificationCenter.shared.removeNotificatino(withKey: notificationLinkID,
-                                                           underName: .ServerManager_ServerStatusUpdated)
+        .onReceive(NotificationCenter.default.publisher(for: .serverStatusUpdated)) { note in
+            guard let updated = note.object as? String,
+                  updated == descriptor
+            else {
+                return
+            }
+            updateInfomation()
         }
     }
 
