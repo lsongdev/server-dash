@@ -5,6 +5,7 @@
 //  Created by Lakr Aream on 2021/4/30.
 //
 
+import Combine
 import PTFoundation
 import SwiftUI
 
@@ -96,8 +97,9 @@ struct GatheringDataView: View {
                 RoundedRectangle(cornerRadius: 12)
                     .foregroundColor(.lightGray)
             )
+            .animation(.interactiveSpring(), value: title)
+            .animation(.interactiveSpring(), value: subTitle)
         }
-        .animation(Animation.interactiveSpring())
     }
 }
 

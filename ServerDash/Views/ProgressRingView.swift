@@ -38,7 +38,7 @@ struct ProgressRingView: View {
                     axis: (x: 1.0, y: 0.0, z: 0.0)
                 )
                 .frame(width: size * 0.9, height: size * 0.9)
-                .animation(.easeOut)
+                .animation(.easeOut, value: progressPercent)
         }
         .frame(width: size, height: size)
     }

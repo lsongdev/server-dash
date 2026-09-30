@@ -118,7 +118,7 @@ public extension PTLog {
         var invalidFile = [String]()
         let initDateFormatter = DateFormatter()
         initDateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
-        guard let item = rawSubitems.sorted { a, b -> Bool in
+        guard let item = rawSubitems.sorted(by: { a, b -> Bool in
             // 如果文件名长度不是38 那大概率没法搞 优先删除
             if a.count != 38 || b.count != 38 {
                 if a.count != 39 { invalidFile.append(a) }
@@ -139,7 +139,7 @@ public extension PTLog {
                 // 不能恢复文件日期
                 return a < b
             }
-        }.filter({ name in
+        }).filter({ name in
             !invalidFile.contains(name)
         }).last else {
             return (nil, nil)

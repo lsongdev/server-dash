@@ -173,7 +173,7 @@ private struct CredentialEditorView: View {
                         TextEditor(text: $privateKey)
                             .font(.system(.caption, design: .monospaced))
                             .frame(minHeight: 100)
-                            .onChange(of: privateKey) { _ in
+                            .onChange(of: privateKey) { _, _ in
                                 if privateKey != generatedPrivateKey { publicKey = "" }
                             }
                     }

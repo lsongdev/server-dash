@@ -45,7 +45,13 @@ class DocumentPickerCoordinator: NSObject, UIDocumentPickerDelegate, UINavigatio
                                               preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: NSLocalizedString("DONE", comment: "Done"), style: .default, handler: nil))
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                    let vc: UIViewController? = UIApplication.shared.windows.first?.topMostViewController
+                    let vc: UIViewController? = UIApplication.shared.connectedScenes
+                        .lazy
+                        .compactMap { $0 as? UIWindowScene }
+                        .first { $0.activationState == .foregroundActive }?
+                        .windows
+                        .first { $0.isKeyWindow }?
+                        .topMostViewController
                     vc?.present(alert, animated: true, completion: nil)
                 }
             }

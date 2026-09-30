@@ -36,14 +36,10 @@ struct SideBarView: View {
     }
 
     var sidebar: some View {
-        NavigationView {
-            List {
-                Group {
-                    NavigationLink(destination: DashboardView(),
-                       tag: NavigationTag.Dashboard,
-                       selection: $whichPane) {
-                        Label("Dashboard", systemImage: "square.stack.3d.down.right.fill")
-                    }
+        NavigationSplitView {
+            List(selection: $whichPane) {
+                NavigationLink(value: NavigationTag.Dashboard) {
+                    Label("Dashboard", systemImage: "square.stack.3d.down.right.fill")
                 }
 
                 Group {
@@ -72,9 +68,7 @@ struct SideBarView: View {
                 Group {
                     Text("Utilities")
                         .font(fntSideBarSectionHead)
-                    NavigationLink(destination: TerminalLoader(),
-                                   tag: NavigationTag.RemoteLogin,
-                                   selection: $whichPane) {
+                    NavigationLink(value: NavigationTag.RemoteLogin) {
                         Label("Terminal", systemImage: "rectangle.stack.person.crop")
                     }
                 }
@@ -82,12 +76,10 @@ struct SideBarView: View {
                 Group {
                     Text("Application")
                         .font(fntSideBarSectionHead)
-                    NavigationLink(destination: SettingView(),
-                                   tag: NavigationTag.Setting,
-                                   selection: $whichPane) {
+                    NavigationLink(value: NavigationTag.Setting) {
                         Label("Settings", systemImage: "gear")
                     }
-                
+
                 }
             }
             .listStyle(SidebarListStyle())
@@ -95,7 +87,17 @@ struct SideBarView: View {
             .sheet(isPresented: $showingAddServer) {
                 NavigationView { AddServerView() }
             }
-            DashboardView()
+        } detail: {
+            switch whichPane ?? .Dashboard {
+            case .Dashboard:
+                DashboardView()
+            case .RemoteLogin:
+                TerminalLoader()
+            case .Setting:
+                SettingView()
+            case .ServerManager, .ServerDetailed, .EmptyServerå, .Help:
+                DashboardView()
+            }
         }
         .onReceive(agent.$serverDescriptorsSorted) { serverDescriptors = $0 }
     }

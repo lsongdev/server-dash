@@ -13,6 +13,7 @@ extension LAContext {
         case none
         case touchID
         case faceID
+        case opticID
     }
 
     var biometricType: BiometricType {
@@ -22,20 +23,17 @@ extension LAContext {
             return .none
         }
 
-        if #available(iOS 11.0, *) {
-            switch self.biometryType {
-            case .none:
-                return .none
-            case .touchID:
-                return .touchID
-            case .faceID:
-                return .faceID
-            @unknown default:
-//                #warning("Handle new Biometric type")
-                break
-            }
+        switch self.biometryType {
+        case .none:
+            return .none
+        case .touchID:
+            return .touchID
+        case .faceID:
+            return .faceID
+        case .opticID:
+            return .opticID
+        @unknown default:
+            return .none
         }
-
-        return canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil) ? .touchID : .none
     }
 }

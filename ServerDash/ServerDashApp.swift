@@ -116,12 +116,12 @@ struct ServerDashApp: App {
                     setupApplication()
                 })
                 .background(
-                    HostingWindowFinder { [weak windowObserver] window in
-                        windowObserver?.window = window
+                    HostingWindowFinder { window in
+                        windowObserver.window = window
                     }
                 )
         }
-        .onChange(of: scenePhase) { newScenePhase in
+        .onChange(of: scenePhase) { _, newScenePhase in
             switch newScenePhase {
             case .active:
                 PTLog.shared.join("App",
