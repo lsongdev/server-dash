@@ -6,7 +6,6 @@
 //
 
 import PTFoundation
-import SwiftTerm
 import SwiftUI
 
 struct ScriptExecution: View {

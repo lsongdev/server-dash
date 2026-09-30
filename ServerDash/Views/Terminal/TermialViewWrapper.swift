@@ -1,30 +1,38 @@
 //
-//  SwiftUIView.swift
+//  TermialViewWrapper.swift
 //  ServerDash
 //
-//  Created by Lakr Aream on 2021/5/29.
-//
 
-import SwiftTerm
+import GhosttyTerminal
 import SwiftUI
 
-struct TerminalViewWrapper: UIViewRepresentable {
-    let terminalView = TerminalView()
+/// Read-mostly terminal surface used by command/script output.
+///
+/// Interactive SSH sessions use PersistTerminalInstance. This wrapper remains
+/// intentionally tiny so output rendering does not own any SSH state.
+struct TerminalViewWrapper: View {
+    @StateObject private var state = TerminalViewState()
 
-    func makeUIView(context _: Context) -> TerminalView {
-        terminalView.backgroundColor = .clear
-        terminalView.isOpaque = true
-        terminalView.backgroundColor = UIColor.clear
-        terminalView.nativeBackgroundColor = UIColor.clear
-        terminalView.nativeForegroundColor = UIColor(named: "AccentColor")!
-        return terminalView
+    private let session: InMemoryTerminalSession
+
+    init() {
+        session = InMemoryTerminalSession(
+            write: { _ in },
+            resize: { _ in },
+            suppressesPixelOnlyResizes: true
+        )
     }
 
-    func updateUIView(_: TerminalView, context _: Context) {}
+    var body: some View {
+        TerminalSurfaceView(context: state)
+            .onAppear {
+                state.configuration = TerminalSurfaceOptions(
+                    backend: .inMemory(session)
+                )
+            }
+    }
 
     func feed(text: String) {
-        DispatchQueue.main.async {
-            terminalView.feed(text: text)
-        }
+        session.receive(text)
     }
 }

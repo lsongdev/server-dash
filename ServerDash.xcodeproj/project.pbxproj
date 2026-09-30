@@ -26,7 +26,7 @@
 		507DF16A26609C7D00829D77 /* TerminalLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507DF16826609C7D00829D77 /* TerminalLoader.swift */; };
 		507FAA35265AAC49008A15E1 /* LAContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507FAA33265AAC49008A15E1 /* LAContext.swift */; };
 		5082A49226F4DAF500043799 /* PTFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 5082A49126F4DAF500043799 /* PTFoundation */; };
-		5082A49626F4DAFC00043799 /* SwiftTerm in Frameworks */ = {isa = PBXBuildFile; productRef = 5082A49526F4DAFC00043799 /* SwiftTerm */; };
+		A100000126F4DAFC00000001 /* GhosttyTerminal in Frameworks */ = {isa = PBXBuildFile; productRef = A100000226F4DAFC00000002 /* GhosttyTerminal */; };
 		5084A14B264DFF24003BDB5C /* Fluent.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5084A14A264DFF24003BDB5C /* Fluent.xcassets */; };
 		5084A14E264E01F6003BDB5C /* ScriptItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5084A14D264E01F6003BDB5C /* ScriptItemView.swift */; };
 		5084A151264E0227003BDB5C /* ScriptCreateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5084A150264E0227003BDB5C /* ScriptCreateView.swift */; };
@@ -153,7 +153,6 @@
 		9712F4B02A8111B400E5A901 /* PTFoundation */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = PTFoundation; path = Foundation/PTFoundation; sourceTree = "<group>"; };
 		9712F4B12A8111B400E5A901 /* CSSH */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = CSSH; path = Foundation/CSSH; sourceTree = "<group>"; };
 		9712F4B22A8111B400E5A901 /* SQL */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = SQL; path = Foundation/SQL; sourceTree = "<group>"; };
-		9712F4B62A8111B500E5A901 /* SwiftTerm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = SwiftTerm; path = Foundation/SwiftTerm; sourceTree = "<group>"; };
 		9712F4B72A8111B500E5A901 /* CodeViewer */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = CodeViewer; path = Foundation/CodeViewer; sourceTree = "<group>"; };
 		9712F4B82A81146700E5A901 /* AppRecovery.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppRecovery.swift; sourceTree = "<group>"; };
 		9712F4B92A81146700E5A901 /* Appearance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Appearance.swift; sourceTree = "<group>"; };
@@ -167,7 +166,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5082A49626F4DAFC00043799 /* SwiftTerm in Frameworks */,
+				A100000126F4DAFC00000001 /* GhosttyTerminal in Frameworks */,
 				5082A49226F4DAF500043799 /* PTFoundation in Frameworks */,
 				970F272B2D1AEE03004899AC /* CodeViewer in Frameworks */,
 			);
@@ -238,7 +237,6 @@
 				9712F4AF2A8111B400E5A901 /* NMSSH */,
 				9712F4B02A8111B400E5A901 /* PTFoundation */,
 				9712F4B22A8111B400E5A901 /* SQL */,
-				9712F4B62A8111B500E5A901 /* SwiftTerm */,
 			);
 			name = Frameworks;
 			path = ..;
@@ -392,7 +390,7 @@
 			name = ServerDash;
 			packageProductDependencies = (
 				5082A49126F4DAF500043799 /* PTFoundation */,
-				5082A49526F4DAFC00043799 /* SwiftTerm */,
+				A100000226F4DAFC00000002 /* GhosttyTerminal */,
 				970F272A2D1AEE03004899AC /* CodeViewer */,
 			);
 			productName = ServerDash;
@@ -773,14 +771,26 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		A100000326F4DAFC00000003 /* XCRemoteSwiftPackageReference "libghostty-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Lakr233/libghostty-spm.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.5.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		5082A49126F4DAF500043799 /* PTFoundation */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PTFoundation;
 		};
-		5082A49526F4DAFC00043799 /* SwiftTerm */ = {
+		A100000226F4DAFC00000002 /* GhosttyTerminal */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = SwiftTerm;
+			package = A100000326F4DAFC00000003 /* XCRemoteSwiftPackageReference "libghostty-spm" */;
+			productName = GhosttyTerminal;
 		};
 		970F272A2D1AEE03004899AC /* CodeViewer */ = {
 			isa = XCSwiftPackageProductDependency;
