@@ -8,6 +8,47 @@
 import Foundation
 import NMSSH
 
+/// Pins SSH host fingerprints using trust-on-first-use.
+///
+/// Credentials prove who the user is to the server; this independently proves
+/// that future connections reach the same server. Fingerprints are not secret,
+/// so UserDefaults is sufficient storage for this pin.
+private final class PTSSHHostKeyVerifier: NSObject, NMSSHSessionDelegate {
+    private let storageKey: String
+
+    init(host: String, port: Int32) {
+        storageKey = "wiki.qaq.serverdash.hostkey.\(host.lowercased()):\(port)"
+    }
+
+    func session(
+        _ session: NMSSHSession,
+        shouldConnectToHostWithFingerprint fingerprint: String
+    ) -> Bool {
+        let defaults = UserDefaults.standard
+        if let known = defaults.string(forKey: storageKey) {
+            let matches = known == fingerprint
+            if !matches {
+                PTLog.shared.join(
+                    "SSH",
+                    "host key changed for \(session.host):\(session.port)",
+                    level: .critical
+                )
+            }
+            return matches
+        }
+
+        // Trust on first use. A later connection must present exactly the
+        // same host key fingerprint or it is rejected before authentication.
+        defaults.set(fingerprint, forKey: storageKey)
+        PTLog.shared.join(
+            "SSH",
+            "trusted first host key for \(session.host):\(session.port)",
+            level: .info
+        )
+        return true
+    }
+}
+
 /// SSH 方法集
 public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
     /// 共用集合
@@ -19,9 +60,17 @@ public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
     public struct PTSSHConnection {
         public let representedConnection: NMSSHSession
         public let springLoadedQueue: DispatchQueue
-        init(connection: NMSSHSession, queue: DispatchQueue) {
+        // NMSSH keeps its delegate weak; retain the verifier for this session.
+        fileprivate let hostKeyVerifier: PTSSHHostKeyVerifier
+
+        init(
+            connection: NMSSHSession,
+            queue: DispatchQueue,
+            hostKeyVerifier: PTSSHHostKeyVerifier
+        ) {
             representedConnection = connection
             springLoadedQueue = queue
+            self.hostKeyVerifier = hostKeyVerifier
         }
     }
 
@@ -199,6 +248,13 @@ public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
         queue.sync {
             defer { sem.signal() }
             let ssh = NMSSHSession(host: ticket.host, port: Int(ticket.port), andUsername: ticket.user)
+            let hostKeyVerifier = PTSSHHostKeyVerifier(host: ticket.host, port: ticket.port)
+            ssh.delegate = hostKeyVerifier
+            // Prefer SHA-1 over NMSSH's historical MD5 default. This is only
+            // used as a stable host-key identifier for TOFU pinning.
+            if let sha1 = NMSSHSessionHash(rawValue: 1) {
+                ssh.fingerprintHash = sha1
+            }
             ssh.connect()
             if !ssh.isConnected {
                 ret = (nil, "[SSH] failed to connect")
@@ -213,7 +269,14 @@ public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
                 ret = (nil, "[SSH] failed to authorize")
                 return
             }
-            ret = (PTSSHConnection(connection: ssh, queue: queue), nil)
+            ret = (
+                PTSSHConnection(
+                    connection: ssh,
+                    queue: queue,
+                    hostKeyVerifier: hostKeyVerifier
+                ),
+                nil
+            )
         }
         let _ = sem.wait(wallTimeout: .now() + 30)
         return ret
