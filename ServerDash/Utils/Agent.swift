@@ -36,8 +36,6 @@ class Agent: ObservableObject {
     @UserDefaultsWrapper(key: "org.lsong.serverdash.terminalProtection", defaultValue: false)
     var terminalProtectionEnabled: Bool
 
-    @Atomic var applicationActived: Bool = false
-
     // MARK: - -- SENDER ⬇️ ANY THREAD -> MAIN THREAD
 
     @Atomic var serverDescriptorsSender: [String] = [] {
@@ -103,18 +101,15 @@ class Agent: ObservableObject {
 
     // MARK: DONT TOUCH THESE VALUES ⬆️ ---
 
-    private let becomeActiveDebounce = PTThrottle(minimumDelay: 5, queue: .global())
     func applicationBecomeActive() {
-        applicationActived = true
-        becomeActiveDebounce.throttle {}
+        if applicationProtected, authorizationStatus != .authorized {
+            startUserAuthentication()
+        }
     }
 
-    private let becomeInactiveDebounce = PTThrottle(minimumDelay: 5, queue: .global())
     func applicationBecomeInactive() {
-        applicationActived = false
         if applicationProtected {
             authorizationStatusSender = .unauthorized
         }
-        becomeInactiveDebounce.throttle {}
     }
 }
