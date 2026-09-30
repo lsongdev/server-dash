@@ -22,7 +22,6 @@
 		507DF16A26609C7D00829D77 /* TerminalLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507DF16826609C7D00829D77 /* TerminalLoader.swift */; };
 		507FAA35265AAC49008A15E1 /* LAContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507FAA33265AAC49008A15E1 /* LAContext.swift */; };
 		5082A49226F4DAF500043799 /* PTFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 5082A49126F4DAF500043799 /* PTFoundation */; };
-		A100000126F4DAFC00000001 /* GhosttyTerminal in Frameworks */ = {isa = PBXBuildFile; productRef = A100000226F4DAFC00000002 /* GhosttyTerminal */; };
 		5084A14B264DFF24003BDB5C /* Fluent.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5084A14A264DFF24003BDB5C /* Fluent.xcassets */; };
 		508C42702652ABF9000B0D8C /* NoServerGuider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 508C426F2652ABF9000B0D8C /* NoServerGuider.swift */; };
 		508C42732652C7A1000B0D8C /* AssociatedTerminalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 508C42722652C7A1000B0D8C /* AssociatedTerminalView.swift */; };
@@ -50,11 +49,6 @@
 		50B82783263F28F700989D51 /* BootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D4F915262ABD3C005946E0 /* BootView.swift */; };
 		50B82784263F28F700989D51 /* Color+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B14165526357C2300370FD6 /* Color+Extension.swift */; };
 		50B82787263F28F700989D51 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5010DD9A263A62F100CA4C34 /* SettingView.swift */; };
-		A200000126F4DAFC00000001 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000226F4DAFC00000002 /* AboutView.swift */; };
-		A300000126F4DAFC00000001 /* GhosttySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A300000226F4DAFC00000002 /* GhosttySettingsView.swift */; };
-		A300000326F4DAFC00000003 /* GhosttyPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = A300000426F4DAFC00000004 /* GhosttyPreferences.swift */; };
-		A300000526F4DAFC00000005 /* CredentialViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A300000626F4DAFC00000006 /* CredentialViews.swift */; };
-		A300000726F4DAFC00000007 /* SSHKeyGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A300000826F4DAFC00000008 /* SSHKeyGenerator.swift */; };
 		50B82788263F28F700989D51 /* Agent+Executor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50B42274263C1BC3007346D0 /* Agent+Executor.swift */; };
 		50B8278D263F28F700989D51 /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 50F7BEC2263D7F6F00539EAF /* Colors.xcassets */; };
 		50B8278E263F28F700989D51 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 50D4F91A262ABD3D005946E0 /* Preview Assets.xcassets */; };
@@ -72,6 +66,12 @@
 		9712F4BE2A81146700E5A901 /* ServerDashApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9712F4BA2A81146700E5A901 /* ServerDashApp.swift */; };
 		9712F4BF2A81146700E5A901 /* BartyCrouch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9712F4BB2A81146700E5A901 /* BartyCrouch.swift */; };
 		97DF1F2A2A80AB8A003AEB47 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97DF1F292A80AB8A003AEB47 /* MainView.swift */; };
+		A100000126F4DAFC00000001 /* GhosttyTerminal in Frameworks */ = {isa = PBXBuildFile; productRef = A100000226F4DAFC00000002 /* GhosttyTerminal */; };
+		A200000126F4DAFC00000001 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000226F4DAFC00000002 /* AboutView.swift */; };
+		A300000126F4DAFC00000001 /* GhosttySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A300000226F4DAFC00000002 /* GhosttySettingsView.swift */; };
+		A300000326F4DAFC00000003 /* GhosttyPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = A300000426F4DAFC00000004 /* GhosttyPreferences.swift */; };
+		A300000526F4DAFC00000005 /* CredentialViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A300000626F4DAFC00000006 /* CredentialViews.swift */; };
+		A300000726F4DAFC00000007 /* SSHKeyGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A300000826F4DAFC00000008 /* SSHKeyGenerator.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -83,11 +83,6 @@
 		500FE0892656B53300964119 /* DetailedNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedNetwork.swift; sourceTree = "<group>"; };
 		500FE08C2656BCFB00964119 /* DetailedFileSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedFileSystem.swift; sourceTree = "<group>"; };
 		5010DD9A263A62F100CA4C34 /* SettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
-		A200000226F4DAFC00000002 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
-		A300000226F4DAFC00000002 /* GhosttySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GhosttySettingsView.swift; sourceTree = "<group>"; };
-		A300000426F4DAFC00000004 /* GhosttyPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GhosttyPreferences.swift; sourceTree = "<group>"; };
-		A300000626F4DAFC00000006 /* CredentialViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CredentialViews.swift; sourceTree = "<group>"; };
-		A300000826F4DAFC00000008 /* SSHKeyGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSHKeyGenerator.swift; sourceTree = "<group>"; };
 		50181EF42641382D00AC535E /* AddServerViewInputElement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddServerViewInputElement.swift; sourceTree = "<group>"; };
 		501AA867263D4A49008C4EE8 /* DetailedServerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedServerView.swift; sourceTree = "<group>"; };
 		502AD8E4262B2BCF007C3469 /* UserDefault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefault.swift; sourceTree = "<group>"; };
@@ -147,6 +142,11 @@
 		9712F4BA2A81146700E5A901 /* ServerDashApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServerDashApp.swift; sourceTree = "<group>"; };
 		9712F4BB2A81146700E5A901 /* BartyCrouch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BartyCrouch.swift; sourceTree = "<group>"; };
 		97DF1F292A80AB8A003AEB47 /* MainView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		A200000226F4DAFC00000002 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
+		A300000226F4DAFC00000002 /* GhosttySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GhosttySettingsView.swift; sourceTree = "<group>"; };
+		A300000426F4DAFC00000004 /* GhosttyPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GhosttyPreferences.swift; sourceTree = "<group>"; };
+		A300000626F4DAFC00000006 /* CredentialViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CredentialViews.swift; sourceTree = "<group>"; };
+		A300000826F4DAFC00000008 /* SSHKeyGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSHKeyGenerator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -544,7 +544,8 @@
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = NO;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = ServerDash/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				IPHONEOS_DEPLOYMENT_TARGET = "$(RECOMMENDED_IPHONEOS_DEPLOYMENT_TARGET)";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -577,7 +578,8 @@
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = NO;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = ServerDash/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				IPHONEOS_DEPLOYMENT_TARGET = "$(RECOMMENDED_IPHONEOS_DEPLOYMENT_TARGET)";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
