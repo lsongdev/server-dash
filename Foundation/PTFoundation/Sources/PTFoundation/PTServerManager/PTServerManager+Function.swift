@@ -440,7 +440,7 @@ public extension PTServerManager {
             return nil
         }
 
-        let function = account.selectors
+        let function = PTServerSSHLinuxSelectors.shared
 
         guard let connectionCandidate = function.setupConnection(withServer: server) else {
             PTLog.shared.join(self,
