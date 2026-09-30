@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import NMSSH
 import SQLite
 
 public extension PTServerManager {
@@ -422,7 +423,7 @@ public extension PTServerManager {
     /// - Returns: representedConnection [NMSSHChannel]
     func openShellConnection(onServer serverDescriptor: PTServerManager.ServerDescriptor,
                              withEnvironment: [String: String],
-                             withDelegate: Any?) -> Any?
+                             withDelegate: NMSSHChannelDelegate?) -> PTSSHClient.PTSSHConnection?
     {
         executionLock.lock()
         let read = serverContainer[serverDescriptor]
@@ -434,7 +435,7 @@ public extension PTServerManager {
             return nil
         }
 
-        let function = PTServerSSHLinuxSelectors.shared
+        let function = PTSSHClient.shared
 
         guard let connectionCandidate = function.setupConnection(withServer: server) else {
             PTLog.shared.join(self,

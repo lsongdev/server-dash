@@ -50,11 +50,9 @@ fileprivate final class PTSSHHostKeyVerifier: NSObject, NMSSHSessionDelegate {
 }
 
 /// SSH 方法集
-public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
-    /// 共用集合
-    public static let shared = PTServerSSHLinuxSelectors()
-    /// 不允许外部初始化
-    override internal required init() {}
+public final class PTSSHClient {
+    public static let shared = PTSSHClient()
+    private init() {}
 
     /// 连接句柄 简易类型擦除
     public struct PTSSHConnection {
@@ -104,38 +102,6 @@ public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
             /bin/cat /proc/net/dev
             printf '__SERVER_DASH_END__\\n'
             """
-        case obtainProcessInfo =
-            """
-             /bin/cat /proc/stat && /bin/sleep 1 && echo '[*******]' && /bin/cat /proc/stat
-            """
-        case obtainMemoryInfo =
-            """
-             /bin/cat /proc/meminfo
-            """
-        case obtainFileSystemInfo =
-            """
-             /bin/df -k
-            """
-        case obtainHostname =
-            """
-            /usr/bin/env uname -n
-            """
-        case obtainUptime =
-            """
-            /bin/cat /proc/uptime
-            """
-        case obtainLoadavg =
-            """
-             /bin/cat /proc/loadavg
-            """
-        case obtainRelease =
-            """
-             /bin/cat /etc/os-release
-            """
-        case obtainNetworkInfo =
-            """
-             /bin/cat /proc/net/dev && /bin/sleep 1 && echo '[*******]' && /bin/cat /proc/net/dev
-            """
     }
 
     /// 用于构建传递参数
@@ -171,18 +137,10 @@ public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
         }
     }
 
-    /// 获取识别字符串 一般用于储存
-    /// - Returns: 识别代号
-    override
-    public func obtainIdentity() -> String {
-        String(describing: self)
-    }
-
     /// 初始化连接
     /// - Parameter server: 服务器对象
     /// - Returns: 连接凭证 PTSSHConnectionCandidate
-    override
-    public func setupConnection(withServer server: PTServerManager.Server) -> Any? {
+    public func setupConnection(withServer server: PTServerManager.Server) -> PTSSHConnectionCandidate? {
         guard let account = PTAccountManager.shared.retrieveAccountWith(key: server.accountDescriptor) else {
             return nil
         }
@@ -213,35 +171,22 @@ public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
     /// 获取用户名
     /// - Parameter candidate: 连接凭证 PTSSHConnectionCandidate
     /// - Returns: 用户名
-    public func getUsername(withCandidate candidate: Any) -> String? {
-        guard let ticket = candidate as? PTSSHConnectionCandidate else {
-            return nil
-        }
-        return ticket.user
+    public func getUsername(withCandidate candidate: PTSSHConnectionCandidate) -> String {
+        candidate.user
     }
 
     /// 获取密钥
     /// - Parameter candidate: 连接凭证 PTSSHConnectionCandidate
     /// - Returns: 密钥字符串
-    public func getKeyFileString(withCandidate candidate: Any) -> String? {
-        guard let ticket = candidate as? PTSSHConnectionCandidate else {
-            return nil
-        }
-        if ticket.treatPassAsKey {
-            return ticket.pass
-        }
-        return nil
+    public func getKeyFileString(withCandidate candidate: PTSSHConnectionCandidate) -> String? {
+        candidate.treatPassAsKey ? candidate.pass : nil
     }
 
     /// 连接
     /// - Parameter candidate: 连接凭证 PTSSHConnectionCandidate
     /// - Returns: 连接的句柄 和 错误字符串 如果有
-    public typealias PTSSHConnectionAttempt = (Any?, String?)
-    override
-    public func connect(withCandidate candidate: Any) -> PTSSHConnectionAttempt {
-        guard let ticket = candidate as? PTSSHConnectionCandidate else {
-            return (nil, "[SSH] Undefined/Unimplemented authenticate ticket type: \(candidate.self)")
-        }
+    public typealias PTSSHConnectionAttempt = (PTSSHConnection?, String?)
+    public func connect(withCandidate ticket: PTSSHConnectionCandidate) -> PTSSHConnectionAttempt {
         let queue = DispatchQueue(label: "wiki.qaq.libssh2.serial.\(UUID().uuidString)")
         let sem = DispatchSemaphore(value: 0)
         var ret: PTSSHConnectionAttempt = (nil, nil)
@@ -284,14 +229,7 @@ public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
 
     /// 断开连接
     /// - Parameter object: 连接句柄 PTSSHConnection
-    override
-    public func disconnect(withConnection connection: Any) {
-        guard let object = connection as? PTSSHConnection else {
-            PTLog.shared.join(self,
-                              "invalid connection object feeded to execuotr, requires PTSSHConnection",
-                              level: .error)
-            return
-        }
+    public func disconnect(withConnection object: PTSSHConnection) {
         let sem = DispatchSemaphore(value: 0)
         object.springLoadedQueue.sync {
             object.representedConnection.disconnect()
@@ -305,13 +243,7 @@ public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
     /// - Parameter connection: 连接句柄 PTSSHConnection
     ///   - command: 脚本
     /// - Returns: 执行输出
-    internal func downloadResultFrom(withConnection connection: Any, command: ScriptCollection) -> String? {
-        guard let object = connection as? PTSSHConnection else {
-            PTLog.shared.join(self,
-                              "invalid connection object feeded to execuotr, requires PTSSHConnection",
-                              level: .error)
-            return nil
-        }
+    private func downloadResultFrom(withConnection object: PTSSHConnection, command: ScriptCollection) -> String? {
         
         guard (
             object.representedConnection.isConnected
@@ -339,8 +271,7 @@ public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
     /// CPU and network deltas share the same one-second sample window. Static
     /// data is collected between the two samples, so one refresh performs one
     /// SSH exec instead of a chain of independent round trips.
-    override
-    public func obtainServerInfo(withConnection connection: Any) -> PTServerManager.ServerInfo? {
+    public func obtainServerInfo(withConnection connection: PTSSHConnection) -> PTServerManager.ServerInfo? {
         guard let intake = downloadResultFrom(withConnection: connection, command: .obtainSnapshot) else {
             return nil
         }
@@ -416,25 +347,6 @@ public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
         return result
     }
 
-    /// 获取服务器处理器信息
-    /// - Parameter connection: 连接句柄 PTSSHConnection
-    /// - Returns: 处理器信息
-    override
-    public func obtainServerProcessInfo(withConnection connection: Any) -> PTServerManager.ServerProcessInfo {
-        guard let intake = downloadResultFrom(withConnection: connection, command: .obtainProcessInfo)
-        else {
-            PTLog.shared.join(self,
-                              "failed to capture info from remote proc file system",
-                              level: .error)
-            return .init()
-        }
-
-        return buildServerProcessInfo(intake: intake)
-    }
-
-    /// 构建服务器处理器信息
-    /// - Parameter raw: 执行脚本的输出对象
-    /// - Returns: 处理器信息
     internal func buildServerProcessInfo(intake: String) -> PTServerManager.ServerProcessInfo {
         let sep = intake.components(separatedBy: outputSeparator)
         if sep.count != 2 {
@@ -544,21 +456,6 @@ public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
     /// 获取服务器内存信息
     /// - Parameter connection: 连接句柄 PTSSHConnection
     /// - Returns: 内存信息
-    override
-    public func obtainMemoryInfo(withConnection connection: Any) -> PTServerManager.ServerMemoryInfo {
-        guard let intake = downloadResultFrom(withConnection: connection, command: .obtainMemoryInfo)
-        else {
-            PTLog.shared.join(self,
-                              "failed to capture info from remote proc file system",
-                              level: .error)
-            return .init()
-        }
-        return buildMemoryInfo(intake: intake)
-    }
-
-    /// 构建服务器内存信息
-    /// - Parameter raw: 执行脚本的输出对象
-    /// - Returns: 内存信息
     internal func buildMemoryInfo(intake: String) -> PTServerManager.ServerMemoryInfo {
         var info = [String: Float]()
         for line in intake.components(separatedBy: "\n") where line.count > 0 {
@@ -590,21 +487,6 @@ public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
 
     /// 获取服务器磁盘信息
     /// - Parameter connection: 连接句柄 PTSSHConnection
-    /// - Returns: 磁盘信息
-    override
-    public func obtainServerFileSystemInfo(withConnection connection: Any) -> [PTServerManager.ServerFileSystemInfo] {
-        guard let intake = downloadResultFrom(withConnection: connection, command: .obtainFileSystemInfo)
-        else {
-            PTLog.shared.join(self,
-                              "failed to capture info from remote system",
-                              level: .error)
-            return []
-        }
-        return buildServerFileSystemInfo(intake: intake)
-    }
-
-    /// 构建服务器磁盘信息
-    /// - Parameter raw: 执行脚本的输出对象
     /// - Returns: 磁盘信息
     internal func buildServerFileSystemInfo(intake: String) -> [PTServerManager.ServerFileSystemInfo] {
         var result = [PTServerManager.ServerFileSystemInfo]()
@@ -640,50 +522,6 @@ public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
     /// 获取服务器系统信息
     /// - Parameter connection: 连接句柄 PTSSHConnection
     /// - Returns: 系统信息
-    override
-    public func obtainSystemInfo(withConnection connection: Any) -> PTServerManager.ServerSystemInfo {
-        var hostname: String = "Unknown Host Name"
-        if let intake = downloadResultFrom(withConnection: connection, command: .obtainHostname) {
-            hostname = buildHostname(intake: intake)
-        }
-
-        var uptime: Int = 0
-        if let intake = downloadResultFrom(withConnection: connection, command: .obtainUptime) {
-            uptime = buildUptime(intake: intake)
-        }
-
-        var runningProcess: Int = 0
-        var totalProcess: Int = 0
-        var load1avg: Float = 0
-        var load5avg: Float = 0
-        var load15avg: Float = 0
-        if let intake = downloadResultFrom(withConnection: connection, command: .obtainLoadavg) {
-            let get = buildLoadStatus(intake: intake)
-            runningProcess = get.runningProcess
-            totalProcess = get.totalProcess
-            load1avg = get.load1avg
-            load5avg = get.load5avg
-            load15avg = get.load15avg
-        }
-
-        var release: String = ""
-        if let intake = downloadResultFrom(withConnection: connection, command: .obtainRelease) {
-            release = buildReleaseName(intake: intake)
-        }
-
-        return .init(release: release,
-                     uptimeInSec: uptime,
-                     hostname: hostname,
-                     runningProcs: runningProcess,
-                     totalProcs: totalProcess,
-                     load1: load1avg,
-                     load5: load5avg,
-                     load15: load15avg)
-    }
-
-    /// 构建服务器主机名
-    /// - Parameter raw: 执行脚本的输出对象
-    /// - Returns: 主机名称字符串
     internal func buildHostname(intake: String) -> String {
         intake.replacingOccurrences(of: "\n", with: "")
     }
@@ -784,21 +622,6 @@ public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
     /// 获取服务器网络信息
     /// - Parameter connection: 连接句柄 PTSSHConnection
     /// - Returns: 网络信息
-    override
-    public func obtainServerNetworkInfo(withConnection connection: Any) -> [PTServerManager.ServerNetworkInfo] {
-        guard let intake = downloadResultFrom(withConnection: connection, command: .obtainNetworkInfo)
-        else {
-            PTLog.shared.join(self,
-                              "failed to capture info from remote proc file system",
-                              level: .error)
-            return .init()
-        }
-        return buildServerNetworkInfo(intake: intake)
-    }
-
-    /// 构建服务器网络信息
-    /// - Parameter raw: 执行脚本的输出对象
-    /// - Returns: 网络信息
     internal func buildServerNetworkInfo(intake: String) -> [PTServerManager.ServerNetworkInfo] {
         let sep = intake.components(separatedBy: outputSeparator)
         if sep.count != 2 {
@@ -876,101 +699,16 @@ public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
         return result
     }
 
-    public typealias OutputStreamBlock = (String) -> Void
-    public typealias ShouldTerminateBlock = () -> (Bool)
-
-    /// 执行脚本
-    /// - Parameters:
-    ///   - connection: 连接句柄 PTSSHConnection
-    ///   - script: 脚本字符串
-    ///   - requestPty: 使用模拟终端 使用模拟终端可以在断开连接时终止程序
-    ///   - output: 输出流
-    ///   - terminate: 是否需要终止
-    ///   - withEnvironment: 执行环境
-    /// - Returns: 退出状态
-    override
-    public func executeScript(withConnection connection: Any,
-                              script: String,
-                              requestPty: Bool,
-                              withEnvironment: [String: String],
-                              output: OutputStreamBlock?,
-                              terminate: ShouldTerminateBlock?) -> Int?
-    {
-        guard let object = connection as? PTSSHConnection else {
-            PTLog.shared.join(self, "invalid connection object feeded to executor, requires PTSSHConnection", level: .critical)
-            return nil
-        }
-        
-        let sem = DispatchSemaphore(value: 0)
-        var exitCode: Int32 = 0
-        
-        object.springLoadedQueue.sync {
-            
-            defer { sem.signal() }
-            
-            object.representedConnection.channel.requestPty = requestPty
-            object.representedConnection.channel.ptyTerminalType = .xterm
-            object.representedConnection.channel.environmentVariables = withEnvironment
-
-            // 为了防止 return 的时候还在处理输出 会把输出搞 broken
-            let dispatchLock = NSLock()
-            var error: NSError?
-            object.representedConnection.channel.execute(script,
-                                                         error: &error,
-                                                         timeout: 0,
-                                                         output: { str in
-                                                             dispatchLock.lock()
-                                                             output?(str)
-                                                             dispatchLock.unlock()
-                                                         },
-                                                         terminator: terminate,
-                                                         exitCode: &exitCode)
-            if let error = error {
-                PTLog.shared.join("SSH",
-                                  "error raised from script execution: \(error.localizedDescription)",
-                                  level: .error)
-            }
-            dispatchLock.lock()
-            dispatchLock.unlock()
-        }
-        
-        let _ = sem.wait(wallTimeout: .now() + 30)
-        
-        return Int(exitCode)
-    }
-    
     /// 打开 Shell
     /// - Parameters:
     ///   - connection: 连接句柄 PTSSHConnection
     ///   - withEnvironment: 执行环境
     ///   - delegate: 方法委托
     /// - Returns: 退出状态
-    override
-    internal func openShell(withConnection connection: Any,
-                            withEnvironment: [String: String],
-                            delegate: Any?) -> Any?
-    {
-        openShellWithSSH(withConnection: connection,
-                  withEnvironment: withEnvironment,
-                  delegate: delegate as? NMSSHChannelDelegate)
-    }
-
-    /// 打开 Shell
-    /// - Parameters:
-    ///   - connection: 连接句柄 PTSSHConnection
-    ///   - withEnvironment: 执行环境
-    ///   - delegate: 方法委托
-    /// - Returns: 退出状态
-    public func openShellWithSSH(withConnection connection: Any,
+    public func openShell(withConnection object: PTSSHConnection,
                           withEnvironment: [String: String],
                           delegate: NMSSHChannelDelegate? = nil) -> PTSSHConnection?
     {
-        guard let object = connection as? PTSSHConnection else {
-            PTLog.shared.join(self,
-                              "invalid connection object feeded to executor, requires PTSSHConnection",
-                              level: .critical)
-            return nil
-        }
         let sem = DispatchSemaphore(value: 0)
         var booted = false
         

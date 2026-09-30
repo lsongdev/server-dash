@@ -88,15 +88,7 @@ extension PTServerManager {
             supervisionInProgressCount -= 1
             executionLock.unlock()
         }
-        let accountDescriptor = server.accountDescriptor
-        guard let account = PTAccountManager.shared.retrieveAccountWith(key: accountDescriptor) else {
-            PTLog.shared.join(self,
-                              "retrieve server account candidate failed",
-                              level: .error)
-            return nil
-        }
-
-        let function = PTServerSSHLinuxSelectors.shared
+        let function = PTSSHClient.shared
 
         guard let connectionCandidate = function.setupConnection(withServer: server) else {
             PTLog.shared.join(self,

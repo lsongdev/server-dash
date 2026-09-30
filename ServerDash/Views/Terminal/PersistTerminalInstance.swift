@@ -70,7 +70,7 @@ final class PersistTerminalInstance: NSObject, Identifiable, NMSSHChannelDelegat
         }
     }
 
-    private func setConnection(_ shell: PTServerSSHLinuxSelectors.PTSSHConnection) {
+    private func setConnection(_ shell: PTSSHClient.PTSSHConnection) {
         stateLock.lock()
         session = shell.representedConnection
         queue = shell.springLoadedQueue
@@ -100,7 +100,7 @@ final class PersistTerminalInstance: NSObject, Identifiable, NMSSHChannelDelegat
                 onServer: server.uuid,
                 withEnvironment: [:],
                 withDelegate: instance
-            ) as? PTServerSSHLinuxSelectors.PTSSHConnection else {
+            ) else {
                 onComplete(nil)
                 return
             }
