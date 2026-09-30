@@ -9,13 +9,29 @@ import LocalAuthentication
 import PTFoundation
 import UIKit
 
-private var authSuccessThrottle: Bool = false
+private let authenticationRequestLock = NSLock()
+private var authenticationRequestInProgress = false
+private var recentAuthenticationSucceeded = false
 
 extension Agent {
     func startUserAuthentication() {
+        authenticationRequestLock.lock()
+        guard !authenticationRequestInProgress else {
+            authenticationRequestLock.unlock()
+            return
+        }
+        authenticationRequestInProgress = true
+        authenticationRequestLock.unlock()
+
         authenticationWithBioID {
+            authenticationRequestLock.lock()
+            authenticationRequestInProgress = false
+            authenticationRequestLock.unlock()
             self.authorizationStatusSender = .authorized
         } onFailure: { _ in
+            authenticationRequestLock.lock()
+            authenticationRequestInProgress = false
+            authenticationRequestLock.unlock()
             self.authorizationStatusSender = .unauthorized
         }
     }
@@ -23,7 +39,10 @@ extension Agent {
     func authenticationWithBioID(onSuccess: @escaping () -> Void,
                                  onFailure: @escaping (String) -> Void)
     {
-        if authSuccessThrottle == true {
+        authenticationRequestLock.lock()
+        let recentlySucceeded = recentAuthenticationSucceeded
+        authenticationRequestLock.unlock()
+        if recentlySucceeded {
             onSuccess()
             return
         }
@@ -37,9 +56,13 @@ extension Agent {
         if localAuthenticationContext.canEvaluatePolicy(.deviceOwnerAuthentication, error: &authorizationError) {
             localAuthenticationContext.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { success, evaluateError in
                 if success {
-                    authSuccessThrottle = true
+                    authenticationRequestLock.lock()
+                    recentAuthenticationSucceeded = true
+                    authenticationRequestLock.unlock()
                     DispatchQueue.global().asyncAfter(deadline: .now() + 3) {
-                        authSuccessThrottle = false
+                        authenticationRequestLock.lock()
+                        recentAuthenticationSucceeded = false
+                        authenticationRequestLock.unlock()
                     }
                     onSuccess()
                 } else {
