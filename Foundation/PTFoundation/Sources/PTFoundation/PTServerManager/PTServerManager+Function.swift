@@ -388,14 +388,16 @@ public extension PTServerManager {
         }
 
         var result: [TimeInterval: ServerInfo] = [:]
+        let serverColumn: SQLite.Expression<String> = PTServerManagerDatabaseTypes.server
+        let predicate: SQLite.Expression<Bool> = serverColumn == String(serverDescriptor)
         let query = PTServerManagerDatabaseTypes.table
-            .filter(PTServerManagerDatabaseTypes.server == serverDescriptor)
+            .filter(predicate)
             .order(PTServerManagerDatabaseTypes.timestamp.asc)
 
         do {
             for record in try db.prepare(query) {
                 let status = record[PTServerManagerDatabaseTypes.status]
-                guard let data = status.data(using: .utf8),
+                guard let data = status.data(using: String.Encoding.utf8),
                       let serverInfo = try? PTFoundation.jsonDecoder.decode(ServerInfo.self, from: data)
                 else {
                     continue
