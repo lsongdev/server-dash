@@ -3,18 +3,19 @@
 //  ServerDash
 //
 
+import Foundation
 import PTFoundation
-import UIKit
 
 extension Agent {
     func prepareNotifications() {
-        let serverCountLink = PTNotificationCenter.NotificationLink(
-            name: .ServerManager_RegistrationChanged,
-            throttle: PTThrottle(minimumDelay: 1, queue: .global())
-        ) { _ in
-            self.updateServerRegistrationInfo()
+        let token = NotificationCenter.default.addObserver(
+            forName: .serverRegistrationChanged,
+            object: nil,
+            queue: nil
+        ) { [weak self] _ in
+            self?.updateServerRegistrationInfo()
         }
-        PTNotificationCenter.shared.registeringNotification(withLink: serverCountLink)
+        notificationObservers.append(token)
 
         DispatchQueue.global().async {
             self.updateServerRegistrationInfo()

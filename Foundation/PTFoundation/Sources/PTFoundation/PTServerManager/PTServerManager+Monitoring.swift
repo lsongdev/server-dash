@@ -82,9 +82,9 @@ extension PTServerManager {
     }
 
     private func postStatusUpdate(for server: ServerObject) {
-        PTNotificationCenter.shared.postNotification(
-            withName: .ServerManager_ServerStatusUpdated,
-            attachment: server.server.uuid
+        NotificationCenter.default.post(
+            name: .serverStatusUpdated,
+            object: server.server.uuid
         )
     }
 

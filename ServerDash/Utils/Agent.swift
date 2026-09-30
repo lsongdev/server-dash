@@ -99,6 +99,8 @@ class Agent: ObservableObject {
     @Published var authorizationStatus = AppAuthorizationStatus.unauthorized
     @Published var terminalInstance = [PersistTerminalInstance]()
 
+    var notificationObservers: [NSObjectProtocol] = []
+
     // MARK: DONT TOUCH THESE VALUES ⬆️ ---
 
     func applicationBecomeActive() {

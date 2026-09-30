@@ -13,7 +13,6 @@ struct DetailedServerView: View {
     @State private var timestamp: TimeInterval?
     @State private var info: PTServerManager.ServerInfo?
     @State private var presentTerminal = false
-    @State private var notificationLinkID = ""
 
     init(serverDescriptor: PTServerManager.ServerDescriptor) {
         self.serverDescriptor = serverDescriptor
@@ -85,37 +84,16 @@ struct DetailedServerView: View {
             }
         }
         .onAppear {
-            observeUpdates()
             updateData()
         }
-        .onDisappear {
-            guard !notificationLinkID.isEmpty else { return }
-            PTNotificationCenter.shared.removeNotificatino(
-                withKey: notificationLinkID,
-                underName: .ServerManager_ServerStatusUpdated
-            )
-            notificationLinkID = ""
-        }
-    }
-
-    private func observeUpdates() {
-        guard notificationLinkID.isEmpty else { return }
-        let descriptor = serverDescriptor
-        let link = PTNotificationCenter.NotificationLink(
-            name: .ServerManager_ServerStatusUpdated,
-            throttle: nil
-        ) { pass in
-            guard let updated = pass.representedObject as? String,
-                  updated == descriptor
+        .onReceive(NotificationCenter.default.publisher(for: .serverStatusUpdated)) { note in
+            guard let updated = note.object as? String,
+                  updated == serverDescriptor
             else {
                 return
             }
-            DispatchQueue.main.async {
-                self.updateData()
-            }
+            updateData()
         }
-        PTNotificationCenter.shared.registeringNotification(withLink: link)
-        notificationLinkID = link.uuid
     }
 
     private func updateData() {

@@ -154,7 +154,9 @@ extension PTServerManager {
         }
 
         // triggeredByServer
-        PTNotificationCenter.shared.postNotification(withName: .ServerManager_RegistrationChanged,
-                                                     attachment: uuid)
+        NotificationCenter.default.post(
+            name: .serverRegistrationChanged,
+            object: uuid
+        )
     }
 }

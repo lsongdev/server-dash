@@ -337,7 +337,10 @@ public extension PTServerManager {
                               level: .error)
             return
         }
-        PTNotificationCenter.shared.postNotification(withName: .ServerManager_ServerStatusUpdated, attachment: uuid)
+        NotificationCenter.default.post(
+            name: .serverStatusUpdated,
+            object: uuid
+        )
         supervisionConcurrentQueue.async {
             self.serverSupervisionUpdateAtomically(fromServer: serverObject)
         }
