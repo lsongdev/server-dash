@@ -27,7 +27,7 @@ final class PersistTerminalInstance: NSObject, Identifiable, NMSSHChannelDelegat
     lazy var terminalSession = InMemoryTerminalSession(
         write: { [weak self] data in
             self?.withConnection { session in
-                session.channel.writeData(data, error: nil)
+                session.channel.writeData(data, error: nil, timeout: 0)
             }
         },
         resize: { [weak self] viewport in
