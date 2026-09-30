@@ -42,7 +42,10 @@ struct ServerDashApp: App {
         DispatchQueue.global().async {
             initializationLock.lock()
             defer { initializationLock.unlock() }
-            if foundationInitialized {
+            if PTFoundation.initialized {
+                DispatchQueue.main.async {
+                    foundationInitialized = true
+                }
                 return
             }
             if !ServerDashApp.lastBootSucceed {
@@ -90,7 +93,9 @@ struct ServerDashApp: App {
                               "waiting for data to be filled",
                               level: .info)
 
-            foundationInitialized = true
+            DispatchQueue.main.async {
+                foundationInitialized = true
+            }
 
             DispatchQueue.global().asyncAfter(deadline: .now() + 8) {
                 PTLog.shared.join("App",
