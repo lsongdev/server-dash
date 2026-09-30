@@ -2,21 +2,14 @@
 //  AddServerView.swift
 //  ServerDash
 //
-//  Created by Lakr Aream on 4/19/21.
-//
 
 import PTFoundation
 import SwiftUI
 
 struct AddServerView: View {
-    init(passedData: PassedData? = nil) {
-        self.passedData = passedData
-    }
-
     struct PassedData {
         init(underSection: String? = nil,
-             modifyServer: PTServerManager.ServerDescriptor? = nil)
-        {
+             modifyServer: PTServerManager.ServerDescriptor? = nil) {
             self.underSection = underSection
             self.modifyServer = modifyServer
         }
@@ -27,183 +20,50 @@ struct AddServerView: View {
 
     let passedData: PassedData?
 
-    @State var address: String = ""
-    @State var port: String = "22"
-    @State var username: String = "root"
-    @State var password: String = ""
-    @State var privateKeyStr: String = ""
-    @State var nickname: String = ""
-    @State var sectionName: String = "Default"
-    @State var mountpoint: String = ""
-    @State var networkInterface: String = ""
-    @State var openFileSheet = false
+    @Environment(\.dismiss) private var dismiss
 
+    @State private var address = ""
+    @State private var port = "22"
+    @State private var username = "root"
+    @State private var password = ""
+    @State private var passphrase = ""
+    @State private var privateKeyStr = ""
+    @State private var nickname = ""
+    @State private var sectionName = "Default"
+    @State private var mountpoint = ""
+    @State private var networkInterface = ""
+    @State private var openFileSheet = false
     @State private var credentials: [PTAccountManager.CredentialSummary] = []
-    @State private var selectedCredentialID: String = ""
+    @State private var selectedCredentialID = ""
     @State private var selectedAccountIndex = 0
-    @State private var showingCredentials = false
+    @State private var didLoadServer = false
+    @State private var saveFailed = false
 
-    @StateObject var windowObserver = WindowObserver()
-    @Environment(\.presentationMode) var presentationMode
+    init(passedData: PassedData? = nil) {
+        self.passedData = passedData
+    }
 
     var body: some View {
-        Group {
-            ScrollView {
-                VStack(spacing: 12) {
-                    serverAddr
-                    accountTypeSelector
-                    customization
-                    HStack {
-                        Button(action: {
-                            windowObserver.window?.topMostViewController?.dismiss(animated: true, completion: nil)
-                            presentationMode.wrappedValue.dismiss()
-                        }, label: {
-                            HStack {
-                                Spacer()
-                                Image(systemName: "xmark")
-                                Spacer()
-                            }
-                            .padding(10)
-                            .foregroundColor(.overridableAccentColor)
-                            .font(.system(size: 20, weight: .regular, design: .default))
-                            .background(
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .foregroundColor(.white)
-                                        .opacity(0.05)
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .foregroundColor(.white)
-                                        .shadow(radius: 6)
-                                        .opacity(0.2)
-                                }
-                            )
-                            .frame(maxWidth: 500)
-                        })
-                        Button(action: {
-                            addServer()
-                        }, label: {
-                            HStack {
-                                Spacer()
-                                Image(systemName: "arrow.right")
-                                Spacer()
-                            }
-                            .padding(10)
-                            .foregroundColor(.overridableAccentColor)
-                            .font(.system(size: 20, weight: .regular, design: .default))
-                            .background(
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .foregroundColor(.white)
-                                        .opacity(0.05)
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .foregroundColor(.white)
-                                        .shadow(radius: 6)
-                                        .opacity(0.2)
-                                }
-                            )
-                        })
-                    }
+        Form {
+            Section {
+                ServerFormField(title: "Address") {
+                    TextField("Hostname or IP address", text: $address)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .keyboardType(.URL)
                 }
-                .padding()
+                ServerFormField(title: "Port") {
+                    TextField("22", text: $port)
+                        .keyboardType(.numberPad)
+                }
+            } header: {
+                Text("Server")
+            } footer: {
+                Text("Use a hostname or IP address and a port from 1 to 65535.")
             }
-            .navigationTitle(passedData?.modifyServer == nil ? "Add Server" : "Modify Server")
-            .navigationBarItems(trailing:
-                Button(action: {
-                    addServer()
-                }, label: {
-                    Image(systemName: "arrow.right.circle.fill")
-                })
-            )
-            .background(
-                HostingWindowFinder { [weak windowObserver] window in
-                    windowObserver?.window = window
-                }
-            )
-            .background(
-                NavigationLink(
-                    destination: CredentialListView(),
-                    isActive: Binding(
-                        get: { showingCredentials },
-                        set: { isActive in
-                            showingCredentials = isActive
-                            if !isActive { reloadCredentials() }
-                        }
-                    ),
-                    label: { EmptyView() }
-                )
-                .hidden()
-            )
-        }
-        .onAppear {
-            reloadCredentials()
-            if let serverDescriptor = passedData?.modifyServer,
-               let server = PTServerManager.shared.obtainServer(withKey: serverDescriptor)
-            {
-                address = server.host
-                port = String(server.port)
-                if let account = PTAccountManager.shared.retrieveAccountWith(key: server.accountDescriptor),
-                   let details = account.obtainDecryptedObject()
-                {
-                    username = details.account
-                    password = details.key
-                    if account.type == .secureShellWithKey {
-                        selectedAccountIndex = 1
-                        privateKeyStr = details.representedObject.flatMap { String(data: $0, encoding: .utf8) } ?? ""
-                    }
-                    if credentials.contains(where: { $0.id == server.accountDescriptor }) {
-                        selectedCredentialID = server.accountDescriptor
-                        selectedAccountIndex = 2
-                    }
-                }
-                nickname = server.tags[.nickName, default: ""]
-                if let sectionName = server.tags[.sectionName],
-                   sectionName != PTServerManager.Server.defaultSectionName
-                {
-                    self.sectionName = sectionName
-                }
-                mountpoint = server.tags[.preferredMountPoint, default: ""]
-                networkInterface = server.tags[.preferredNetworkInterface, default: ""]
-            }
-        }
-        .sheet(isPresented: $openFileSheet) {
-            DocumentPicker(fileContent: $privateKeyStr)
-        }
-    }
 
-    var serverAddr: some View {
-        AddServerStepView(title: "Server Basics",
-                          icon: "externaldrive.connected.to.line.below.fill") {
-            VStack {
-                InputElementView(title: "Address",
-                                 placeholder: "Example: 192.168.1.1",
-                                 required: true,
-                                 validator: {
-                                     isServerAddrValid(addr: address)
-                                 },
-                                 type: .URL,
-                                 useInlineTextField: true,
-                                 binder: $address)
-                InputElementView(title: "Port",
-                                 placeholder: "Example: 22",
-                                 required: true,
-                                 validator: {
-                                     if let port = Int(port), port >= 0, port <= 65535 {
-                                         return true
-                                     }
-                                     return false
-                                 },
-                                 type: nil,
-                                 useInlineTextField: true,
-                                 binder: $port)
-            }
-        }
-    }
-
-    var accountTypeSelector: some View {
-        AddServerStepView(title: "Account",
-                          icon: "key.fill") {
-            VStack(spacing: 12) {
-                Picker(selection: accountTypeSelection, label: Text("")) {
+            Section {
+                Picker("Method", selection: accountTypeSelection) {
                     Text("Password").tag(0)
                     Text("SSH Key").tag(1)
                     Text("Credentials").tag(2)
@@ -212,185 +72,122 @@ struct AddServerView: View {
 
                 switch selectedAccountIndex {
                 case 0:
-                    usePassword
+                    usernameField
+                    ServerFormField(title: "Password") {
+                        SecureField("Enter password", text: $password)
+                            .textContentType(.password)
+                    }
                 case 1:
-                    useKey
+                    usernameField
+                    ServerFormField(title: "Passphrase (optional)") {
+                        SecureField("Enter passphrase", text: $passphrase)
+                    }
+                    ServerFormField(title: "Private Key") {
+                        TextEditor(text: $privateKeyStr)
+                            .font(.system(.caption, design: .monospaced))
+                            .frame(minHeight: 110)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                    }
+                    Button {
+                        openFileSheet = true
+                    } label: {
+                        Label("Import Private Key", systemImage: "square.and.arrow.down")
+                    }
                 default:
-                    savedCredentialPanel
-                }
-            }
-        }
-        .animation(.interactiveSpring(response: 0.25, dampingFraction: 1, blendDuration: 0), value: selectedAccountIndex)
-    }
-
-    private var savedCredentialPanel: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("CREDENTIAL")
-                .font(.system(size: 12, weight: .semibold))
-                .opacity(0.5)
-
-            HStack(spacing: 8) {
-                Menu {
-                    ForEach(credentials) { credential in
-                        Button {
-                            selectedCredentialID = credential.id
-                        } label: {
-                            Label(
-                                "\(credential.displayName) · \(credential.type == .secureShellWithKey ? "SSH Key" : "Password")",
-                                systemImage: credential.type == .secureShellWithKey
-                                    ? "key.horizontal" : "person.crop.circle"
-                            )
+                    Picker("Credential", selection: $selectedCredentialID) {
+                        Text("Select Credential").tag("")
+                        ForEach(credentials) { credential in
+                            Text(credential.displayName).tag(credential.id)
                         }
                     }
-                } label: {
-                    HStack {
-                        Text(credentials.first(where: { $0.id == selectedCredentialID })?.displayName
-                            ?? (credentials.isEmpty ? "No saved credentials" : "Select Credential"))
-                            .lineLimit(1)
-                        Spacer(minLength: 8)
-                        Image(systemName: "chevron.up.chevron.down")
-                            .font(.caption.weight(.semibold))
+                    .disabled(credentials.isEmpty)
+                    NavigationLink {
+                        CredentialListView()
+                            .onDisappear(perform: reloadCredentials)
+                    } label: {
+                        Label("Manage Credentials", systemImage: "key")
                     }
-                    .foregroundColor(selectedCredentialID.isEmpty ? .secondary : .primary)
-                    .font(.system(size: 16, weight: .regular, design: .rounded))
-                    .padding(.horizontal, 8)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 36)
-                    .background(Color.lightGray)
-                    .cornerRadius(6)
                 }
-                .disabled(credentials.isEmpty)
-
-                Button {
-                    showingCredentials = true
-                } label: {
-                    Image(systemName: "plus")
-                        .font(.system(size: 15, weight: .medium))
-                        .frame(width: 36, height: 36)
-                        .background(Color.lightGray)
-                        .cornerRadius(6)
-                }
-                .accessibilityLabel("Manage Credentials")
-            }
-
-            if !selectedCredentialID.isEmpty {
-                Text("Uses the latest saved credential when connecting.")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            } else if credentials.isEmpty {
-                Text("Tap + to create a reusable credential.")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-        }
-    }
-
-    var usePassword: some View {
-        VStack {
-            InputElementView(title: "Username",
-                             placeholder: "Example: root",
-                             required: true,
-                             validator: { !username.isEmpty },
-                             type: .username,
-                             useInlineTextField: true,
-                             binder: $username)
-            InputElementView(title: "Password",
-                             placeholder: "",
-                             required: true,
-                             validator: { !password.isEmpty },
-                             type: .password,
-                             useInlineTextField: true,
-                             binder: $password)
-        }
-    }
-
-    var useKey: some View {
-        VStack {
-            InputElementView(title: "Username",
-                             placeholder: "Example: root",
-                             required: true,
-                             validator: { !username.isEmpty },
-                             type: .username,
-                             useInlineTextField: true,
-                             binder: $username)
-            InputElementView(title: "Passphrase",
-                             placeholder: "",
-                             required: false,
-                             validator: { true },
-                             type: .password,
-                             useInlineTextField: true,
-                             binder: $password)
-            InputElementView(title: "Private Key",
-                             placeholder: "OPENSSH PRIVATE KEY",
-                             required: true,
-                             validator: { !privateKeyStr.isEmpty },
-                             type: nil,
-                             useInlineTextField: false,
-                             binder: $privateKeyStr)
-            TextEditor(text: $privateKeyStr)
-                .autocapitalization(.none)
-                .disableAutocorrection(true)
-                .font(.system(size: 12, weight: .semibold, design: .monospaced))
-                .frame(height: 50)
-                .padding()
-                .background(
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 10)
-                            .foregroundColor(.lightGray)
-                            .opacity(0.5)
-                        if privateKeyStr.isEmpty {
-                            Text("OPENSSH PRIVATE KEY")
-                                .font(.system(size: 12))
-                        }
-                    }
-                )
-            HStack {
-                Spacer()
-                Button {
-                    openFileSheet = true
-                } label: {
-                    Image(systemName: "folder")
-                        .frame(width: 20, height: 16)
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+            } header: {
+                Text("Authentication")
+            } footer: {
+                if selectedAccountIndex == 2 {
+                    Text("Saved credentials stay linked to this server and reflect later changes.")
+                } else {
+                    Text("These details are saved for this server only.")
                 }
             }
-        }
-    }
 
-    var customization: some View {
-        AddServerStepView(title: "Customization",
-                          icon: "lasso.sparkles") {
-            VStack(spacing: 12) {
-                InputElementView(title: "Display Name",
-                                 placeholder: "Example: My Server",
-                                 required: false,
-                                 validator: { true },
-                                 type: .nickname,
-                                 useInlineTextField: true,
-                                 binder: $nickname)
-                InputElementView(title: "Mount Point",
-                                 placeholder: "Example: /data",
-                                 required: false,
-                                 validator: { true },
-                                 type: nil,
-                                 useInlineTextField: true,
-                                 binder: $mountpoint)
-                InputElementView(title: "Network Interface",
-                                 placeholder: "Example: enp0s1",
-                                 required: false,
-                                 validator: { true },
-                                 type: nil,
-                                 useInlineTextField: true,
-                                 binder: $networkInterface)
+            Section {
+                ServerFormField(title: "Display Name") {
+                    TextField("Optional", text: $nickname)
+                }
+                ServerFormField(title: "Group") {
+                    TextField("Default", text: $sectionName)
+                }
+                ServerFormField(title: "Mount Point") {
+                    TextField("Optional, e.g. /data", text: $mountpoint)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                }
+                ServerFormField(title: "Network Interface") {
+                    TextField("Optional, e.g. enp0s1", text: $networkInterface)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                }
+            } header: {
+                Text("Details")
             }
         }
+        .navigationTitle(passedData?.modifyServer == nil ? "Add Server" : "Edit Server")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button("Cancel") { dismiss() }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button("Save") { addServer() }
+                    .disabled(!canSave)
+            }
+        }
+        .onAppear {
+            reloadCredentials()
+            guard !didLoadServer else { return }
+            didLoadServer = true
+            loadServerIfEditing()
+        }
+        .sheet(isPresented: $openFileSheet) {
+            DocumentPicker(fileContent: $privateKeyStr)
+        }
+        .alert("Could Not Save Server", isPresented: $saveFailed) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Check the server details and authentication, then try again.")
+        }
     }
 
-    private func reloadCredentials() {
-        credentials = PTAccountManager.shared.listCredentials()
-        if !selectedCredentialID.isEmpty,
-           !credentials.contains(where: { $0.id == selectedCredentialID }) {
-            selectedCredentialID = ""
+    private var usernameField: some View {
+        ServerFormField(title: "Username") {
+            TextField("e.g. root", text: $username)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .textContentType(.username)
+        }
+    }
+
+    private var canSave: Bool {
+        guard isServerAddrValid(addr: address),
+              let serverPort = Int32(port),
+              serverPort > 0 else { return false }
+
+        switch selectedAccountIndex {
+        case 0:
+            return !username.isEmpty && !password.isEmpty
+        case 1:
+            return !username.isEmpty && !privateKeyStr.isEmpty
+        default:
+            return credentials.contains { $0.id == selectedCredentialID }
         }
     }
 
@@ -402,6 +199,7 @@ struct AddServerView: View {
                     // A saved credential is referenced, never copied into manual fields.
                     username = "root"
                     password = ""
+                    passphrase = ""
                     privateKeyStr = ""
                     selectedCredentialID = ""
                 }
@@ -410,21 +208,53 @@ struct AddServerView: View {
         )
     }
 
-    func addServer() {
-        func failed() {
-            let alert = UIAlertController(
-                title: "Error",
-                message: "Check server details and credential",
-                preferredStyle: .alert
-            )
-            alert.addAction(UIAlertAction(title: "Done", style: .default))
-            windowObserver.window?.topMostViewController?.present(alert, animated: true)
+    private func reloadCredentials() {
+        credentials = PTAccountManager.shared.listCredentials()
+        if !selectedCredentialID.isEmpty,
+           !credentials.contains(where: { $0.id == selectedCredentialID }) {
+            selectedCredentialID = ""
+        }
+    }
+
+    private func loadServerIfEditing() {
+        guard let serverDescriptor = passedData?.modifyServer,
+              let server = PTServerManager.shared.obtainServer(withKey: serverDescriptor)
+        else {
+            if let section = passedData?.underSection { sectionName = section }
+            return
         }
 
-        guard isServerAddrValid(addr: address),
-              let serverPort = Int32(port), serverPort > 0
-        else {
-            failed()
+        address = server.host
+        port = String(server.port)
+        if credentials.contains(where: { $0.id == server.accountDescriptor }) {
+            // Keep the reference. Never copy a reusable credential into form state.
+            selectedCredentialID = server.accountDescriptor
+            selectedAccountIndex = 2
+        } else if let account = PTAccountManager.shared.retrieveAccountWith(key: server.accountDescriptor),
+                  let details = account.obtainDecryptedObject() {
+            username = details.account
+            if account.type == .secureShellWithKey {
+                selectedAccountIndex = 1
+                passphrase = details.key
+                privateKeyStr = details.representedObject.flatMap {
+                    String(data: $0, encoding: .utf8)
+                } ?? ""
+            } else {
+                password = details.key
+            }
+        }
+        nickname = server.tags[.nickName, default: ""]
+        if let group = server.tags[.sectionName],
+           group != PTServerManager.Server.defaultSectionName {
+            sectionName = group
+        }
+        mountpoint = server.tags[.preferredMountPoint, default: ""]
+        networkInterface = server.tags[.preferredNetworkInterface, default: ""]
+    }
+
+    private func addServer() {
+        guard canSave, let serverPort = Int32(port) else {
+            saveFailed = true
             return
         }
 
@@ -432,31 +262,20 @@ struct AddServerView: View {
         var createdServerCredential = false
         if selectedAccountIndex == 2 {
             guard PTAccountManager.shared.retrieveAccountWith(key: selectedCredentialID) != nil else {
-                failed()
+                saveFailed = true
                 return
             }
             accountDescriptor = selectedCredentialID
         } else {
-            let secret: PTAccountManager.CredentialSecret
-            if selectedAccountIndex == 0 {
-                guard !username.isEmpty, !password.isEmpty else {
-                    failed()
-                    return
-                }
-                secret = .password(password)
-            } else {
-                guard !username.isEmpty, !privateKeyStr.isEmpty else {
-                    failed()
-                    return
-                }
-                secret = .privateKey(privateKeyStr, passphrase: password, publicKey: nil)
-            }
+            let secret: PTAccountManager.CredentialSecret = selectedAccountIndex == 0
+                ? .password(password)
+                : .privateKey(privateKeyStr, passphrase: passphrase, publicKey: nil)
             guard let created = PTAccountManager.shared.createServerCredential(
                 label: nickname.isEmpty ? address : nickname,
                 username: username,
                 secret: secret
             ) else {
-                failed()
+                saveFailed = true
                 return
             }
             accountDescriptor = created
@@ -483,7 +302,7 @@ struct AddServerView: View {
             if createdServerCredential {
                 PTAccountManager.shared.removeServerCredentialIfUnused(id: accountDescriptor)
             }
-            failed()
+            saveFailed = true
             return
         }
 
@@ -494,22 +313,27 @@ struct AddServerView: View {
             withKey: descriptor,
             interval: Agent.shared.supervisionInterval
         )
-        windowObserver.window?.topMostViewController?.dismiss(animated: true)
-        presentationMode.wrappedValue.dismiss()
+        dismiss()
     }
+}
 
+private struct ServerFormField<Content: View>: View {
+    let title: String
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .foregroundColor(.secondary)
+            content
+        }
+        .padding(.vertical, 3)
+    }
 }
 
 struct AddServerView_Previews: PreviewProvider {
     static var previews: some View {
-        AddServerView()
-            .preferredColorScheme(.light)
-            .previewLayout(.fixed(width: 300, height: 900))
-        AddServerView()
-            .preferredColorScheme(.light)
-            .previewLayout(.fixed(width: 600, height: 900))
-        AddServerView()
-            .preferredColorScheme(.dark)
-            .previewLayout(.fixed(width: 600, height: 900))
+        NavigationView { AddServerView() }
     }
 }

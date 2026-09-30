@@ -12,7 +12,6 @@
 		500FA4B72655E72500291738 /* HardwareModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500FA4B52655E72500291738 /* HardwareModel.swift */; };
 		500FE08B2656B53300964119 /* DetailedNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500FE0892656B53300964119 /* DetailedNetwork.swift */; };
 		500FE08E2656BCFB00964119 /* DetailedFileSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500FE08C2656BCFB00964119 /* DetailedFileSystem.swift */; };
-		50181EF52641382D00AC535E /* AddServerViewInputElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50181EF42641382D00AC535E /* AddServerViewInputElement.swift */; };
 		503E3F2E266262370074FA48 /* SettingDiagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A1C03B2654CC6E005773AF /* SettingDiagView.swift */; };
 		50551E182663D8650084FB5A /* PersistTerminalInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50551E162663D8650084FB5A /* PersistTerminalInstance.swift */; };
 		50551E1B2663EB4A0084FB5A /* PersistTerminalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50551E192663EB4A0084FB5A /* PersistTerminalView.swift */; };
@@ -57,7 +56,6 @@
 		50B82791263F28F700989D51 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 50D4F917262ABD3D005946E0 /* Assets.xcassets */; };
 		50B827A0263F37E600989D51 /* ClearBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50B8279F263F37E600989D51 /* ClearBackgroundView.swift */; };
 		50B827A3263F3A1300989D51 /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50B827A2263F3A1300989D51 /* ShareSheet.swift */; };
-		50C35B5F2657348D005B63B1 /* InputElementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50C35B5D2657348D005B63B1 /* InputElementView.swift */; };
 		50D0AC94265FE2860073F4C3 /* PullToRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D0AC92265FE2860073F4C3 /* PullToRefresh.swift */; };
 		50D4D70026410E5300D00BFD /* AddServerView+Validator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D4D6FF26410E5300D00BFD /* AddServerView+Validator.swift */; };
 		50FBD150264116BE00A29628 /* DocumentPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50FBD14F264116BE00A29628 /* DocumentPicker.swift */; };
@@ -83,7 +81,6 @@
 		500FE0892656B53300964119 /* DetailedNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedNetwork.swift; sourceTree = "<group>"; };
 		500FE08C2656BCFB00964119 /* DetailedFileSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedFileSystem.swift; sourceTree = "<group>"; };
 		5010DD9A263A62F100CA4C34 /* SettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
-		50181EF42641382D00AC535E /* AddServerViewInputElement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddServerViewInputElement.swift; sourceTree = "<group>"; };
 		501AA867263D4A49008C4EE8 /* DetailedServerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedServerView.swift; sourceTree = "<group>"; };
 		502AD8E4262B2BCF007C3469 /* UserDefault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefault.swift; sourceTree = "<group>"; };
 		502C26EA263BB521002BC94C /* GatheringDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GatheringDataView.swift; sourceTree = "<group>"; };
@@ -116,7 +113,6 @@
 		50B8279A263F28F700989D51 /* ServerDash.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ServerDash.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		50B8279F263F37E600989D51 /* ClearBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearBackgroundView.swift; sourceTree = "<group>"; };
 		50B827A2263F3A1300989D51 /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
-		50C35B5D2657348D005B63B1 /* InputElementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputElementView.swift; sourceTree = "<group>"; };
 		50C4CE262639B7BA00595EAD /* HostingWindowFinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostingWindowFinder.swift; sourceTree = "<group>"; };
 		50C4CE282639B9FC00595EAD /* UIWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIWindow.swift; sourceTree = "<group>"; };
 		50D0AC92265FE2860073F4C3 /* PullToRefresh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PullToRefresh.swift; sourceTree = "<group>"; };
@@ -179,7 +175,6 @@
 				50D4F915262ABD3C005946E0 /* BootView.swift */,
 				97DF1F292A80AB8A003AEB47 /* MainView.swift */,
 				508C426F2652ABF9000B0D8C /* NoServerGuider.swift */,
-				50C35B5D2657348D005B63B1 /* InputElementView.swift */,
 				50AFA28A26567B7C0002CFCF /* SeparatedProgressView.swift */,
 				502C26EA263BB521002BC94C /* GatheringDataView.swift */,
 				502C26EE263BC7DB002BC94C /* ProgressRingView.swift */,
@@ -282,7 +277,6 @@
 			isa = PBXGroup;
 			children = (
 				50FF7777262D450A009EDC7D /* AddServerView.swift */,
-				50181EF42641382D00AC535E /* AddServerViewInputElement.swift */,
 				50D4D6FF26410E5300D00BFD /* AddServerView+Validator.swift */,
 			);
 			path = AddServer;
@@ -478,14 +472,12 @@
 				50D4D70026410E5300D00BFD /* AddServerView+Validator.swift in Sources */,
 				500C2BD12656A2FF0068CC18 /* DetailedRAM.swift in Sources */,
 				50B8277C263F28F700989D51 /* SideBarView.swift in Sources */,
-				50181EF52641382D00AC535E /* AddServerViewInputElement.swift in Sources */,
 				9712F4BF2A81146700E5A901 /* BartyCrouch.swift in Sources */,
 				506537ED26576F88004A7C7A /* DetailedServerHistoryView.swift in Sources */,
 				50AFA289265674000002CFCF /* DetailedDataElementView.swift in Sources */,
 				9712F4BD2A81146700E5A901 /* Appearance.swift in Sources */,
 				50B82780263F28F700989D51 /* ServerBlockView.swift in Sources */,
 				50B827A3263F3A1300989D51 /* ShareSheet.swift in Sources */,
-				50C35B5F2657348D005B63B1 /* InputElementView.swift in Sources */,
 				50B82781263F28F700989D51 /* ServerStatusBlock.swift in Sources */,
 				500FE08E2656BCFB00964119 /* DetailedFileSystem.swift in Sources */,
 				50551E2126645D0A0084FB5A /* PersistTerminalInstanceView.swift in Sources */,

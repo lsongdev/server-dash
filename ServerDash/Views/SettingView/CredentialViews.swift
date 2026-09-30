@@ -132,24 +132,31 @@ private struct CredentialEditorView: View {
     var body: some View {
         Form {
             Section {
-                TextField(NSLocalizedString("DISPLAY_NAME", comment: "Name"), text: $label)
-                TextField(NSLocalizedString("USERNAME", comment: "Username"), text: $username)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
+                CredentialFormField(title: "Name") {
+                    TextField("e.g. Production SSH", text: $label)
+                }
+                CredentialFormField(title: "Username") {
+                    TextField("e.g. root", text: $username)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .textContentType(.username)
+                }
                 if existing == nil {
-                    Picker(NSLocalizedString("AUTHENTICATION", comment: "Authentication"), selection: $isKey) {
-                        Text(NSLocalizedString("PASSWORD", comment: "Password")).tag(false)
-                        Text(NSLocalizedString("SSH_KEY", comment: "SSH Key")).tag(true)
+                    Picker("Authentication", selection: $isKey) {
+                        Text("Password").tag(false)
+                        Text("SSH Key").tag(true)
                     }
                 }
+            } header: {
+                Text("Details")
             }
 
             if isKey {
                 Section {
-                    Button(NSLocalizedString("IMPORT_PRIVATE_KEY", comment: "Import Private Key")) {
+                    Button("Import Private Key") {
                         importingKey = true
                     }
-                    Button(NSLocalizedString("GENERATE_SSH_KEY", comment: "Generate SSH Key")) {
+                    Button("Generate SSH Key") {
                         if let pair = SSHKeyGenerator.generate() {
                             generatedPrivateKey = pair.privateKey
                             privateKey = pair.privateKey
@@ -159,15 +166,19 @@ private struct CredentialEditorView: View {
                             error = true
                         }
                     }
-                    SecureField(NSLocalizedString("PASSPHRASE_OPTIONAL", comment: "Passphrase (optional)"), text: $passphrase)
-                    TextEditor(text: $privateKey)
-                        .font(.system(.caption, design: .monospaced))
-                        .frame(minHeight: 100)
-                        .onChange(of: privateKey) { _ in
-                            if privateKey != generatedPrivateKey { publicKey = "" }
-                        }
+                    CredentialFormField(title: "Passphrase (optional)") {
+                        SecureField("Enter passphrase", text: $passphrase)
+                    }
+                    CredentialFormField(title: "Private Key") {
+                        TextEditor(text: $privateKey)
+                            .font(.system(.caption, design: .monospaced))
+                            .frame(minHeight: 100)
+                            .onChange(of: privateKey) { _ in
+                                if privateKey != generatedPrivateKey { publicKey = "" }
+                            }
+                    }
                 } header: {
-                    Text(NSLocalizedString("PRIVATE_KEY", comment: "Private Key"))
+                    Text("SSH Key")
                 }
 
                 if !publicKey.isEmpty {
@@ -186,7 +197,12 @@ private struct CredentialEditorView: View {
                 }
             } else {
                 Section {
-                    SecureField(NSLocalizedString("PASSWORD", comment: "Password"), text: $password)
+                    CredentialFormField(title: "Password") {
+                        SecureField("Enter password", text: $password)
+                            .textContentType(.password)
+                    }
+                } header: {
+                    Text("Authentication")
                 }
             }
         }
@@ -226,5 +242,20 @@ private struct CredentialEditorView: View {
             ) != nil
         }
         if success { dismiss() } else { error = true }
+    }
+}
+
+private struct CredentialFormField<Content: View>: View {
+    let title: String
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .foregroundColor(.secondary)
+            content
+        }
+        .padding(.vertical, 3)
     }
 }

@@ -26,7 +26,7 @@ struct SideBarView: View {
 
     @ObservedObject var agent = Agent.shared
 
-    @StateObject var windowObserver = WindowObserver()
+    @State private var showingAddServer = false
 
     var body: some View {
         Group {
@@ -62,14 +62,7 @@ struct SideBarView: View {
                         PTServerManager.shared.removeServerFromRegisteredList(withKey: list[index])
                     }
                     Button {
-                        let controller = UIHostingController(rootView: AddServerView())
-                        (controller as UIViewController).view.backgroundColor = UIColor(named: "WHITE_AND_BLACK_SHEET")
-                        (controller as UIViewController).modalPresentationStyle = .formSheet
-                        windowObserver.window?
-                            .topMostViewController?
-                            .present(controller,
-                                     animated: true,
-                                     completion: nil)
+                        showingAddServer = true
                     } label: {
                         Label("Add Server", systemImage: "plus.square")
                     }
@@ -98,11 +91,9 @@ struct SideBarView: View {
             }
             .listStyle(SidebarListStyle())
             .navigationTitle("Server Dash")
-            .background(
-                HostingWindowFinder { [weak windowObserver] window in
-                    windowObserver?.window = window
-                }
-            )
+            .sheet(isPresented: $showingAddServer) {
+                NavigationView { AddServerView() }
+            }
             DashboardView()
         }
     }

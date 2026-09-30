@@ -20,7 +20,7 @@ struct AssociatedTerminalView: View {
     var body: some View {
         Group {
             if let instance {
-                TerminalSurfaceView(context: instance.terminalState)
+                TerminalThemedSurfaceView(state: instance.terminalState)
                     .onAppear {
                         ghosttyPreferences.apply(to: instance.terminalState)
                         instance.terminalState.isSurfaceVisible = true
