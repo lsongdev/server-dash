@@ -95,11 +95,11 @@ public final class PTFoundation {
     ///   - baseDir: 可读写目录位置
     ///   - masterKey: 主钥匙串解密密钥
     ///   - onCriticalError: 初始化中不可恢复错误回掉
-    ///   - requireRunLoop: 是否启用 RunLoop
+    ///   - startMonitoring: 是否启用服务器状态监控
     ///   - requestingUserDefault: 请求用户偏好设置 发送键 返回值
     ///   - onRuntimeCriticalError: 运行时的错误回掉
     public static func initialization(baseDir: URL, masterKey: String?,
-                                      requireRunLoop: Bool,
+                                      startMonitoring: Bool,
                                       requestingUserDefault: @escaping (String) -> (Any?),
                                       onCriticalError: @escaping (InitializationError) -> (Never),
                                       onRuntimeCriticalError: @escaping (RuntimeError) -> Void)
@@ -176,12 +176,6 @@ public final class PTFoundation {
                 }
             }
         }
-
-        // 初始化 RunLoop
-        if requireRunLoop {
-            PTRunLoop.shared.initlization()
-        }
-
         // 初始化账户
         if let error = PTAccountManager.shared.initialization(toDir: baseDir) {
             PTLog.shared.join(self, "initialization interrupted via \(error)", level: .critical)
@@ -210,7 +204,7 @@ public final class PTFoundation {
         }
 
         // 初始化 ServerManager
-        if let error = PTServerManager.shared.initialization(toDir: baseDir, requireRunLoop: requireRunLoop) {
+        if let error = PTServerManager.shared.initialization(toDir: baseDir, startMonitoring: startMonitoring) {
             PTLog.shared.join(self, "initialization interrupted via \(error)", level: .critical)
             _onCriticalError(.serverManagerInitializationFailed)
         }
@@ -254,7 +248,7 @@ public final class PTFoundation {
     public static func teardownFoundation(exitCode: Int, shouldExit: Bool) {
         PTLog.shared.join(self,
                           "application foundation starting teardown")
-        PTRunLoop.shared.teardown()
+        PTServerManager.shared.stopMonitoringScheduler()
         if !shouldExit {
             return
         }

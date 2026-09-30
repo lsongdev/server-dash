@@ -74,7 +74,7 @@ struct ServerDashApp: App {
 
             PTFoundation.initialization(baseDir: documentLocation,
                                         masterKey: masterKey, // iOS 上可以直接放行到 KeyChain 来处理主解密密钥
-                                        requireRunLoop: true,
+                                        startMonitoring: true,
                                         requestingUserDefault: requestingUserDefault)
             { initializationError in
                 ServerDashApp.lastBootSucceed = false

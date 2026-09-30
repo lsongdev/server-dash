@@ -11,7 +11,7 @@ extension PTServerManager {
     /// 初始化 初始化完成以后就只写不读了
     /// - Parameter toDir: 可读写目录
     /// - Returns: 错误 如果有
-    func initialization(toDir: URL, requireRunLoop: Bool) -> PTFoundation.InitializationError? {
+    func initialization(toDir: URL, startMonitoring: Bool) -> PTFoundation.InitializationError? {
         // 二次检查
         if PTFoundation.ensureDirExists(atLocation: toDir) != nil {
             return .filePermissionDenied
@@ -69,8 +69,8 @@ extension PTServerManager {
                               level: .info)
         }
 
-        if requireRunLoop {
-            initializeRunLoop()
+        if startMonitoring {
+            startMonitoringScheduler()
         }
 
         return nil
