@@ -45,6 +45,14 @@ extension PTServerManager {
                 t.column(PTServerManagerDatabaseTypes.timestamp)
                 t.column(PTServerManagerDatabaseTypes.status)
             })
+            try db.run(
+                "CREATE INDEX IF NOT EXISTS idx_monitor_server_timestamp " +
+                    "ON MonitorRecord(server_identity, record_timestamp_since1970)"
+            )
+            try db.run(
+                "CREATE INDEX IF NOT EXISTS idx_monitor_server_timestamp " +
+                    "ON MonitorRecord(server_identity, record_timestamp_since1970)"
+            )
             database = db
         } catch {
             PTLog.shared.join(self,
