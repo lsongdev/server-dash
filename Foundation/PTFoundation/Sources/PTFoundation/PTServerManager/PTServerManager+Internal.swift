@@ -123,65 +123,13 @@ extension PTServerManager {
             function.disconnect(withConnection: connection)
         }
 
-        var processInfo: ServerProcessInfo?
-        var memoryInfos: ServerMemoryInfo?
-        var fileSystemInfos: [ServerFileSystemInfo]?
-        var systemInfos: ServerSystemInfo?
-        var networkInfos: [ServerNetworkInfo]?
-
-        let group = DispatchGroup()
-        let queue = DispatchQueue(label: "server.update.\(server.uuid)", attributes: .concurrent)
-
-        group.enter()
-        queue.async {
-            // 本来想搞迸发的。。。
-            // 结果直接 fatal 糊脸
-            let ServerProcessInfos: ServerProcessInfo = function.obtainServerProcessInfo(withConnection: connection)
-            processInfo = ServerProcessInfos
-            let ServerMemoryInfos: ServerMemoryInfo = function.obtainMemoryInfo(withConnection: connection)
-            memoryInfos = ServerMemoryInfos
-            let ServerFileSystemInfos: [ServerFileSystemInfo] = function.obtainServerFileSystemInfo(withConnection: connection)
-            fileSystemInfos = ServerFileSystemInfos
-            let ServerSystemInfos: ServerSystemInfo = function.obtainSystemInfo(withConnection: connection)
-            systemInfos = ServerSystemInfos
-            let ServerNetworkInfos: [ServerNetworkInfo] = function.obtainServerNetworkInfo(withConnection: connection)
-            networkInfos = ServerNetworkInfos
-            group.leave()
-        }
-
-        // WallTimeout will keep track on the time that spent even if the app suspended
-        let result = group.wait(wallTimeout: .now() + 18) // TODO: UserDefault
-        if result == .timedOut {
+        guard let information = function.obtainServerInfo(withConnection: connection) else {
             PTLog.shared.join(self,
-                              "update process on server: \(server.uuid) failed with timeout wall reached",
+                              "update process on server: \(server.uuid) returned invalid information",
                               level: .error)
             return nil
         }
 
-        guard let pi = processInfo,
-              let mi = memoryInfos,
-              let fi = fileSystemInfos,
-              let si = systemInfos,
-              let ni = networkInfos
-        else {
-            PTLog.shared.join(self,
-                              "update process on server: \(server.uuid) failed with at least one empty information returned from subprocess",
-                              level: .error)
-            return nil
-        }
-        
-        if pi == ServerProcessInfo() && mi == ServerMemoryInfo() {
-            PTLog.shared.join(self,
-                              "update process on server: \(server.uuid) failed with too many broken information returned from subprocess",
-                              level: .error)
-            return nil
-        }
-
-        let information = ServerInfo(ServerProcessInfo: pi,
-                                     ServerFileSystemInfo: fi,
-                                     ServerMemoryInfo: mi,
-                                     ServerSystemInfo: si,
-                                     ServerNetworkInfo: ni)
         PTLog.shared.join(self,
                           "Updated server \(server.uuid) status in \(Int(Date().timeIntervalSince(start)))s  \(information.ServerSystemInfo.releaseName) <-> \(server.obtainPossibleName())",
                           level: .info)
