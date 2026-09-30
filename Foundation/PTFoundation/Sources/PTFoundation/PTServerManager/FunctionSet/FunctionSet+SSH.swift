@@ -545,24 +545,31 @@ public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
     /// - Returns: 磁盘信息
     internal func buildServerFileSystemInfo(intake: String) -> [PTServerManager.ServerFileSystemInfo] {
         var result = [PTServerManager.ServerFileSystemInfo]()
-        for line in intake.components(separatedBy: "\n").dropFirst() where line.count > 0 {
-            var line = line
-            while line.contains("  ") {
-                line = line.replacingOccurrences(of: "  ", with: " ")
-            }
-            let cut = line.components(separatedBy: " ")
-            if cut.count != 6 {
+        for line in intake.split(separator: "\n").dropFirst() {
+            // Limit to six fields so a mount point containing spaces remains
+            // intact as the final field.
+            let cut = line.split(
+                whereSeparator: { $0 == " " || $0 == "\t" },
+                maxSplits: 5,
+                omittingEmptySubsequences: true
+            )
+            guard cut.count == 6,
+                  let freeKB = Float(cut[3]),
+                  let usedKB = Float(cut[2]),
+                  freeKB >= 0,
+                  usedKB >= 0
+            else {
                 PTLog.shared.join(self,
                                   "remote file system info does not match to known [\(line)]",
                                   level: .verbose)
                 continue
             }
-            let free = (Float(cut[3]) ?? -1) * 1024.00
-            let used = (Float(cut[2]) ?? -1) * 1024.00
-            if free < 0 || used < 0 {
-                continue
-            }
-            result.append(PTServerManager.ServerFileSystemInfo(mountPoint: cut[5], free: free, used: used))
+
+            result.append(PTServerManager.ServerFileSystemInfo(
+                mountPoint: String(cut[5]),
+                free: freeKB * 1024,
+                used: usedKB * 1024
+            ))
         }
         return result
     }
@@ -685,8 +692,8 @@ public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
         }
         if let name = pretty {
             if
-                (name.hasPrefix("\"") || name.hasPrefix("\"")) ||
-                (name.hasSuffix("'") || name.hasSuffix("'")),
+                ((name.hasPrefix("\"") && name.hasSuffix("\"")) ||
+                    (name.hasPrefix("'") && name.hasSuffix("'"))),
                 name.count > 2
             {
                 release = String(name.dropFirst().dropLast())
@@ -696,8 +703,8 @@ public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
         } else {
             if let name = name {
                 if
-                    (name.hasPrefix("\"") || name.hasPrefix("\"")) ||
-                    (name.hasSuffix("'") || name.hasSuffix("'")),
+                    ((name.hasPrefix("\"") && name.hasSuffix("\"")) ||
+                        (name.hasPrefix("'") && name.hasSuffix("'"))),
                     name.count > 2
                 {
                     release = String(name.dropFirst().dropLast())
