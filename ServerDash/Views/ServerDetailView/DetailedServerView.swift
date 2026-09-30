@@ -111,7 +111,7 @@ struct DetailedServerView: View {
                 return
             }
             DispatchQueue.main.async {
-                updateData()
+                self.updateData()
             }
         }
         PTNotificationCenter.shared.registeringNotification(withLink: link)
