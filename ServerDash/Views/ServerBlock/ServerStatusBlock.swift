@@ -23,7 +23,6 @@ struct ServerStatusBlockView: View {
     }
 
     @State var info: PTServerManager.ServerInfoHumanReadable? = nil
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State var validDescription = ""
     @State var cpu: Double = 0
     @State var ram: Double = 0
@@ -71,12 +70,6 @@ struct ServerStatusBlockView: View {
                                 Text(validDescription)
                                     .font(.system(size: 12, design: .monospaced))
                                     .foregroundColor(.green)
-                                    .onReceive(timer) { _ in
-//                                        updateTimeDescription()
-                                    }
-                                    .onAppear {
-//                                        updateTimeDescription()
-                                    }
                                 Image(systemName: "largecircle.fill.circle")
                                     .scaleEffect(0.8)
                                     .foregroundColor(.green)
