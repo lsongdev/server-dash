@@ -13,7 +13,7 @@ import NMSSH
 /// Credentials prove who the user is to the server; this independently proves
 /// that future connections reach the same server. Fingerprints are not secret,
 /// so UserDefaults is sufficient storage for this pin.
-private final class PTSSHHostKeyVerifier: NSObject, NMSSHSessionDelegate {
+fileprivate final class PTSSHHostKeyVerifier: NSObject, NMSSHSessionDelegate {
     private let storageKey: String
 
     init(host: String, port: Int32) {
@@ -63,7 +63,7 @@ public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
         // NMSSH keeps its delegate weak; retain the verifier for this session.
         fileprivate let hostKeyVerifier: PTSSHHostKeyVerifier
 
-        init(
+        fileprivate init(
             connection: NMSSHSession,
             queue: DispatchQueue,
             hostKeyVerifier: PTSSHHostKeyVerifier
@@ -612,9 +612,9 @@ public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
             // Limit to six fields so a mount point containing spaces remains
             // intact as the final field.
             let cut = line.split(
-                whereSeparator: { $0 == " " || $0 == "\t" },
                 maxSplits: 5,
-                omittingEmptySubsequences: true
+                omittingEmptySubsequences: true,
+                whereSeparator: { $0 == " " || $0 == "\t" }
             )
             guard cut.count == 6,
                   let freeKB = Float(cut[3]),
