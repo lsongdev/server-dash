@@ -377,30 +377,34 @@ public extension PTServerManager {
     ///   - id: 服务器识别码
     /// - Returns: 信息记录集
     func obtainStatusRecordForServer(serverDescriptor: PTServerManager.ServerDescriptor) -> [TimeInterval: ServerInfo] {
+        databaseLock.lock()
+        defer { databaseLock.unlock() }
+
         guard let db = database else {
             PTLog.shared.join(self,
                               "SQL database connection lost",
                               level: .error)
             return [:]
         }
+
         var result: [TimeInterval: ServerInfo] = [:]
+        let query = PTServerManagerDatabaseTypes.table
+            .filter(PTServerManagerDatabaseTypes.server == serverDescriptor)
+            .order(PTServerManagerDatabaseTypes.timestamp.asc)
+
         do {
-            for record in try db.prepare(PTServerManagerDatabaseTypes.table) {
-                let identity = record[PTServerManagerDatabaseTypes.server]
-                if identity != serverDescriptor {
+            for record in try db.prepare(query) {
+                let status = record[PTServerManagerDatabaseTypes.status]
+                guard let data = status.data(using: .utf8),
+                      let serverInfo = try? PTFoundation.jsonDecoder.decode(ServerInfo.self, from: data)
+                else {
                     continue
                 }
-                let status = record[PTServerManagerDatabaseTypes.status]
-                if let data = status.data(using: .utf8),
-                   let serverInfo = try? PTFoundation.jsonDecoder.decode(ServerInfo.self,
-                                                                         from: data)
-                {
-                    result[record[PTServerManagerDatabaseTypes.timestamp]] = serverInfo
-                }
+                result[record[PTServerManagerDatabaseTypes.timestamp]] = serverInfo
             }
         } catch {
             PTLog.shared.join(self,
-                              "database raised an error during prepare",
+                              "database raised an error during history query",
                               level: .error)
             return [:]
         }
