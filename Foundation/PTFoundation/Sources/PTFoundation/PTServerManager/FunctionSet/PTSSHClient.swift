@@ -54,7 +54,7 @@ public final class PTSSHClient {
     public static let shared = PTSSHClient()
     private init() {}
 
-    /// 连接句柄 简易类型擦除
+    /// A live SSH connection and its serialized access queue.
     public struct PTSSHConnection {
         public let representedConnection: NMSSHSession
         public let springLoadedQueue: DispatchQueue
@@ -72,8 +72,7 @@ public final class PTSSHClient {
         }
     }
 
-    /// 脚本集合
-    /// 注意脚本以空格开头
+    /// Single remote command used to collect one monitoring snapshot.
     internal let outputSeparator = "[*******]"
     internal enum ScriptCollection: String, CaseIterable {
         case obtainSnapshot =
@@ -188,10 +187,8 @@ public final class PTSSHClient {
     public typealias PTSSHConnectionAttempt = (PTSSHConnection?, String?)
     public func connect(withCandidate ticket: PTSSHConnectionCandidate) -> PTSSHConnectionAttempt {
         let queue = DispatchQueue(label: "wiki.qaq.libssh2.serial.\(UUID().uuidString)")
-        let sem = DispatchSemaphore(value: 0)
         var ret: PTSSHConnectionAttempt = (nil, nil)
         queue.sync {
-            defer { sem.signal() }
             let ssh = NMSSHSession(host: ticket.host, port: Int(ticket.port), andUsername: ticket.user)
             let hostKeyVerifier = PTSSHHostKeyVerifier(host: ticket.host, port: ticket.port)
             ssh.delegate = hostKeyVerifier
@@ -223,19 +220,15 @@ public final class PTSSHClient {
                 nil
             )
         }
-        let _ = sem.wait(wallTimeout: .now() + 30)
         return ret
     }
 
     /// 断开连接
     /// - Parameter object: 连接句柄 PTSSHConnection
     public func disconnect(withConnection object: PTSSHConnection) {
-        let sem = DispatchSemaphore(value: 0)
         object.springLoadedQueue.sync {
             object.representedConnection.disconnect()
-            sem.signal()
         }
-        let _ = sem.wait(wallTimeout: .now() + 1)
     }
 
     /// 获取远端服务器信息
@@ -255,13 +248,10 @@ public final class PTSSHClient {
             return nil
         }
 
-        var result: String? = nil
-        let sem = DispatchSemaphore(value: 0)
+        var result: String?
         object.springLoadedQueue.sync {
             result = object.representedConnection.channel.execute(command.rawValue, error: nil)
-            sem.signal()
         }
-        let _ = sem.wait(wallTimeout: .now() + 30)
         if result?.count ?? 0 < 1 { result = nil }
         return result
     }
@@ -709,11 +699,9 @@ public final class PTSSHClient {
                           withEnvironment: [String: String],
                           delegate: NMSSHChannelDelegate? = nil) -> PTSSHConnection?
     {
-        let sem = DispatchSemaphore(value: 0)
         var booted = false
-        
+
         object.springLoadedQueue.sync {
-            defer { sem.signal() }
             
             object.representedConnection.channel.requestPty = true
             object.representedConnection.channel.ptyTerminalType = .xterm
@@ -743,7 +731,6 @@ public final class PTSSHClient {
             
             booted = true
         }
-        let _ = sem.wait(wallTimeout: .now() + 30)
         return booted ? object : nil
     }
 }
