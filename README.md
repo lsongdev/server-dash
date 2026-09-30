@@ -1,4 +1,4 @@
-# Server Dash
+# ServerDash
 
 A focused iPhone/iPad app for managing Linux servers, checking their health, and opening fast SSH terminal sessions.
 

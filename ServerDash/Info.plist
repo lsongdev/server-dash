@@ -36,7 +36,7 @@
 		<string>_http._tcp</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>We need camera access permission to scan qr code, your image won&apos;t leave your device.</string>
+	<string>We need camera access permission to scan qr code, your image won't leave your device.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>FaceID is used to authorize operations</string>
 	<key>NSLocalNetworkUsageDescription</key>
