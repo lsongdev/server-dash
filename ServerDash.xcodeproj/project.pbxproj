@@ -14,7 +14,6 @@
 		500FE08E2656BCFB00964119 /* DetailedFileSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500FE08C2656BCFB00964119 /* DetailedFileSystem.swift */; };
 		50181EF52641382D00AC535E /* AddServerViewInputElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50181EF42641382D00AC535E /* AddServerViewInputElement.swift */; };
 		503E3F2E266262370074FA48 /* SettingDiagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A1C03B2654CC6E005773AF /* SettingDiagView.swift */; };
-		503E3F98266285130074FA48 /* TermialViewWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503E3F96266285130074FA48 /* TermialViewWrapper.swift */; };
 		503EB569266384A20001C162 /* SettingAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503EB567266384A20001C162 /* SettingAccountView.swift */; };
 		50551E182663D8650084FB5A /* PersistTerminalInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50551E162663D8650084FB5A /* PersistTerminalInstance.swift */; };
 		50551E1B2663EB4A0084FB5A /* PersistTerminalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50551E192663EB4A0084FB5A /* PersistTerminalView.swift */; };
@@ -88,7 +87,6 @@
 		502C26EA263BB521002BC94C /* GatheringDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GatheringDataView.swift; sourceTree = "<group>"; };
 		502C26EC263BBA28002BC94C /* Agent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Agent.swift; sourceTree = "<group>"; };
 		502C26EE263BC7DB002BC94C /* ProgressRingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressRingView.swift; sourceTree = "<group>"; };
-		503E3F96266285130074FA48 /* TermialViewWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermialViewWrapper.swift; sourceTree = "<group>"; };
 		503EB567266384A20001C162 /* SettingAccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingAccountView.swift; sourceTree = "<group>"; };
 		50404392263DBF0500943C58 /* ServerStatusBlock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServerStatusBlock.swift; sourceTree = "<group>"; };
 		50551E162663D8650084FB5A /* PersistTerminalInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistTerminalInstance.swift; sourceTree = "<group>"; };
@@ -234,7 +232,6 @@
 				50551E1F26645D0A0084FB5A /* PersistTerminalInstanceView.swift */,
 				50551E192663EB4A0084FB5A /* PersistTerminalView.swift */,
 				508C42722652C7A1000B0D8C /* AssociatedTerminalView.swift */,
-				503E3F96266285130074FA48 /* TermialViewWrapper.swift */,
 			);
 			path = Terminal;
 			sourceTree = "<group>";
@@ -470,7 +467,6 @@
 				50B82778263F28F700989D51 /* Agent+Notify.swift in Sources */,
 				500C2BD42656AA0E0068CC18 /* DetailedSystem.swift in Sources */,
 				50B82779263F28F700989D51 /* Agent.swift in Sources */,
-				503E3F98266285130074FA48 /* TermialViewWrapper.swift in Sources */,
 				50B8277A263F28F700989D51 /* ServerBoardView.swift in Sources */,
 				970F27282D1ADAE7004899AC /* SettingElementView.swift in Sources */,
 				500FA4B72655E72500291738 /* HardwareModel.swift in Sources */,
