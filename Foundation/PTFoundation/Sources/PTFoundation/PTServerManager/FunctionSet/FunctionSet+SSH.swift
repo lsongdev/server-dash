@@ -29,6 +29,32 @@ public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
     /// 注意脚本以空格开头
     internal let outputSeparator = "[*******]"
     internal enum ScriptCollection: String, CaseIterable {
+        case obtainSnapshot =
+            """
+            export LC_ALL=C
+            printf '__SERVER_DASH_CPU_0__\\n'
+            /bin/cat /proc/stat
+            printf '__SERVER_DASH_NET_0__\\n'
+            /bin/cat /proc/net/dev
+            printf '__SERVER_DASH_MEMORY__\\n'
+            /bin/cat /proc/meminfo
+            printf '__SERVER_DASH_FILESYSTEM__\\n'
+            /bin/df -Pk
+            printf '__SERVER_DASH_HOSTNAME__\\n'
+            /usr/bin/env uname -n
+            printf '__SERVER_DASH_UPTIME__\\n'
+            /bin/cat /proc/uptime
+            printf '__SERVER_DASH_LOAD__\\n'
+            /bin/cat /proc/loadavg
+            printf '__SERVER_DASH_RELEASE__\\n'
+            /bin/cat /etc/os-release
+            /bin/sleep 1
+            printf '__SERVER_DASH_CPU_1__\\n'
+            /bin/cat /proc/stat
+            printf '__SERVER_DASH_NET_1__\\n'
+            /bin/cat /proc/net/dev
+            printf '__SERVER_DASH_END__\\n'
+            """
         case obtainProcessInfo =
             """
              /bin/cat /proc/stat && /bin/sleep 1 && echo '[*******]' && /bin/cat /proc/stat
@@ -242,6 +268,88 @@ public class PTServerSSHLinuxSelectors: PTServerAllocationSelectors {
         }
         let _ = sem.wait(wallTimeout: .now() + 30)
         if result?.count ?? 0 < 1 { result = nil }
+        return result
+    }
+
+    /// Collect one complete server snapshot in a single remote command.
+    ///
+    /// CPU and network deltas share the same one-second sample window. Static
+    /// data is collected between the two samples, so one refresh performs one
+    /// SSH exec instead of a chain of independent round trips.
+    override
+    public func obtainServerInfo(withConnection connection: Any) -> PTServerManager.ServerInfo? {
+        guard let intake = downloadResultFrom(withConnection: connection, command: .obtainSnapshot) else {
+            return nil
+        }
+
+        let sections = buildSnapshotSections(intake)
+        guard
+            let cpu0 = sections["__SERVER_DASH_CPU_0__"],
+            let cpu1 = sections["__SERVER_DASH_CPU_1__"],
+            let net0 = sections["__SERVER_DASH_NET_0__"],
+            let net1 = sections["__SERVER_DASH_NET_1__"],
+            let memory = sections["__SERVER_DASH_MEMORY__"],
+            let fileSystem = sections["__SERVER_DASH_FILESYSTEM__"],
+            let hostname = sections["__SERVER_DASH_HOSTNAME__"],
+            let uptime = sections["__SERVER_DASH_UPTIME__"],
+            let load = sections["__SERVER_DASH_LOAD__"],
+            let release = sections["__SERVER_DASH_RELEASE__"]
+        else {
+            PTLog.shared.join(self, "server snapshot is missing one or more sections", level: .error)
+            return nil
+        }
+
+        let processInfo = buildServerProcessInfo(intake: cpu0 + outputSeparator + cpu1)
+        let memoryInfo = buildMemoryInfo(intake: memory)
+        let fileSystemInfo = buildServerFileSystemInfo(intake: fileSystem)
+        let networkInfo = buildServerNetworkInfo(intake: net0 + outputSeparator + net1)
+        let loadInfo = buildLoadStatus(intake: load)
+        let systemInfo = PTServerManager.ServerSystemInfo(
+            release: buildReleaseName(intake: release),
+            uptimeInSec: buildUptime(intake: uptime),
+            hostname: buildHostname(intake: hostname),
+            runningProcs: loadInfo.runningProcess,
+            totalProcs: loadInfo.totalProcess,
+            load1: loadInfo.load1avg,
+            load5: loadInfo.load5avg,
+            load15: loadInfo.load15avg
+        )
+
+        if processInfo == PTServerManager.ServerProcessInfo(),
+           memoryInfo == PTServerManager.ServerMemoryInfo()
+        {
+            return nil
+        }
+
+        return PTServerManager.ServerInfo(
+            ServerProcessInfo: processInfo,
+            ServerFileSystemInfo: fileSystemInfo,
+            ServerMemoryInfo: memoryInfo,
+            ServerSystemInfo: systemInfo,
+            ServerNetworkInfo: networkInfo
+        )
+    }
+
+    private func buildSnapshotSections(_ intake: String) -> [String: String] {
+        var result: [String: String] = [:]
+        var current: String?
+
+        for rawLine in intake.split(separator: "\n", omittingEmptySubsequences: false) {
+            let line = String(rawLine)
+            if line.hasPrefix("__SERVER_DASH_"), line.hasSuffix("__") {
+                if line == "__SERVER_DASH_END__" {
+                    current = nil
+                } else {
+                    current = line
+                    result[line] = ""
+                }
+                continue
+            }
+
+            guard let current else { continue }
+            result[current, default: ""] += line + "\n"
+        }
+
         return result
     }
 
