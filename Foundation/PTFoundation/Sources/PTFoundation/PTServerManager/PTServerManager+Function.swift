@@ -433,15 +433,6 @@ public extension PTServerManager {
             return nil
         }
 
-        // 准备连接
-        let accountDescriptor = server.accountDescriptor
-        guard let account = PTAccountManager.shared.retrieveAccountWith(key: accountDescriptor) else {
-            PTLog.shared.join(self,
-                              "retrieve server account candidate failed",
-                              level: .error)
-            return nil
-        }
-
         let function = PTServerSSHLinuxSelectors.shared
 
         guard let connectionCandidate = function.setupConnection(withServer: server) else {
