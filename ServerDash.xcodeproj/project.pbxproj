@@ -386,6 +386,9 @@
 				"zh-Hans",
 			);
 			mainGroup = 50D4F907262ABD3C005946E0;
+			packageReferences = (
+				A100000326F4DAFC00000003 /* XCRemoteSwiftPackageReference "libghostty-spm" */,
+			);
 			productRefGroup = 50D4F911262ABD3C005946E0 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
