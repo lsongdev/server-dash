@@ -80,7 +80,7 @@ The old Scripts / CodeClip / Checkpoint / JavaScript execution subsystem was int
 
 ## Build
 
-Server Dash targets iOS 15+.
+Server Dash targets iOS 17+. The minimum version is pinned so local and CI builds use the same API availability checks across Xcode versions.
 
 ```sh
 xcodebuild \
