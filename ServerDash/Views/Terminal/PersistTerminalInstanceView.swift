@@ -13,7 +13,7 @@ private let terminalSessionDateFormatter: DateFormatter = {
 }()
 
 struct PersistTerminalInstanceView: View {
-    let instanceRef: PersistTerminalInstance
+    @ObservedObject var instanceRef: PersistTerminalInstance
 
     var body: some View {
         NavigationLink(destination: PersistTerminalView(instance: instanceRef)) {
@@ -34,6 +34,11 @@ struct PersistTerminalInstanceView: View {
                     )
                     .font(.caption)
                     .foregroundColor(.secondary)
+                    if instanceRef.connectionStatus != .connected {
+                        Text(instanceRef.connectionStatusLabel)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
                 }
 
                 Spacer()

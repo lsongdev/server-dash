@@ -25,6 +25,10 @@ NMSSH owns the SSH connection and PTY. [Ghostty](https://ghostty.org/) owns term
 
 Terminal sessions stay alive while navigating around the app. Returning to a session restores its terminal state and scrollback.
 
+SSH shells send protocol keepalives after 30 seconds of idle time while the app can run. On entering the background, the app requests a finite iOS execution grace period; expiration stops maintenance without deliberately closing SSH. iOS can still suspend the app, and network changes or server timeouts can break the connection.
+
+Returning to the foreground checks each existing connection with a temporary SSH channel, without executing a command or writing into the shell. A check gets 15 seconds of active execution time to receive a server response. Disconnected sessions retain their output and offer manual reconnection, which opens a new shell and does not replay input. Use a remote `tmux` session when commands and the working environment must survive SSH disconnections.
+
 ## Monitoring
 
 A status refresh uses one SSH command and one shared one-second sample window rather than a sequence of independent commands:
@@ -89,3 +93,13 @@ xcodebuild \
 ```
 
 The same simulator build runs in GitHub Actions for pull requests.
+
+NMSSH connection-maintenance integration tests use local SSH fixtures on macOS:
+
+```sh
+python3 -m venv /tmp/server-dash-ssh-tests
+/tmp/server-dash-ssh-tests/bin/pip install 'paramiko>=3,<5'
+/tmp/server-dash-ssh-tests/bin/python Foundation/NMSSH/Tests/Integration/run.py
+```
+
+They cover keepalive delivery, responsive and unresponsive probes, channel allocation refusal, abrupt and protocol-level disconnects, and fresh checks after an earlier successful probe. Background suspension timing still needs testing on a physical iPhone/iPad.

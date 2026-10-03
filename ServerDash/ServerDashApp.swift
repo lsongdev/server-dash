@@ -138,7 +138,7 @@ struct ServerDashApp: App {
                 PTLog.shared.join("App",
                                   "Application is in background",
                                   level: .info)
-                Agent.shared.applicationBecomeInactive()
+                Agent.shared.applicationEnterBackground()
             @unknown default:
                 PTLog.shared.join("App",
                                   "Unknown Application Status \(newScenePhase)",

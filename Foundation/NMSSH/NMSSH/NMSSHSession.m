@@ -846,7 +846,11 @@ void disconnect_callback(LIBSSH2_SESSION *session, int reason, const char *messa
         [self.delegate session:self didDisconnectWithError:error];
     }
 
-    [self disconnect];
+    // This callback runs inside libssh2, possibly while NMSSHChannel holds its
+    // mutex. Reentering disconnect here deadlocks closeShell and can invalidate
+    // the session while libssh2 is still parsing a packet. Mark it disconnected;
+    // the caller/channel handles cleanup after the current operation returns.
+    [self setConnected:NO];
 }
 
 // -----------------------------------------------------------------------------

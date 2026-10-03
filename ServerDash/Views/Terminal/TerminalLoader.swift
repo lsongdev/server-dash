@@ -5,7 +5,7 @@
 
 import SwiftUI
 
-/// Shows active terminal sessions. The add button creates one from a sheet.
+/// Shows retained terminal sessions, including disconnected shells.
 struct TerminalLoader: View {
     private let agent = Agent.shared
     @State private var sessions: [PersistTerminalInstance] = []

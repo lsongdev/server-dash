@@ -7,13 +7,16 @@ import GhosttyTerminal
 import SwiftUI
 
 struct PersistTerminalView: View {
-    let instance: PersistTerminalInstance
+    @ObservedObject var instance: PersistTerminalInstance
 
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var ghosttyPreferences = GhosttyPreferences.shared
 
     var body: some View {
         TerminalThemedSurfaceView(state: instance.terminalState)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                TerminalConnectionStatusView(instance: instance)
+            }
             .navigationTitle(
                 instance.terminalState.title.isEmpty
                     ? instance.terminalTitle
@@ -46,6 +49,52 @@ struct PersistTerminalView: View {
                 // session that is hidden behind another navigation screen.
                 instance.terminalState.isSurfaceVisible = false
             }
+    }
+}
+
+extension PersistTerminalInstance {
+    var connectionStatusLabel: String {
+        let key: String
+        switch connectionStatus {
+        case .connecting: key = "TERMINAL_CONNECTING"
+        case .connected: key = "TERMINAL_CONNECTED"
+        case .checking: key = "TERMINAL_CHECKING"
+        case .disconnected: key = "TERMINAL_DISCONNECTED"
+        case .closed: key = "TERMINAL_CLOSED"
+        }
+        return NSLocalizedString(key, comment: "Terminal connection status")
+    }
+}
+
+struct TerminalConnectionStatusView: View {
+    @ObservedObject var instance: PersistTerminalInstance
+
+    var body: some View {
+        if instance.connectionStatus != .connected {
+            HStack(spacing: 12) {
+                if instance.connectionStatus == .connecting || instance.connectionStatus == .checking {
+                    ProgressView()
+                }
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(instance.connectionStatusLabel).font(.subheadline)
+                    if let reason = instance.disconnectReason {
+                        Text(reason).font(.caption).foregroundColor(.secondary)
+                    }
+                    if instance.connectionStatus == .disconnected {
+                        Text(NSLocalizedString("TERMINAL_RECONNECT_HINT", comment: "New shell warning"))
+                            .font(.caption).foregroundColor(.secondary)
+                    }
+                }
+                Spacer()
+                if instance.connectionStatus == .disconnected {
+                    Button(NSLocalizedString("TERMINAL_RECONNECT", comment: "Reconnect")) {
+                        instance.reconnect()
+                    }
+                }
+            }
+            .padding(12)
+            .background(.regularMaterial)
+        }
     }
 }
 

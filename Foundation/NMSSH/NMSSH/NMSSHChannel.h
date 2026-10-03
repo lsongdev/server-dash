@@ -31,6 +31,12 @@ typedef NS_ENUM(NSInteger, NMSSHChannelType)  {
     NMSSHChannelTypeSubsystem // Not supported by NMSSH framework
 };
 
+typedef NS_ENUM(NSInteger, NMSSHConnectionProbeStatus) {
+    NMSSHConnectionProbeStatusPending,
+    NMSSHConnectionProbeStatusResponsive,
+    NMSSHConnectionProbeStatusFailed
+};
+
 /**
  NMSSHChannel provides functionality to work with SSH shells and SCP.
  */
@@ -60,6 +66,9 @@ typedef NS_ENUM(NSInteger, NMSSHChannelType)  {
 /** Current channel type or `NMSSHChannelTypeClosed` if the channel is closed */
 @property (nonatomic, readonly) NMSSHChannelType type;
 
+/** Transport error captured by the shell reader, or nil for a clean EOF. */
+@property (atomic, nullable, readonly) NSError *shellError;
+
 - (nonnull instancetype)init NS_UNAVAILABLE;
 
 /**
@@ -69,6 +78,20 @@ typedef NS_ENUM(NSInteger, NMSSHChannelType)  {
  @returns New NMSSHChannel instance
  */
 - (nonnull instancetype)initWithSession:(nonnull NMSSHSession *)session;
+
+/** Configure protocol keepalives. Call on the connection's serial queue. */
+- (void)configureKeepAliveWithInterval:(unsigned int)interval;
+
+/** Send a keepalive if due, synchronized with the shell reader. Never blocks. */
+- (BOOL)sendKeepAlive;
+
+/**
+ Nonblocking round trip using a temporary SSH channel, without executing a
+ command or changing the shell. Retry Pending on the connection's serial queue.
+ A server refusal to allocate another channel also proves responsiveness.
+ The caller owns the timeout and must disconnect if a probe cannot complete.
+ */
+- (NMSSHConnectionProbeStatus)checkConnection;
 
 /// ----------------------------------------------------------------------------
 /// @name Shell command execution

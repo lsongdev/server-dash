@@ -100,10 +100,17 @@ class Agent: ObservableObject {
     @Published var terminalInstance = [PersistTerminalInstance]()
 
     var notificationObservers: [NSObjectProtocol] = []
+    private var terminalBackgroundTask: UIBackgroundTaskIdentifier = .invalid
+    private var terminalBackgroundTimeExpired = false
+    private var isInBackground = false
 
     // MARK: DONT TOUCH THESE VALUES ⬆️ ---
 
     func applicationBecomeActive() {
+        isInBackground = false
+        terminalBackgroundTimeExpired = false
+        endTerminalBackgroundTask()
+        terminalInstanceSender.forEach { $0.checkConnectionOnResume() }
         if applicationProtected, authorizationStatus != .authorized {
             startUserAuthentication()
         }
@@ -113,5 +120,51 @@ class Agent: ObservableObject {
         if applicationProtected {
             authorizationStatusSender = .unauthorized
         }
+    }
+
+    func applicationEnterBackground() {
+        isInBackground = true
+        applicationBecomeInactive()
+        beginTerminalBackgroundTaskIfNeeded()
+    }
+
+    func terminalConnectionDidOpen() {
+        guard isInBackground else { return }
+        if terminalBackgroundTimeExpired {
+            terminalInstanceSender.forEach { $0.suspendMaintenance() }
+        } else {
+            beginTerminalBackgroundTaskIfNeeded()
+        }
+    }
+
+    func terminalConnectionDidClose() {
+        let hasConnection = terminalInstanceSender.contains {
+            $0.connectionStatus == .connected || $0.connectionStatus == .checking
+        }
+        if !hasConnection { endTerminalBackgroundTask() }
+    }
+
+    private func beginTerminalBackgroundTaskIfNeeded() {
+        guard !terminalBackgroundTimeExpired, terminalBackgroundTask == .invalid,
+              terminalInstanceSender.contains(where: {
+                  $0.connectionStatus == .connected || $0.connectionStatus == .checking
+              }) else { return }
+        terminalBackgroundTask = UIApplication.shared.beginBackgroundTask(withName: "Terminal SSH") { [weak self] in
+            guard let self else { return }
+            self.terminalBackgroundTimeExpired = true
+            self.terminalInstanceSender.forEach { $0.suspendMaintenance() }
+            self.endTerminalBackgroundTask()
+        }
+        if terminalBackgroundTask == .invalid {
+            terminalBackgroundTimeExpired = true
+            terminalInstanceSender.forEach { $0.suspendMaintenance() }
+        }
+    }
+
+    private func endTerminalBackgroundTask() {
+        guard terminalBackgroundTask != .invalid else { return }
+        let task = terminalBackgroundTask
+        terminalBackgroundTask = .invalid
+        UIApplication.shared.endBackgroundTask(task)
     }
 }

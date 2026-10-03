@@ -751,3 +751,15 @@
 "PUBLIC_KEY_HINT" = "将此公钥添加到服务器的 authorized_keys 文件中。";
 "CREDENTIAL_IN_USE" = "此凭证正被服务器使用。请先修改或删除对应服务器。";
 "CREDENTIAL_SAVE_FAILED" = "无法保存凭证。";
+
+/* Terminal connection lifecycle */
+"TERMINAL_CONNECTING" = "正在连接…";
+"TERMINAL_CONNECTED" = "已连接";
+"TERMINAL_CHECKING" = "正在检查连接…";
+"TERMINAL_DISCONNECTED" = "已断开";
+"TERMINAL_CLOSED" = "已关闭";
+"TERMINAL_RECONNECT" = "重新连接";
+"TERMINAL_RECONNECT_HINT" = "重新连接会启动新的 shell，之前的输出会保留。";
+"TERMINAL_TRANSPORT_FAILED" = "SSH 传输失败。";
+"TERMINAL_CHECK_TIMEOUT" = "服务器未响应连接检查。";
+"TERMINAL_CONNECTION_CLOSED" = "连接已关闭。";

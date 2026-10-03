@@ -730,3 +730,15 @@
 "PUBLIC_KEY_HINT" = "Add this public key to the server's authorized_keys file.";
 "CREDENTIAL_IN_USE" = "This credential is used by a server. Change or remove the server first.";
 "CREDENTIAL_SAVE_FAILED" = "Could not save credential.";
+
+/* Terminal connection lifecycle */
+"TERMINAL_CONNECTING" = "Connecting…";
+"TERMINAL_CONNECTED" = "Connected";
+"TERMINAL_CHECKING" = "Checking connection…";
+"TERMINAL_DISCONNECTED" = "Disconnected";
+"TERMINAL_CLOSED" = "Closed";
+"TERMINAL_RECONNECT" = "Reconnect";
+"TERMINAL_RECONNECT_HINT" = "Reconnect starts a new shell. Previous output is kept.";
+"TERMINAL_TRANSPORT_FAILED" = "SSH transport failed.";
+"TERMINAL_CHECK_TIMEOUT" = "The server did not respond to the connection check.";
+"TERMINAL_CONNECTION_CLOSED" = "Connection closed.";

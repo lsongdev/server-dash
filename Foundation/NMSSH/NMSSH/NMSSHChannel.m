@@ -5,8 +5,10 @@
 @interface NMSSHChannel ()
 @property (nonatomic, strong) NMSSHSession *session;
 @property (nonatomic, assign) LIBSSH2_CHANNEL *channel;
+@property (nonatomic, assign) LIBSSH2_CHANNEL *probeChannel;
 
 @property (nonatomic, readwrite) NMSSHChannelType type;
+@property (atomic, strong, readwrite) NSError *shellError;
 @property (nonatomic, assign) const char *ptyTerminalName;
 @property (nonatomic, strong) NSString *lastResponse;
 
@@ -46,6 +48,71 @@
 
 - (void)dealloc {
     pthread_mutex_destroy(&self->wrapperLock);
+}
+
+- (void)configureKeepAliveWithInterval:(unsigned int)interval {
+    pthread_mutex_lock(&self->wrapperLock);
+    if (self.session.rawSession) {
+        libssh2_keepalive_config(self.session.rawSession, 1, interval);
+    }
+    pthread_mutex_unlock(&self->wrapperLock);
+}
+
+- (BOOL)sendKeepAlive {
+    pthread_mutex_lock(&self->wrapperLock);
+    LIBSSH2_SESSION *session = self.session.rawSession;
+    int rc = LIBSSH2_ERROR_SOCKET_SEND;
+    if (session && self.channel && self.type == NMSSHChannelTypeShell) {
+        libssh2_session_set_blocking(session, 0);
+        // Finish freeing a probe that needed more I/O. No shell state changes.
+        if (self.probeChannel && libssh2_channel_free(self.probeChannel) == 0) {
+            self.probeChannel = NULL;
+        }
+        rc = libssh2_keepalive_send(session, NULL);
+    }
+    pthread_mutex_unlock(&self->wrapperLock);
+    return rc == 0 || rc == LIBSSH2_ERROR_EAGAIN;
+}
+
+- (NMSSHConnectionProbeStatus)checkConnection {
+    pthread_mutex_lock(&self->wrapperLock);
+    LIBSSH2_SESSION *session = self.session.rawSession;
+    NMSSHConnectionProbeStatus status = NMSSHConnectionProbeStatusFailed;
+    if (session && self.channel && self.type == NMSSHChannelTypeShell) {
+        libssh2_session_set_blocking(session, 0);
+        // A previously responsive probe may still need cleanup. It cannot be
+        // reused as evidence that the server is responsive on this new check.
+        if (self.probeChannel) {
+            int rc = libssh2_channel_free(self.probeChannel);
+            if (rc == LIBSSH2_ERROR_EAGAIN) {
+                pthread_mutex_unlock(&self->wrapperLock);
+                return NMSSHConnectionProbeStatusPending;
+            }
+            if (rc != 0) {
+                pthread_mutex_unlock(&self->wrapperLock);
+                return NMSSHConnectionProbeStatusFailed;
+            }
+            self.probeChannel = NULL;
+        }
+        if (!self.probeChannel) {
+            self.probeChannel = libssh2_channel_open_session(session);
+        }
+        if (self.probeChannel) {
+            status = NMSSHConnectionProbeStatusResponsive;
+            if (libssh2_channel_free(self.probeChannel) == 0) {
+                self.probeChannel = NULL;
+            }
+        } else {
+            int error = libssh2_session_last_errno(session);
+            if (error == LIBSSH2_ERROR_EAGAIN) {
+                status = NMSSHConnectionProbeStatusPending;
+            } else if (error == LIBSSH2_ERROR_CHANNEL_FAILURE) {
+                status = NMSSHConnectionProbeStatusResponsive;
+            }
+        }
+    }
+    pthread_mutex_unlock(&self->wrapperLock);
+    return status;
 }
 
 - (BOOL)openChannel:(NSError *__autoreleasing *)error {
@@ -148,6 +215,10 @@
 
     // Send EOF to host
     pthread_mutex_lock(&self->wrapperLock);
+    if (!self.channel || !self.session.rawSession) {
+        pthread_mutex_unlock(&self->wrapperLock);
+        return NO;
+    }
     rc = libssh2_channel_send_eof(self.channel);
     pthread_mutex_unlock(&self->wrapperLock);
     NMSSHLogVerbose(@"Sent EOF to host (return code = %i)", rc);
@@ -398,6 +469,7 @@
 
 - (BOOL)startShell:(NSError *__autoreleasing *)error  {
     NMSSHLogInfo(@"Starting shell");
+    self.shellError = nil;
     
     if (![self openChannel:error]) {
         return NO;
@@ -426,6 +498,10 @@
         while (self.channel != NULL) {
             
             pthread_mutex_lock(&self->wrapperLock);
+            if (!self.channel || !self.session.rawSession) {
+                pthread_mutex_unlock(&self->wrapperLock);
+                return;
+            }
             rc = libssh2_channel_read(self.channel, buffer, (ssize_t)sizeof(buffer));
             erc = libssh2_channel_read_stderr(self.channel, buffer, (ssize_t)sizeof(buffer));
             pthread_mutex_unlock(&self->wrapperLock);
@@ -433,7 +509,12 @@
             if (!(rc >=0 || erc >= 0)) {
                 NMSSHLogVerbose(@"Return code of response %ld, error %ld", (long)rc, (long)erc);
 
-                if (rc == LIBSSH2_ERROR_SOCKET_RECV || erc == LIBSSH2_ERROR_SOCKET_RECV) {
+                if (rc != LIBSSH2_ERROR_EAGAIN || erc != LIBSSH2_ERROR_EAGAIN) {
+                    int code = (int)(rc != LIBSSH2_ERROR_EAGAIN ? rc : erc);
+                    self.shellError = [NSError errorWithDomain:@"NMSSH"
+                                                         code:code
+                                                     userInfo:@{NSLocalizedDescriptionKey:
+                                                         [NSString stringWithFormat:@"SSH transport closed (%d).", code]}];
                     NMSSHLogVerbose(@"Error received, closing channel...");
                     [self closeShell];
                 }
@@ -467,7 +548,7 @@
             else {
                 
                 pthread_mutex_lock(&self->wrapperLock);
-                int get = libssh2_channel_eof(self.channel);
+                int get = self.channel ? libssh2_channel_eof(self.channel) : 1;
                 pthread_mutex_unlock(&self->wrapperLock);
                 
                 if (get == 1) {
@@ -531,10 +612,20 @@
         [self setSource: nil];
     }
 
+    pthread_mutex_lock(&self->wrapperLock);
+    if (self.probeChannel && self.session.rawSession) {
+        libssh2_session_set_blocking(self.session.rawSession, 1);
+        libssh2_channel_free(self.probeChannel);
+        self.probeChannel = NULL;
+    }
+    pthread_mutex_unlock(&self->wrapperLock);
+
     if (self.type == NMSSHChannelTypeShell) {
         // Set blocking mode
         pthread_mutex_lock(&self->wrapperLock);
-        libssh2_session_set_blocking(self.session.rawSession, 1);
+        if (self.session.rawSession) {
+            libssh2_session_set_blocking(self.session.rawSession, 1);
+        }
         pthread_mutex_unlock(&self->wrapperLock);
 
         [self sendEOF];
@@ -569,6 +660,10 @@
     // Try writing on shell
     while (true) {
         pthread_mutex_lock(&self->wrapperLock);
+        if (!self.channel || !self.session.rawSession) {
+            pthread_mutex_unlock(&self->wrapperLock);
+            return NO;
+        }
         rc = libssh2_channel_write(self.channel, [data bytes], [data length]);
         pthread_mutex_unlock(&self->wrapperLock);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
@@ -600,6 +695,7 @@
                                      userInfo:@{ NSLocalizedDescriptionKey : [[self.session lastError] localizedDescription],
                                                  @"command"                : command }];
         }
+        return NO;
     }
 
     return YES;
@@ -607,6 +703,10 @@
 
 - (BOOL)requestSizeWidth:(NSUInteger)width height:(NSUInteger)height {
     pthread_mutex_lock(&self->wrapperLock);
+    if (!self.channel || !self.session.rawSession) {
+        pthread_mutex_unlock(&self->wrapperLock);
+        return NO;
+    }
     int rc = libssh2_channel_request_pty_size(self.channel, (int)width, (int)height);
     pthread_mutex_unlock(&self->wrapperLock);
     if (rc) {
@@ -815,4 +915,3 @@
 }
 
 @end
-
