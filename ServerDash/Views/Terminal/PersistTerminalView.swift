@@ -14,8 +14,8 @@ struct PersistTerminalView: View {
 
     var body: some View {
         TerminalThemedSurfaceView(state: instance.terminalState)
-            .safeAreaInset(edge: .bottom, spacing: 0) {
-                TerminalConnectionStatusView(instance: instance)
+            .overlay {
+                TerminalConnectionStatusOverlay(instance: instance)
             }
             .navigationTitle(
                 instance.terminalState.title.isEmpty
@@ -66,16 +66,17 @@ extension PersistTerminalInstance {
     }
 }
 
-struct TerminalConnectionStatusView: View {
+struct TerminalConnectionStatusOverlay: View {
     @ObservedObject var instance: PersistTerminalInstance
 
     var body: some View {
         if instance.connectionStatus != .connected {
-            HStack(spacing: 12) {
+            VStack(spacing: 12) {
                 if instance.connectionStatus == .connecting || instance.connectionStatus == .checking {
                     ProgressView()
+                        .controlSize(.large)
                 }
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(spacing: 6) {
                     Text(instance.connectionStatusLabel).font(.subheadline)
                     if let reason = instance.disconnectReason {
                         Text(reason).font(.caption).foregroundColor(.secondary)
@@ -85,15 +86,22 @@ struct TerminalConnectionStatusView: View {
                             .font(.caption).foregroundColor(.secondary)
                     }
                 }
-                Spacer()
                 if instance.connectionStatus == .disconnected {
                     Button(NSLocalizedString("TERMINAL_RECONNECT", comment: "Reconnect")) {
                         instance.reconnect()
                     }
+                    .buttonStyle(.borderedProminent)
                 }
             }
-            .padding(12)
-            .background(.regularMaterial)
+            .multilineTextAlignment(.center)
+            .padding(24)
+            .frame(maxWidth: 320)
+            .padding(24)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background {
+                Rectangle().fill(.ultraThinMaterial).opacity(0.65)
+            }
+            .contentShape(Rectangle())
         }
     }
 }

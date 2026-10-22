@@ -21,8 +21,8 @@ struct AssociatedTerminalView: View {
         Group {
             if let instance {
                 TerminalThemedSurfaceView(state: instance.terminalState)
-                    .safeAreaInset(edge: .bottom, spacing: 0) {
-                        TerminalConnectionStatusView(instance: instance)
+                    .overlay {
+                        TerminalConnectionStatusOverlay(instance: instance)
                     }
                     .onAppear {
                         ghosttyPreferences.apply(to: instance.terminalState)

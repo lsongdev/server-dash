@@ -76,11 +76,11 @@ final class PersistTerminalInstance: NSObject, Identifiable, ObservableObject {
             backend: .inMemory(terminalSession)
         )
         state.makePlatformView = { [weak self] in
-            guard let self else { return TerminalView(frame: .zero) }
+            guard let self else { return TerminalSelectableView(frame: .zero) }
             if let view = self.terminalViewStorage {
                 return view
             }
-            let view = TerminalView(frame: .zero)
+            let view = TerminalSelectableView(frame: .zero)
             self.terminalViewStorage = view
             return view
         }

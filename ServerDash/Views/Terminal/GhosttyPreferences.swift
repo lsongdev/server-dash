@@ -34,7 +34,11 @@ final class GhosttyPreferences: ObservableObject {
         }
         state.setTheme(selectedTheme)
 
-        var configuration = TerminalConfiguration.default.fontSize(Float(fontSize))
+        var configuration = TerminalConfiguration.default
+            .fontSize(Float(fontSize))
+            .windowPaddingX(0)
+            .windowPaddingY(0)
+            .custom("window-padding-balance", "false")
         if !fontFamily.isEmpty {
             configuration = configuration.fontFamily(fontFamily)
         }
